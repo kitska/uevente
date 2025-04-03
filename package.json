@@ -1,0 +1,29 @@
+{
+	"name": "uevente",
+	"version": "1.0.0",
+	"description": "gayorgiy eventovich",
+	"scripts": {
+		"install": "npm run install:server & npm run install:client",
+		"install:server": "cd server && npm install",
+		"install:client": "cd client && npm install",
+		"start": "concurrently \"npm run start:client\" \"npm run start:server\"",
+		"start:server": "cd server && npm run dev",
+		"start:client": "cd client && npm run dev",
+		"build": "npm run build:server && npm run build:client",
+		"build:server": "cd server && npm run build",
+		"build:client": "cd client && npm run build"
+	},
+	"devDependencies": {
+		"concurrently": "^9.1.2"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kitska/uevente.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/kitska/uevente/issues"
+	},
+	"homepage": "https://github.com/kitska/uevente#readme"
+}

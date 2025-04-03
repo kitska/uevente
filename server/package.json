@@ -1,0 +1,44 @@
+{
+	"name": "server",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "npx ts-node index.ts",
+		"dev": "nodemon --exec npx ts-node index.ts",
+		"db:create": "npx ts-node src/database/db.create.ts",
+		"db:fill": "npx ts-node src/database/db.fill.ts",
+		"db:drop": "npx ts-node src/database/db.drop.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"@faker-js/faker": "^9.4.0",
+		"axios": "^1.7.9",
+		"bcrypt": "^5.1.1",
+		"class-transformer": "^0.5.1",
+		"class-validator": "^0.14.1",
+		"cors": "^2.8.5",
+		"csv-parser": "^3.2.0",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"google-auth-library": "^9.15.1",
+		"googleapis": "^148.0.0",
+		"jsonwebtoken": "^9.0.2",
+		"logger": "^0.0.1",
+		"nodemailer": "^6.9.16",
+		"nodemon": "^3.1.9",
+		"pg": "^8.13.1",
+		"pg-dump-restore": "^1.0.12",
+		"reflect-metadata": "^0.2.2",
+		"ts-node": "^10.9.2",
+		"typeorm": "^0.3.20",
+		"winston": "^3.17.0"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.0",
+		"@types/node": "^22.10.10",
+		"typescript": "^5.7.3"
+	}
+}

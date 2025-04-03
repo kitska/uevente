@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Получение токена</title>
+</head>
+<body>
+    <button id="meetButton">Создать встречу</button>
+
+    <script>
+        document.getElementById('meetButton').addEventListener('click', function() {
+            const newWindow = window.open('https://meet.google.com/lookup/gaysex', '_blank');
+
+            // Установите интервал для проверки URL
+            const interval = setInterval(() => {
+                try {
+                    const currentUrl = newWindow.location.href;
+                    if (currentUrl !== 'about:blank' && currentUrl.includes('meet.google.com')) {
+                        const token = currentUrl.split('/').pop(); // Получаем токен
+                        console.log("Полученный токен:", token);
+                        clearInterval(interval); // Останавливаем интервал
+                        newWindow.close(); // Закрываем новое окно, если нужно
+                    }
+                } catch (e) {
+                    // Игнорируем ошибки доступа к URL
+                }
+            }, 1000); // Проверяем каждую секунду
+        });
+    </script>
+</body>
+</html>
