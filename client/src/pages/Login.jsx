@@ -48,7 +48,7 @@ function Login() {
 
     // GitHub login button
     const loginWithGitHub = () => {
-        const clientID = process.env.REACT_APP_GITHUB_OAUTH_API;
+        const clientID = import.meta.env.VITE_GITHUB_OAUTH_API;
         const redirectURI = 'http://localhost:3000/auth/github/callback';
         window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}`;
     };
