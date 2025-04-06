@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Elements } from '@stripe/react-stripe-js';
+import { useEffect, useState } from 'react';
+//import { stripePromise } from './utils/Stripe';
+import { Routes, Route } from 'react-router-dom';
+import CheckoutForm from './pages/Stripe';
+import { CheckoutProvider } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+	const clientSecret = 'pi_1Hh1JpKZr6ejZ6gkAxKNJ4Yv_secret_KJ1wA9wWyZyUm3mYZ7DffuqVJ';
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+	const fetchClientSecret = async () => {
+    const stripePromise = await loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
+		const response = await fetch('http://localhost:8000/api/auth/create-checkout-session', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				items: [
+					{ name: 'Product 1', amount: 2000, quantity: 1 },
+					{ name: 'Product 2', amount: 1500, quantity: 2 },
+				],
+			}),
+		});
 
-export default App
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error); // Throw an error if the response is not ok
+		}
+
+		const json = await response.json();
+    const result = stripePromise.redirectToCheckout({
+      sessionId:json.sessionId
+    })
+	};
+
+	return <button onClick={fetchClientSecret}></button>;
+};
+
+export default App;
