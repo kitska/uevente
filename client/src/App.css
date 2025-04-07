@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+.gradient-text {
+    background: #D22EFF;
+    background: repeating-radial-gradient(ellipse farthest-corner at center center, #D22EFF 0%, #660055 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+}
+
+.title-text {
+    color: #e070ff;
+}

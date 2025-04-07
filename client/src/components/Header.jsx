@@ -1,39 +1,36 @@
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
-import { IoSettingsSharp } from 'react-icons/io5'; // Import settings icon
-import { userStore } from '../store/userStore';
+import { Link } from 'react-router-dom';
+import { FaUserCircle } from 'react-icons/fa'; // FontAwesome user icon
+import { AiOutlineLogin } from 'react-icons/ai'; // FontAwesome login icon
+import SearchBar from './SearchBar';
 
-const Header = observer(() => {
-	const navigate = useNavigate();
+const Header = () => {
+	const handleSearch = (query) => {
+		// You can later trigger search request here
+		console.log('Searching for:', query);
+	};
 
 	return (
-		<div className='flex items-center justify-between w-full p-2 text-black bg-purple-200 shadow-md gradient'>
-			<h1 className='hidden ml-4 text-2xl font-bold sm:block text-gradient'>
-				<Link
-					to='/'
-					onClick={() => {
-						
-					}}
-				>
-					Gay Orgiy Eventovich
-				</Link>
-			</h1>
+		<header className="w-full fixed top-0 left-0 z-50 bg-transparent text-white px-8 py-4 flex items-center justify-between backdrop-blur-md shadow-sm">
+			{/* Left: Logo/Name */}
+			<Link to="/" className="title-text text-2xl font-bold tracking-wide">
+				Go Event
+			</Link>
 
-			{/* Large Screen Menu */}
-			<div className='flex items-center hidden sm:flex'>
-				{userStore.user === null ? (
-					<button className='header-btn' onClick={() => navigate('/login')}>
-						Login
-					</button>
-				) : (
-					<button className='header-btn' onClick={() => navigate('/settings')}>
-						<IoSettingsSharp size={20} />
-					</button>
-				)}
+			{/* Middle: Search */}
+			<div className="flex-1 max-w-md mx-8">
+				<SearchBar onSearch={handleSearch} />
 			</div>
-		</div>
+
+			{/* Right: Login */}
+			<div className="flex gap-6 items-center">
+				{/* If user is not logged in, show Login icon */}
+				<Link to="/login" className="text-2xl hover:text-gray-400">
+					<AiOutlineLogin />
+				</Link>
+			</div>
+		</header>
 	);
-});
+};
 
 export default Header;

@@ -1,57 +1,49 @@
-import React, { useRef, useState, useEffect } from "react";
-import { observer } from "mobx-react-lite";
-import music from "../assets/music.mp3";
-import catGif from "../assets/cat.gif";
+import React, { useEffect, useState } from 'react';
+import HeroSlider from '../components/HeroSlider';
+import EventFilters from '../components/EventFilters';
+import EventCard from '../components/EventCard';
+import Pagination from '../components/Pagination';
+import { Link, useSearchParams } from 'react-router-dom';
+import { eventStore } from '../store/eventStore'
 
-const Main = observer(() => {
-    const audioRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+const Main = () => {
+    const [filters, setFilters] = useState({});
+    const [searchParams] = useSearchParams();
+    const page = parseInt(searchParams.get('page')) || 1;
+    const pageSize = 60;
 
-    useEffect(() => {
-        const audio = audioRef.current;
+    const filteredEvents = eventStore.mockEvents.filter(e => {
+        // Apply filtering if needed
+        return true;
+    });
 
-        const handlePlay = () => setIsPlaying(true);
-        const handlePause = () => setIsPlaying(false);
-
-        if (audio) {
-            audio.addEventListener("play", handlePlay);
-            audio.addEventListener("pause", handlePause);
-        }
-
-        return () => {
-            if (audio) {
-                audio.removeEventListener("play", handlePlay);
-                audio.removeEventListener("pause", handlePause);
-            }
-        };
-    }, []);
+    const paginatedEvents = filteredEvents.slice((page - 1) * pageSize, page * pageSize);
+    const totalPages = Math.ceil(filteredEvents.length / pageSize);
 
     return (
-        <div className="flex h-max p-4 relative">
-            {/* Background cat gif */}
-            {isPlaying && (
-                <img
-                    src={catGif}
-                    alt="Cat Dancing"
-                    className="fixed top-0 left-0 w-full h-full object-cover z-0 opacity-50"
-                />
-            )}
+        <>
+            <main className="">
+                <HeroSlider />
 
-            {/* Content */}
-            <div className="w-full relative z-10">
-                <div className="flex flex-col flex-1 items-center w-full">
-                    <h1 className="text-3xl mb-5">play it</h1>
-                    <div className="justify-center">
-                        <audio ref={audioRef} controls loop>
-                            <source src={music} type="audio/mpeg" />
-                            Your browser does not support the audio element.
-                        </audio>
+                <section className="px-4 mt-10">
+                    <EventFilters filters={filters} onChange={setFilters} />
+                </section>
+
+                <section className="px-4 py-8">
+                    <div className="flex flex-wrap justify-center gap-15">
+                        {paginatedEvents.map(event => (
+                            <Link to={`/event/${event.id}`}><EventCard key={event.id} event={event} /></Link>
+                        ))}
                     </div>
-                </div>
-            </div>
-        </div>
+                </section>
 
+
+                <section className="pb-12">
+                    <Pagination currentPage={page} totalPages={totalPages} />
+                </section>
+            </main>
+        </>
     );
-});
+};
 
 export default Main;

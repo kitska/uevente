@@ -1,137 +1,159 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/pages/Register.jsx
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+import Tooltip from '@mui/material/Tooltip';
+import { FcGoogle } from 'react-icons/fc';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { userStore } from '../store/userStore'; // Импортируйте userStore
-// import { createUser } from '../services/userService';
+import { userStore } from '../store/userStore';
 
-function Register () {
-    const [email, setEmail] = useState('');
-    const [login, setlogin] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [errors, setErrors] = useState({});
+function Register() {
+    const [form, setForm] = useState({
+        fullName: '',
+        login: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+    });
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (userStore.user) {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    const validate = () => {
-        const errors = {};
-        if (!fullName) errors.fullName = "Full name is required";
-        // if (!username) errors.username = "Username is required";
-        if (fullName.length < 2) errors.fullName = "Full name must be at least 2 characters";
-        // if (username.length < 2) errors.username = "Username must be at least 2 characters";
-        if (!email || !/\S+@\S+\.\S+/.test(email)) errors.email = "Valid Email is required";
-        if (password.length < 6) errors.password = "Password must be at least 6 characters";
-        if (password !== confirmPassword) errors.confirmPassword = "Passwords must match";
-        return errors;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm({ ...form, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const validationErrors = validate();
-        setErrors(validationErrors);
         setServerError('');
         setLoading(true);
-        if (Object.keys(validationErrors).length === 0) {
-            try {
-                // const message = await userStore.register(fullName, email, password, login);
-                const message = 'pidori'
-                // const message = await createUser(fullName, email, password);
-                if (message) {
-                    navigate('/login');
-                }
-            } catch (error) {
-                // console.log(error);
-                // setServerError(error.message);
-                setServerError(error.response?.data?.message || 'Registration failed');
-            } finally {
-                setLoading(false);
-            }
-        } else {
+
+        if (form.password !== form.confirmPassword) {
+            setServerError("Passwords do not match");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const message = await userStore.register(form.fullName, form.email, form.password, form.login);
+            if (message) navigate('/');
+        } catch (error) {
+            setServerError(error.response?.data?.message || 'Registration failed');
+        } finally {
             setLoading(false);
         }
     };
 
-    return (
-        loading ? (<LoadingSpinner />) : (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <div className="px-8 pt-8 pb-4 bg-white rounded shadow-md w-96">
-                    <h1 className="mb-6 text-2xl font-semibold text-center">Register</h1>
+    // Google login (optional)
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (token) => {
+            try {
+                const { data } = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token.access_token}`);
+                console.log("Google profile:", data);
+                // You could optionally auto-register the user or redirect them
+            } catch (err) {
+                console.error("Google profile fetch failed", err);
+            }
+        },
+        onError: (error) => console.error('Google Login Failed:', error),
+    });
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div className="col-span-1">
-                                <input
-                                    type="text"
-                                    value={fullName}
-                                    onChange={(e) => setFullName(e.target.value)}
-                                    placeholder="Full Name"
-                                    className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                {errors.fullName && <p className="text-sm text-red-500">{errors.fullName}</p>}
-                            </div>
-                            <div className="col-span-1">
-                                <input
-                                    type="text"
-                                    value={login}
-                                    onChange={(e) => setlogin(e.target.value)}
-                                    placeholder="Login"
-                                    className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                {errors.login && <p className="text-sm text-red-500">{errors.login}</p>}
-                            </div>
-                        </div>
-                        <div className='mb-4'>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Email"
-                                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-                        </div>
+    return loading ? (
+        <LoadingSpinner />
+    ) : (
+        <div className="relative flex items-center justify-center min-h-screen overflow-hidden">
+            {/* Blurred Background Layer */}
+            <div
+                className="absolute inset-0 bg-cover bg-center blur-md scale-110"
+                style={{
+                    backgroundImage: "url('https://4kwallpapers.com/images/wallpapers/windows-11-waves-3840x2400-11767.png')",
+                }}
+            ></div>
+            <div className="absolute top-4 left-4 z-10">
+                <button
+                    onClick={() => navigate('/')}
+                    className="text-2xl text-white cursor-pointer font-semibold bg-opacity-50 p-2 rounded-lg hover:bg-opacity-70 transition"
+                >
+                    Go Event
+                </button>
+            </div>
+            <div className="absolute inset-0 bg-opacity-50 z-0"></div>
+            <div className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+                <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Create Your Account</h2>
 
-                        <div className='mb-4'>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Password"
-                                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-                        </div>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    <input
+                        name="fullName"
+                        value={form.fullName}
+                        onChange={handleChange}
+                        placeholder="Full Name"
+                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    />
+                    <input
+                        name="login"
+                        value={form.login}
+                        onChange={handleChange}
+                        placeholder="Login Name"
+                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    />
+                    <input
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="Email"
+                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    />
+                    <input
+                        name="password"
+                        type="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        placeholder="Password"
+                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    />
+                    <input
+                        name="confirmPassword"
+                        type="password"
+                        value={form.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="Confirm Password"
+                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    />
+                    {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
 
-                        <div className='mb-4'>
-                            <input
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirm Password"
-                                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword}</p>}
-                        </div>
+                    <button
+                        type="submit"
+                        className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-80 transition duration-200"
+                    >
+                        Register
+                    </button>
+                </form>
 
-                        <button type="submit" className="w-full p-3 text-white bg-blue-500 rounded-md hover:bg-blue-600">
-                            Register
-                        </button>
-                    </form>
-                    {serverError && <div className="p-3 mt-5 text-white bg-red-500 rounded">{serverError}</div>}
-                    <div className="mt-4 text-center">
-                        <a href="/login" className="text-sm text-blue-500 hover:underline">Already have an account?</a>
-                    </div>
+                <button
+                    onClick={() => googleLogin()}
+                    className="w-full mt-5 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                >
+                    <FcGoogle className="w-6 h-6 mr-2" />
+                    Sign up with Google
+                </button>
+
+                <div className="mt-4 text-center text-gray-600">
+                    <span>Already have an account? </span>
+                    <Link to="/login" className="text-blue-500 hover:underline">
+                        Sign in
+                    </Link>
                 </div>
             </div>
-        ))
-};
+        </div>
+    );
+}
 
 export default Register;

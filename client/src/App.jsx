@@ -1,10 +1,9 @@
-/*App.js*/
-
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Main from './pages/Main';
+import Event from './pages/Event';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './components/PasswordReset';
@@ -12,10 +11,12 @@ import EmailConfirmation from './components/EmailConfirmation';
 import EmailSentPasswordReset from './components/EmailSentPasswordReset';
 import Error from './pages/Error';
 import { AxiosInterceptor } from './services/index';
-function AppContent() {
-    // const [user, setUser] = useState(null); // Храним пользователя
-    const [loading, setLoading] = useState(true); // Флаг загрузки
 
+function AppContent() {
+    const location = useLocation(); // Get the current route
+    const [loading, setLoading] = useState(true); // Loading state
+
+    // You can uncomment and adjust this section to load the user as needed
     // useEffect(() => {
     //   const loadUser = async () => {
     //     try {
@@ -25,29 +26,30 @@ function AppContent() {
     //         return;
     //       }
     //       userStore.setUser(currentUser);
-    //       // userStore.user = currentUser;
-    //       // setUser(currentUser); // Устанавливаем пользователя
     //     } catch (error) {
     //       console.error('Failed to fetch user:', error);
     //       userStore.logout();
     //     } finally {
-    //       setLoading(false); // Завершаем загрузку
+    //       setLoading(false); // End loading
     //     }
     //   };
-    //   // if (localStorage.getItem('token')) loadUser();
     //   loadUser();
     // }, []);
 
+    // If still loading, you can show a loading spinner
     // if (loading) {
     //   return <LoadingSpinner />;
     // }
 
     return (
         <div className='flex flex-col h-screen'>
-            <Header /> {/* Передаем пользователя в Header */}
+            {/* Conditionally render Header only if the page is not login, register, password-reset, or error */}
+            {location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/password-reset' && location.pathname !== '/password-reset/:token' && location.pathname !== '/error' && <Header />}
+
             <main className='flex flex-col flex-grow'>
                 <Routes>
                     <Route path='/' element={<Main />} />
+                    <Route path="/event/:id" element={<Event />} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/register' element={<Register />} />
                     <Route path='/password-reset' element={<EmailSentPasswordReset />} />
@@ -56,7 +58,9 @@ function AppContent() {
                     <Route path='*' element={<Error />} />
                 </Routes>
             </main>
-            <Footer />
+
+            {/* Conditionally render Footer only if the page is not login, register, password-reset, or error */}
+            {location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/password-reset' && location.pathname !== '/password-reset/:token' && location.pathname !== '/error' && <Footer />}
         </div>
     );
 }
@@ -69,4 +73,5 @@ function App() {
         </Router>
     );
 }
+
 export default App;
