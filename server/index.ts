@@ -6,6 +6,7 @@ import callBackRoutes from './src/routes/callback.routes';
 // import eventRoutes from './src/routes/event.routes';
 // import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
+import paymentRoutes from './src/routes/payment.routes'
 import cors from 'cors';
 import path from 'path';
 
@@ -33,6 +34,7 @@ app.use(express.json());
 
 // Connect routes
 app.use('/api/users', userRoutes);
+app.use('/api/payment', paymentRoutes);
 // app.use('/api/events', eventRoutes);
 // app.use('/api/calendars', calendarRoutes);
 app.use('/api/auth', authRoutes);

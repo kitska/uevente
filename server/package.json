@@ -33,6 +33,7 @@
 		"pg": "^8.13.1",
 		"pg-dump-restore": "^1.0.12",
 		"reflect-metadata": "^0.2.2",
+		"stripe": "^18.0.0",
 		"ts-node": "^10.9.2",
 		"typeorm": "^0.3.20",
 		"winston": "^3.17.0"
