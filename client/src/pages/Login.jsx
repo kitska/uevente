@@ -8,7 +8,13 @@ import { FaGoogle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 import { userStore } from '../store/userStore';
+<<<<<<< HEAD
 import { Link } from 'react-router-dom';
+=======
+import { FaGoogle, FaGithub } from "react-icons/fa";
+import { FaDiscord } from "react-icons/fa"; // ✅ Add Discord icon
+import queryString from 'query-string';
+>>>>>>> cdf0dc8d04685fbebeaa05e6c750f08739a5a56d
 
 function Login() {
     const [user, setUser] = useState(null);
@@ -18,8 +24,9 @@ function Login() {
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const onSuccess = response => console.log(response);
+    const onFailure = response => console.error(response);
 
-    // Redirect if already logged in (custom app auth)
     useEffect(() => {
         if (userStore.user) {
             navigate('/');
@@ -32,7 +39,6 @@ function Login() {
         onError: (error) => console.log('Google Login Failed:', error),
     });
 
-    // Fetch Google profile after login
     useEffect(() => {
         if (user) {
             axios
@@ -50,30 +56,92 @@ function Login() {
         }
     }, [user]);
 
-    // GitHub login button
+    // GitHub login
     const loginWithGitHub = () => {
         const clientID = import.meta.env.VITE_GITHUB_OAUTH_API;
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        const state = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+
+        localStorage.setItem("latestCSRFToken", state);
         const redirectURI = 'http://localhost:3000/auth/github/callback';
-        window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}`;
+        const link = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=read:user user:email&redirect_uri=${redirectURI}&state=${state}`;
+        // window.location.assign(link);
+        window.location.href = link;
     };
 
-    // Handle GitHub OAuth callback
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
+        const fetchGitHubCallback = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const state = params.get('state');
+    
+            if (window.location.href.includes('/auth/github/callback')) {
+                localStorage.removeItem("latestCSRFToken");
+                try {
+                    const res = await axios.post("http://localhost:8000/auth/github/callback", {
+                        code
+                    });
+                    console.log(res.data);
+                    // Optional: handle response, maybe set user token, etc.
+                } catch (error) {
+                    console.error('GitHub OAuth callback error:', error);
+                }
+            }
+        };
+    
+        fetchGitHubCallback();
+    }, []);
+    
 
-        if (code) {
-            fetch('http://localhost:5000/auth/github/callback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('GitHub OAuth data:', data);
-                    // Optionally: setUser(data); or navigate to a page
-                });
-        }
+    // Discord login
+    const loginWithDiscord = () => {
+        const clientID = import.meta.env.VITE_DISCORD_OAUTH_CLIENTID;
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        const state = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+
+        localStorage.setItem("latestCSRFToken", state);
+
+        const redirectURI = 'http://localhost:3000/auth/discord/callback';
+        const scope = 'identify email';
+        const link = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${encodeURIComponent(redirectURI)}&response_type=code&scope=${scope}`;
+        window.location.assign(link);
+    };
+
+    useEffect(() => {
+        const fetchDiscordCallBack = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            console.log("x1");
+            // if (state && state === localStorage.getItem("latestCSRFToken")) {
+            if (window.location.href.includes('/auth/discord/callback')) {
+                console.log("<x2></x2>");
+                localStorage.removeItem("latestCSRFToken");
+                try {
+                    const res = await axios.post("http://localhost:8000/auth/discord/callback", {
+                        code
+                    });
+                    console.log(res.data);
+                } catch (error) {
+                    console.error('Discord OAuth callback error:', error);
+                }
+            }
+        };
+
+        fetchDiscordCallBack();
+
+            // fetch('http://localhost:8000/auth/discord/callback', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ code }),
+            // })
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         console.log('Discord OAuth data:', data);
+            //     });
+        // }
     }, []);
 
     // Email/password login
@@ -112,22 +180,22 @@ function Login() {
         <div className="relative flex items-center justify-center min-h-screen overflow-hidden">
             {/* Blurred Background */}
             <div
-                className="absolute inset-0 bg-cover bg-center blur-sm scale-110"
+                className="absolute inset-0 scale-110 bg-center bg-cover blur-sm"
                 style={{
                     backgroundImage: "url('https://images.unsplash.com/photo-1485470733090-0aae1788d5af?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8d2FsbHBhcGVyJTIwNGt8ZW58MHx8MHx8fDA%3D')",
                 }}
             ></div>
-            <div className="absolute top-4 left-4 z-10">
+            <div className="absolute z-10 top-4 left-4">
                 <button
                     onClick={() => navigate('/')}
-                    className="text-2xl text-white cursor-pointer font-semibold bg-opacity-50 p-2 rounded-lg hover:bg-opacity-70 transition"
+                    className="p-2 text-2xl font-semibold text-white transition bg-opacity-50 rounded-lg cursor-pointer hover:bg-opacity-70"
                 >
                     Go Event
                 </button>
             </div>
-            <div className="absolute inset-0 bg-opacity-50 z-0"></div> {/* Vignette Effect */}
-            <div className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-                <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Welcome Back!</h2>
+            <div className="absolute inset-0 z-0 bg-opacity-50"></div> {/* Vignette Effect */}
+            <div className="relative z-10 w-full max-w-md p-8 bg-white rounded-lg shadow-xl">
+                <h2 className="mb-6 text-3xl font-semibold text-left text-gray-900">Welcome Back!</h2>
 
                 {/* Email/password login */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -136,19 +204,19 @@ function Login() {
                         value={emailValue}
                         onChange={(e) => setEmailValue(e.target.value)}
                         placeholder="Email or Login"
-                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <input
                         type="password"
                         value={passwordValue}
                         onChange={(e) => setPasswordValue(e.target.value)}
                         placeholder="Password"
-                        className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
+                    {serverError && <p className="text-sm text-red-500">{serverError}</p>}
                     <button
                         type="submit"
-                        className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:opacity-80 transition duration-200"
+                        className="p-3 text-white transition duration-200 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 hover:opacity-80"
                     >
                         Sign in
                     </button>
@@ -166,12 +234,12 @@ function Login() {
                 {/* Google login */}
                 {profile ? (
                     <div className="flex flex-col items-center">
-                        <img src={profile.picture} alt="Profile" className="w-16 h-16 rounded-full mb-2" />
+                        <img src={profile.picture} alt="Profile" className="w-16 h-16 mb-2 rounded-full" />
                         <p className="font-semibold text-gray-800">Welcome, {profile.name}!</p>
                         <p className="text-sm text-gray-500">{profile.email}</p>
                         <button
                             onClick={logOut}
-                            className="mt-3 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
+                            className="p-3 mt-3 text-white transition duration-200 bg-red-500 rounded-lg hover:bg-red-600"
                         >
                             Log out
                         </button>
@@ -179,7 +247,7 @@ function Login() {
                 ) : (
                     <button
                         onClick={() => googleLogin()}
-                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        className="flex items-center justify-center w-full p-3 mt-4 text-gray-800 transition duration-200 bg-white rounded-lg hover:bg-gray-100"
                     >
                         <FcGoogle className="w-6 h-6 mr-2" />
                         Sign in with Google

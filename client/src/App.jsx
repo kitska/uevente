@@ -51,6 +51,8 @@ function AppContent() {
                     <Route path='/' element={<Main />} />
                     <Route path="/event/:id" element={<Event />} />
                     <Route path='/login' element={<Login />} />
+                    <Route path='/auth/github/callback' element={<Login />}/>
+                    <Route path='/auth/discord/callback' element={<Login />}/>
                     <Route path='/register' element={<Register />} />
                     <Route path='/password-reset' element={<EmailSentPasswordReset />} />
                     <Route path='/password-reset/:token' element={<ResetPassword />} />
