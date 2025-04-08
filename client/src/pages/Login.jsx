@@ -4,11 +4,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Tooltip from '@mui/material/Tooltip';
-import { FaGoogle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-
 import { userStore } from '../store/userStore';
 import { Link } from 'react-router-dom';
+import { FaGoogle, FaGithub, FaDiscord } from "react-icons/fa";
 
 function Login() {
     const [user, setUser] = useState(null);
@@ -18,8 +17,9 @@ function Login() {
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const onSuccess = response => console.log(response);
+    const onFailure = response => console.error(response);
 
-    // Redirect if already logged in (custom app auth)
     useEffect(() => {
         if (userStore.user) {
             navigate('/');
@@ -32,7 +32,7 @@ function Login() {
         onError: (error) => console.log('Google Login Failed:', error),
     });
 
-    // Fetch Google profile after login
+    // TODO: maybe virezhim
     useEffect(() => {
         if (user) {
             axios
@@ -50,30 +50,92 @@ function Login() {
         }
     }, [user]);
 
-    // GitHub login button
+    // GitHub login
     const loginWithGitHub = () => {
         const clientID = import.meta.env.VITE_GITHUB_OAUTH_API;
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        const state = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+
+        localStorage.setItem("latestCSRFToken", state);
         const redirectURI = 'http://localhost:3000/auth/github/callback';
-        window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}`;
+        const link = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=read:user user:email&redirect_uri=${redirectURI}&state=${state}`;
+        // window.location.assign(link);
+        window.location.href = link;
     };
 
-    // Handle GitHub OAuth callback
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
+        const fetchGitHubCallback = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const state = params.get('state');
 
-        if (code) {
-            fetch('http://localhost:5000/auth/github/callback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('GitHub OAuth data:', data);
-                    // Optionally: setUser(data); or navigate to a page
-                });
-        }
+            if (window.location.href.includes('/auth/github/callback')) {
+                localStorage.removeItem("latestCSRFToken");
+                try {
+                    const res = await axios.post("http://localhost:8000/auth/github/callback", {
+                        code
+                    });
+                    console.log(res.data);
+                    // Optional: handle response, maybe set user token, etc.
+                } catch (error) {
+                    console.error('GitHub OAuth callback error:', error);
+                }
+            }
+        };
+
+        fetchGitHubCallback();
+    }, []);
+
+
+    // Discord login
+    const loginWithDiscord = () => {
+        const clientID = import.meta.env.VITE_DISCORD_OAUTH_CLIENTID;
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        const state = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+
+        localStorage.setItem("latestCSRFToken", state);
+
+        const redirectURI = 'http://localhost:3000/auth/discord/callback';
+        const scope = 'identify email';
+        const link = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${encodeURIComponent(redirectURI)}&response_type=code&scope=${scope}`;
+        window.location.assign(link);
+    };
+
+    useEffect(() => {
+        const fetchDiscordCallBack = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            console.log("x1");
+            // if (state && state === localStorage.getItem("latestCSRFToken")) {
+            if (window.location.href.includes('/auth/discord/callback')) {
+                console.log("<x2></x2>");
+                localStorage.removeItem("latestCSRFToken");
+                try {
+                    const res = await axios.post("http://localhost:8000/auth/discord/callback", {
+                        code
+                    });
+                    console.log(res.data);
+                } catch (error) {
+                    console.error('Discord OAuth callback error:', error);
+                }
+            }
+        };
+
+        fetchDiscordCallBack();
+
+        // fetch('http://localhost:8000/auth/discord/callback', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ code }),
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log('Discord OAuth data:', data);
+        //     });
+        // }
     }, []);
 
     // Email/password login
@@ -126,7 +188,7 @@ function Login() {
                 </button>
             </div>
             <div className="absolute inset-0 bg-opacity-50 z-0"></div> {/* Vignette Effect */}
-            <div data-aos="flip-left" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <div data-aos="slide-up" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Welcome Back!</h2>
 
                 {/* Email/password login */}
@@ -177,13 +239,26 @@ function Login() {
                         </button>
                     </div>
                 ) : (
-                    <button
-                        onClick={() => googleLogin()}
-                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
-                    >
-                        <FcGoogle className="w-6 h-6 mr-2" />
-                        Sign in with Google
-                    </button>
+                    <div className="flex ">
+                        <button
+                            onClick={() => googleLogin()}
+                            className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        >
+                            <FcGoogle className="w-6 h-6" />
+                        </button>
+                        <button
+                            onClick={() => loginWithGitHub()}
+                            className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        >
+                            <FaGithub className="w-6 h-6" />
+                        </button>
+                        <button
+                            onClick={() => loginWithDiscord()}
+                            className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        >
+                            <FaDiscord className="w-6 h-6" />
+                        </button>
+                    </div>
                 )}
 
                 {/* Sign Up link */}

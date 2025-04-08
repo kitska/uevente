@@ -3,10 +3,15 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import Tooltip from '@mui/material/Tooltip';
 import { FcGoogle } from 'react-icons/fc';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { userStore } from '../store/userStore';
+import { userStore } from '../store/userStore'; // Импортируйте userStore
+import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
+import Tooltip from '@mui/material/Tooltip';
+import { FaGithub, FaDiscord } from "react-icons/fa";
+// import Notification from '../components/Notification';
+// import { createUser } from '../services/userService';
 
 function Register() {
     const [form, setForm] = useState({
@@ -16,9 +21,11 @@ function Register() {
         password: '',
         confirmPassword: '',
     });
+
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    // const [notification, setNotification] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -30,18 +37,25 @@ function Register() {
         setServerError('');
         setLoading(true);
 
-        if (form.password !== form.confirmPassword) {
-            setServerError("Passwords do not match");
-            setLoading(false);
-            return;
-        }
+        if (Object.keys(validationErrors).length === 0) {
+            if (form.password !== form.confirmPassword) {
+                setServerError("Passwords do not match");
+                setLoading(false);
+                return;
+            }
 
-        try {
-            const message = await userStore.register(form.fullName, form.email, form.password, form.login);
-            if (message) navigate('/');
-        } catch (error) {
-            setServerError(error.response?.data?.message || 'Registration failed');
-        } finally {
+            try {
+                const message = await userStore.register(form.fullName, form.email, form.password, form.login);
+                if (message) {
+                    toast('ℹ️ Confirm your email!');
+                    navigate('/login');
+                }
+            } catch (error) {
+                setServerError(error.response?.data?.message || 'Registration failed');
+            } finally {
+                setLoading(false);
+            }
+        } else {
             setLoading(false);
         }
     };
@@ -80,7 +94,7 @@ function Register() {
                 </button>
             </div>
             <div className="absolute inset-0 bg-opacity-50 z-0"></div>
-            <div data-aos="flip-right" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <div data-aos="slide-up" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Create Your Account</h2>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -137,22 +151,35 @@ function Register() {
                     </button>
                 </form>
 
-                <button
-                    onClick={() => googleLogin()}
-                    className="w-full mt-5 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
-                >
-                    <FcGoogle className="w-6 h-6 mr-2" />
-                    Sign up with Google
-                </button>
+                <div className="flex ">
+                    <button
+                        onClick={() => googleLogin()}
+                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                    >
+                        <FcGoogle className="w-6 h-6" />
+                    </button>
+                    <button
+                        onClick={() => loginWithGitHub()}
+                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                    >
+                        <FaGithub className="w-6 h-6" />
+                    </button>
+                    <button
+                        onClick={() => loginWithDiscord()}
+                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                    >
+                        <FaDiscord className="w-6 h-6" />
+                    </button>
+                </div>
 
                 <div className="mt-4 text-center text-gray-600">
                     <span>Already have an account? </span>
                     <Link to="/login" className="text-blue-500 hover:underline">
                         Sign in
                     </Link>
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 }
 

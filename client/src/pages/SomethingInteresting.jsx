@@ -54,4 +54,4 @@ const SomethingInteresting = observer(() => {
     );
 });
 
-export default Main;
+export default SomethingInteresting;

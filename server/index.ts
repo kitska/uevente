@@ -2,6 +2,7 @@ import express from 'express';
 import { AppDataSource, createAdmin, seedDatabase } from './src/database/data-source';
 import { createUserAndDatabase } from "./src/database/db.create";
 import userRoutes from './src/routes/user.routes';
+import callBackRoutes from './src/routes/callback.routes';
 // import eventRoutes from './src/routes/event.routes';
 // import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
@@ -36,6 +37,7 @@ app.use('/api/users', userRoutes);
 // app.use('/api/calendars', calendarRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/avatars',express.static(path.join(__dirname, 'uploads')));
+app.use('/auth', callBackRoutes);
 
 // Create the database if it doesn't exist, then initialize the data source and start the server
 createUserAndDatabase()

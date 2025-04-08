@@ -12,7 +12,9 @@ import EmailConfirmation from './components/EmailConfirmation';
 import EmailSentPasswordReset from './components/EmailSentPasswordReset';
 import Error from './pages/Error';
 import ScrollToTop from './components/ScrollToTop';
+import SomethingInteresting from './pages/SomethingInteresting';
 import { AxiosInterceptor } from './services/index';
+import { Toaster } from 'react-hot-toast';
 
 // Smooth appearing on scroll
 import AOS from 'aos';
@@ -69,16 +71,20 @@ function AppContent() {
             {/* Conditionally render Header only if the page is not login, register, password-reset, or error */}
             {location.pathname !== '/account' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/password-reset' && location.pathname !== '/password-reset/:token' && location.pathname !== '/error' && <Header />}
 
+            <div><Toaster position="top-right" /></div>
             <main className='flex flex-col flex-grow'>
                 <Routes>
                     <Route path='/' element={<Main />} />
                     <Route path="/event/:id" element={<Event />} />
                     <Route path='/account' element={<Account />} />
                     <Route path='/login' element={<Login />} />
+                    <Route path='/auth/github/callback' element={<Login />} />
+                    <Route path='/auth/discord/callback' element={<Login />} />
                     <Route path='/register' element={<Register />} />
                     <Route path='/password-reset' element={<EmailSentPasswordReset />} />
                     <Route path='/password-reset/:token' element={<ResetPassword />} />
                     <Route path='/confirm-email/:token' element={<EmailConfirmation />} />
+                    <Route path='/pashalka' element={<SomethingInteresting />} />
                     <Route path='*' element={<Error />} />
                 </Routes>
             </main>
