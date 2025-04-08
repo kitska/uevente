@@ -12,7 +12,7 @@ const Pagination = ({ currentPage, totalPages }) => {
     };
 
     return (
-        <div className="flex items-center justify-center mt-8 gap-4">
+        <div data-aos="fade-up" className="flex items-center justify-center mt-8 gap-4">
             <button
                 onClick={() => goToPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}

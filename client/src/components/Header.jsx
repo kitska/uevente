@@ -13,7 +13,7 @@ const Header = () => {
 	return (
 		<header className="w-full fixed top-0 left-0 z-50 bg-transparent text-white px-8 py-4 flex items-center justify-between backdrop-blur-md shadow-sm">
 			{/* Left: Logo/Name */}
-			<Link to="/" className="title-text text-2xl font-bold tracking-wide">
+			<Link to="/" className="text-pink-400 text-2xl font-bold tracking-wide">
 				Go Event
 			</Link>
 
@@ -25,7 +25,7 @@ const Header = () => {
 			{/* Right: Login */}
 			<div className="flex gap-6 items-center">
 				{/* If user is not logged in, show Login icon */}
-				<Link to="/login" className="text-2xl hover:text-gray-400">
+				<Link to="/login" className="text-pink-400 text-2xl hover:text-pink-700">
 					<AiOutlineLogin />
 				</Link>
 			</div>

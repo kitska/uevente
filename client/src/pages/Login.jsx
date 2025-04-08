@@ -126,7 +126,7 @@ function Login() {
                 </button>
             </div>
             <div className="absolute inset-0 bg-opacity-50 z-0"></div> {/* Vignette Effect */}
-            <div className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <div data-aos="flip-left" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Welcome Back!</h2>
 
                 {/* Email/password login */}

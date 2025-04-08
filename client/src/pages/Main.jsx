@@ -5,6 +5,7 @@ import EventCard from '../components/EventCard';
 import Pagination from '../components/Pagination';
 import { Link, useSearchParams } from 'react-router-dom';
 import { eventStore } from '../store/eventStore'
+import Subscribe from '../components/Subscribe';
 
 const Main = () => {
     const [filters, setFilters] = useState({});
@@ -38,9 +39,11 @@ const Main = () => {
                 </section>
 
 
-                <section className="pb-12">
+                <section className="">
                     <Pagination currentPage={page} totalPages={totalPages} />
                 </section>
+
+                <Subscribe />
             </main>
         </>
     );

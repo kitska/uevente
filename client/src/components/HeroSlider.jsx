@@ -10,17 +10,17 @@ const slides = [
     },
     {
         id: 2,
-        image: 'https://porschepictures.flowcenter.de/pmdb/thumbnail.cgi?id=269090&w=1935&h=1089&crop=1&public=1&cs=4063bb59ebe66884',
+        image: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cG9yc2NoZSUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D',
         title: 'Porsche Exhibition',
         description: 'Yeah some dudes bring their porsches and we are going to look at them. Have fun...',
         price: '$200'
     },
     {
         id: 3,
-        image: 'https://www.cnn.com/interactive/2021/09/us/9-11-photos-cnnphotos/media/images/s_A0AE79177AE22FEDB3174BE4CB5E6C1B34787C78A411A18BEEE28632C821036C_1631293105745_01b.jpg',
-        title: 'Some Planes',
-        description: 'Just look at the twins OMG',
-        price: 'Free'
+        image: 'https://i.pinimg.com/1200x/64/1e/9b/641e9ba2ae6f6ba9585365d30efa09b4.jpg',
+        title: 'Chemistry Lecture',
+        description: "Jesse we need to cook. Let dive deeply in the world of chemistry and learn a couple of nice things...",
+        price: '$9.99'
     },
     {
         id: 4,
@@ -76,6 +76,7 @@ const HeroSlider = () => {
 
     return (
         <div
+            data-aos="fade-up"
             className="relative h-screen overflow-hidden"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}

@@ -9,7 +9,7 @@ const Footer = () => {
                 {/* Footer Sections */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 mb-8">
                     {/* Contacts Section */}
-                    <div>
+                    <div data-aos="fade-up">
                         <h3 className="text-xl font-semibold mb-4">Contacts</h3>
                         <ul className="text-sm space-y-2">
                             <li><a href="/contact" className="hover:underline opacity-70">Contact Us</a></li>
@@ -19,7 +19,7 @@ const Footer = () => {
                     </div>
 
                     {/* Categories Section */}
-                    <div>
+                    <div data-aos="fade-up">
                         <h3 className="text-xl font-semibold mb-4">Categories</h3>
                         <ul className="text-sm space-y-2">
                             <li><a href="/category/music" className="hover:underline opacity-70">Music</a></li>
@@ -32,7 +32,7 @@ const Footer = () => {
                     </div>
 
                     {/* About Us Section */}
-                    <div>
+                    <div data-aos="fade-up">
                         <h3 className="text-xl font-semibold mb-4">About Us</h3>
                         <ul className="text-sm space-y-2">
                             <li><a href="/about" className="hover:underline opacity-70">Our Story</a></li>

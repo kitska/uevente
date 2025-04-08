@@ -80,7 +80,7 @@ function Register() {
                 </button>
             </div>
             <div className="absolute inset-0 bg-opacity-50 z-0"></div>
-            <div className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <div data-aos="flip-right" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Create Your Account</h2>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">

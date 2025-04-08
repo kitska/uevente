@@ -2,7 +2,7 @@ import React from 'react';
 
 const EventFilters = ({ filters, onChange }) => {
     return (
-        <div className="bg-white rounded-lg shadow p-4 mb-8 flex flex-wrap gap-4">
+        <div data-aos="fade-up" className="bg-white rounded-lg shadow p-4 mb-8 flex flex-wrap gap-4">
             <input
                 type="text"
                 placeholder="Category"
