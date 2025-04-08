@@ -108,10 +108,8 @@ function Login() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const state = urlParams.get('state');
-            console.log("x1");
             // if (state && state === localStorage.getItem("latestCSRFToken")) {
             if (window.location.href.includes('/auth/discord/callback')) {
-                console.log("<x2></x2>");
                 localStorage.removeItem("latestCSRFToken");
                 try {
                     const res = await axios.post("http://localhost:8000/auth/discord/callback", {

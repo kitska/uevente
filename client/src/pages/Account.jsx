@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaUser, FaCog, FaSignOutAlt, FaKey, FaLanguage, FaTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom'; // Using useNavigate for navigation
+import { userStore } from '../store/userStore';
 
 const Account = () => {
     const [activeSection, setActiveSection] = useState('profile'); // Default section
@@ -20,20 +21,23 @@ const Account = () => {
     const ProfileSection = () => (
         <div className="p-4 space-y-4">
             <h2 className="text-xl font-bold text-gray-800">Your Profile</h2>
-            <div className="flex items-center space-x-6">
-                <div className="w-20 h-20 rounded-full bg-gray-200">
-                    <img
-                        src="https://via.placeholder.com/150"
-                        alt="Profile"
-                        className="w-full h-full object-cover rounded-full"
-                    />
+            {userStore?.user && (
+                <div className="flex items-center space-x-6">
+                    <div className="w-20 h-20 rounded-full bg-gray-200">
+                        <img
+                            src={userStore?.user?.profilePicture}
+                            alt="Profile"
+                            className="w-full h-full object-cover rounded-full"
+                        />
+                    </div>
+                    <div>
+                        <p className="text-lg font-semibold">{userStore?.user.fullName}</p>
+                        <p className="text-gray-600">{userStore?.user.email}</p>
+                        <p className="text-gray-600">Language: English</p>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-lg font-semibold">John Doe</p>
-                    <p className="text-gray-600">johndoe@example.com</p>
-                    <p className="text-gray-600">Language: English</p>
-                </div>
-            </div>
+            )}
+
         </div>
     );
 
@@ -126,7 +130,10 @@ const Account = () => {
                         </button>
                     </li>
                 </ul>
-                <button className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded-md w-full mt-6">
+                <button className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded-md w-full mt-6" onClick={() => {
+                    userStore?.logout();
+                    goToMainPage();
+                }}>
                     <FaSignOutAlt />
                     <span className="text-sm">Sign Out</span>
                 </button>

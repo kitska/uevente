@@ -21,6 +21,20 @@ function Register() {
         password: '',
         confirmPassword: '',
     });
+    const [errors, setErrors] = useState({});
+    const validate = () => {
+        const errors = {};
+        if (!form.fullName) errors.fullName = "Full name is required";
+        if (!form.login) errors.login = "Full name is required";
+        // if (!username) errors.username = "Username is required";
+        if (form.fullName.length < 2) errors.fullName = "Full name must be at least 2 characters";
+        if (form.login.length < 2) errors.login = "Full name must be at least 2 characters";
+        // if (username.length < 2) errors.username = "Username must be at least 2 characters";
+        if (!form.email || !/\S+@\S+\.\S+/.test(form.email)) errors.email = "Valid Email is required";
+        if (form.password.length < 6) errors.password = "Password must be at least 6 characters";
+        if (form.password !== form.confirmPassword) errors.confirmPassword = "Passwords must match";
+        return errors;
+    };
 
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -34,10 +48,13 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const validationErrors = validate();
+        setErrors(validationErrors);
         setServerError('');
         setLoading(true);
 
         if (Object.keys(validationErrors).length === 0) {
+            console.log(Object.keys(validationErrors).length);
             if (form.password !== form.confirmPassword) {
                 setServerError("Passwords do not match");
                 setLoading(false);
@@ -106,6 +123,7 @@ function Register() {
                         className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     />
+                    {errors.fullName && <p className="text-sm text-red-500">{errors.fullName}</p>}
                     <input
                         name="login"
                         value={form.login}
@@ -114,6 +132,7 @@ function Register() {
                         className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     />
+                    {errors.login && <p className="text-sm text-red-500">{errors.login}</p>}
                     <input
                         name="email"
                         type="email"
@@ -123,6 +142,7 @@ function Register() {
                         className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     />
+                    {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                     <input
                         name="password"
                         type="password"
@@ -132,6 +152,7 @@ function Register() {
                         className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     />
+                    {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
                     <input
                         name="confirmPassword"
                         type="password"
@@ -141,6 +162,7 @@ function Register() {
                         className="p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     />
+                    {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword}</p>}
                     {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
 
                     <button
