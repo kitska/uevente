@@ -2,9 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { userStore } from '../store/userStore'; // Импортируйте userStore
+import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
+import Tooltip from '@mui/material/Tooltip';
+import { FaGoogle, FaGithub, FaDiscord } from "react-icons/fa";
+// import Notification from '../components/Notification';
 // import { createUser } from '../services/userService';
 
-function Register () {
+function Register() {
     const [email, setEmail] = useState('');
     const [login, setlogin] = useState('');
     const [fullName, setFullName] = useState('');
@@ -14,6 +19,7 @@ function Register () {
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    // const [notification, setNotification] = useState(null);
 
     useEffect(() => {
         if (userStore.user) {
@@ -41,10 +47,9 @@ function Register () {
         setLoading(true);
         if (Object.keys(validationErrors).length === 0) {
             try {
-                // const message = await userStore.register(fullName, email, password, login);
-                const message = 'pidori'
-                // const message = await createUser(fullName, email, password);
+                const message = await userStore.register(fullName, email, password, login);
                 if (message) {
+                    toast('ℹ️ Confirm your email!');
                     navigate('/login');
                 }
             } catch (error) {
@@ -128,6 +133,23 @@ function Register () {
                     {serverError && <div className="p-3 mt-5 text-white bg-red-500 rounded">{serverError}</div>}
                     <div className="mt-4 text-center">
                         <a href="/login" className="text-sm text-blue-500 hover:underline">Already have an account?</a>
+                    </div>
+                    <div className="flex gap-4 justify-center mt-2">
+                        <Tooltip title="Login with Google">
+                            <button onClick={() => { }} className="text-red-500 text-2xl">
+                                <FaGoogle />
+                            </button>
+                        </Tooltip>
+                        <Tooltip title="Login with GitHub">
+                            <button onClick={() => { }} className="text-gray-800 text-2xl">
+                                <FaGithub />
+                            </button>
+                        </Tooltip>
+                        <Tooltip title="Login with Discord">
+                            <button onClick={() => { }} className="text-indigo-500 text-2xl">
+                                <FaDiscord />
+                            </button>
+                        </Tooltip>
                     </div>
                 </div>
             </div>

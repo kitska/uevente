@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Tooltip from '@mui/material/Tooltip';
 import { userStore } from '../store/userStore';
-import { FaGoogle, FaGithub } from "react-icons/fa";
-import { FaDiscord } from "react-icons/fa"; // ✅ Add Discord icon
+import { FaGoogle, FaGithub, FaDiscord } from "react-icons/fa";
 import queryString from 'query-string';
 
 function Login() {
@@ -68,7 +67,7 @@ function Login() {
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
             const state = params.get('state');
-    
+
             if (window.location.href.includes('/auth/github/callback')) {
                 localStorage.removeItem("latestCSRFToken");
                 try {
@@ -82,10 +81,10 @@ function Login() {
                 }
             }
         };
-    
+
         fetchGitHubCallback();
     }, []);
-    
+
 
     // Discord login
     const loginWithDiscord = () => {
@@ -125,15 +124,15 @@ function Login() {
 
         fetchDiscordCallBack();
 
-            // fetch('http://localhost:8000/auth/discord/callback', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ code }),
-            // })
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         console.log('Discord OAuth data:', data);
-            //     });
+        // fetch('http://localhost:8000/auth/discord/callback', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ code }),
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log('Discord OAuth data:', data);
+        //     });
         // }
     }, []);
 
@@ -191,6 +190,14 @@ function Login() {
                 />
                 {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
                 <button type="submit" className="p-2 bg-blue-500 text-white rounded">Login</button>
+                <div className='flex justify-between'>
+                    <a href='/register' className='text-sm text-blue-500 hover:underline'>
+                        Don't have an account?
+                    </a>
+                    <p onClick={handleForgot} className='text-sm text-blue-500 hover:underline'>
+                        Forgot password?
+                    </p>
+                </div>
             </form>
 
             {/* Social login buttons */}

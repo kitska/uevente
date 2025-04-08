@@ -12,6 +12,7 @@ import EmailConfirmation from './components/EmailConfirmation';
 import EmailSentPasswordReset from './components/EmailSentPasswordReset';
 import Error from './pages/Error';
 import { AxiosInterceptor } from './services/index';
+import { Toaster } from 'react-hot-toast';
 function AppContent() {
     // const [user, setUser] = useState(null); // Храним пользователя
     const [loading, setLoading] = useState(true); // Флаг загрузки
@@ -44,13 +45,14 @@ function AppContent() {
 
     return (
         <div className='flex flex-col h-screen'>
+            <div><Toaster position="top-right" /></div>
             <Header /> {/* Передаем пользователя в Header */}
             <main className='flex flex-col flex-grow'>
                 <Routes>
                     <Route path='/' element={<Main />} />
                     <Route path='/login' element={<Login />} />
-                    <Route path='/auth/github/callback' element={<Login />}/>
-                    <Route path='/auth/discord/callback' element={<Login />}/>
+                    <Route path='/auth/github/callback' element={<Login />} />
+                    <Route path='/auth/discord/callback' element={<Login />} />
                     <Route path='/register' element={<Register />} />
                     <Route path='/password-reset' element={<EmailSentPasswordReset />} />
                     <Route path='/password-reset/:token' element={<ResetPassword />} />

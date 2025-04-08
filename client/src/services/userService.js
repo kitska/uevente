@@ -5,14 +5,10 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const createUser = async (fullName, email, password, login) => {
 	try {
-		const countryData = await fetch('https://ipapi.co/json/');
-		const data = await countryData.json();
-		const country = data && data.country_name ? data.country_name : null;
 		const response = await api.post(`${API_URL}/auth/register`, {
 			fullName,
 			email,
 			password,
-			country,
 			login,
 		});
 		// const response = await userStore.register(login, email, fullName, password);
