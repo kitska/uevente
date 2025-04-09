@@ -6,6 +6,7 @@ import { userStore } from '../store/userStore';
 const Account = () => {
     const [activeSection, setActiveSection] = useState('profile'); // Default section
     const navigate = useNavigate(); // Hook for navigation
+    const [imgLoaded, setImgLoaded] = useState(false);
 
     // Handlers for the sidebar menu
     const handleMenuClick = (section) => {
@@ -24,10 +25,15 @@ const Account = () => {
             {userStore?.user && (
                 <div className="flex items-center space-x-6">
                     <div className="w-20 h-20 rounded-full bg-gray-200">
+                        {!imgLoaded && (
+                            <div className="w-8 h-8 me-2 rounded-full bg-gray-300 animate-pulse" />
+                        )}
                         <img
-                            src={userStore?.user?.profilePicture}
-                            alt="Profile"
-                            className="w-full h-full object-cover rounded-full"
+                            className={`w-8 h-8 me-2 rounded-full transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
+                                }`}
+                            src={userStore?.user.profilePicture}
+                            alt="user"
+                            onLoad={() => setImgLoaded(true)}
                         />
                     </div>
                     <div>

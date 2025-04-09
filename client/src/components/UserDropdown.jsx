@@ -41,10 +41,15 @@ const UserDropdown = () => {
         className="flex items-center text-sm pe-1 p-1 pr-3 font-medium text-gray-900 bg-pink-400 rounded-full hover:text-white focus:text-white md:me-0 focus:ring-2 focus:ring-gray-100"
         type="button"
       >
+        {!imgLoaded && (
+          <div className="w-8 h-8 me-2 rounded-full bg-gray-300 animate-pulse" />
+        )}
         <img
-          className="w-8 h-8 me-2 rounded-full"
+          className={`w-8 h-8 me-2 rounded-full transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
+            }`}
           src={userStore?.user.profilePicture}
           alt="user"
+          onLoad={() => setImgLoaded(true)}
         />
         <span className="hidden sm:inline">{userStore?.user.fullName}</span>
 
