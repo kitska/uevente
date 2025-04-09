@@ -33,7 +33,6 @@ import 'aos/dist/aos.css'; // 🔥 required!
 function AppContent() {
     const location = useLocation(); // Get the current route
     const [loading, setLoading] = useState(true); // Loading state
-
     useEffect(() => {
         AOS.init({
             duration: 500,

@@ -1,8 +1,6 @@
 // src/pages/Register.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { userStore } from '../store/userStore'; // Импортируйте userStore
@@ -10,6 +8,7 @@ import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import Tooltip from '@mui/material/Tooltip';
 import { FaGithub, FaDiscord } from "react-icons/fa";
+import { useOAuth, useOAuthCallback } from '../utils/oauth';
 // import Notification from '../components/Notification';
 // import { createUser } from '../services/userService';
 
@@ -22,6 +21,7 @@ function Register() {
         confirmPassword: '',
     });
     const [errors, setErrors] = useState({});
+    const { googleLogin, loginWithGitHub, loginWithDiscord } = useOAuth();
     const validate = () => {
         const errors = {};
         if (!form.fullName) errors.fullName = "Full name is required";
@@ -76,20 +76,13 @@ function Register() {
             setLoading(false);
         }
     };
-
-    // Google login (optional)
-    const googleLogin = useGoogleLogin({
-        onSuccess: async (token) => {
-            try {
-                const { data } = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token.access_token}`);
-                console.log("Google profile:", data);
-                // You could optionally auto-register the user or redirect them
-            } catch (err) {
-                console.error("Google profile fetch failed", err);
-            }
-        },
-        onError: (error) => console.error('Google Login Failed:', error),
-    });
+    useOAuthCallback('github');
+    useOAuthCallback('discord');
+    useEffect(() => {
+        if (userStore.user) {
+            navigate('/');
+        }
+    }, [navigate, userStore.user]);
 
     return loading ? (
         <LoadingSpinner />

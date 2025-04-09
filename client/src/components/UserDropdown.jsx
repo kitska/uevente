@@ -31,6 +31,7 @@ const UserDropdown = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [userStore?.user]);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
     <div className="relative" ref={dropdownRef}>

@@ -28,10 +28,12 @@ const Header = () => {
 					<UserDropdown />
 					// <img src={userStore.user.profilePicture} alt="" />
 				) : (
-					<div className="flex gap-6 items-center">
-						{/* If user is not logged in, show Login icon */}
+					<div className="flex gap-2 items-center">
 						<Link to="/login" className="text-pink-400 text-2xl hover:text-pink-700">
-							<AiOutlineLogin />
+							<div className="flex items-center">
+								<AiOutlineLogin className="text-2xl" />
+								<span className="text-xl ml-2">Login</span>
+							</div>
 						</Link>
 					</div>
 				)
