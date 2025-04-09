@@ -3,6 +3,7 @@ import { User } from '../models/User';
 import path from 'path';
 import fs from 'fs';
 import { Company } from '../models/Company'; // Добавим модель компании
+import { Subscription } from '../models/Subscription';
 // import { Ticket } from '../models/Ticket'; // Добавим модель билетов
 // import { Subscription } from '../models/Subscription'; // Добавим модель подписок
 // import { Notification } from '../models/Notification'; // Добавим модель уведомлений
@@ -10,15 +11,8 @@ interface MulterRequest extends Request {
 	file: any;
 }
 
-const defaultAvatars = [
-	'face_1.png',
-	'face_2.png',
-	'face_3.png',
-	'face_4.png',
-	'face_5.png'
-];
+const defaultAvatars = ['face_1.png', 'face_2.png', 'face_3.png', 'face_4.png', 'face_5.png'];
 export class UserController {
-
 	static async uploadAvatar(req: MulterRequest, res: Response): Promise<Response> {
 		try {
 			const userId = (req as any).user?.id;
@@ -85,10 +79,10 @@ export class UserController {
 				password,
 				login,
 				profilePicture,
-				isAdmin: isAdmin || false,  // по умолчанию false
-				isShowName: isShowName !== undefined ? isShowName : true,  // по умолчанию true
-				rating: rating || 0,  // по умолчанию 0
-				isEmailConfirmed: isEmailConfirmed || false,  // по умолчанию false
+				isAdmin: isAdmin || false, // по умолчанию false
+				isShowName: isShowName !== undefined ? isShowName : true, // по умолчанию true
+				rating: rating || 0, // по умолчанию 0
+				isEmailConfirmed: isEmailConfirmed || false, // по умолчанию false
 			});
 
 			// Хэшируем пароль перед сохранением
@@ -104,105 +98,119 @@ export class UserController {
 		}
 	}
 
-
 	// 	// Получение всех пользователей
-		static async getUsers(req: Request, res: Response): Promise<Response> {
-			try {
-				const users = await User.find();
-				return res.status(200).json(users);
-			} catch (error) {
-				console.error(error);
-				return res.status(500).json({ message: 'Internal server error.' });
-			}
+	static async getUsers(req: Request, res: Response): Promise<Response> {
+		try {
+			const users = await User.find();
+			return res.status(200).json(users);
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Internal server error.' });
 		}
+	}
 
 	// 	// Получение пользователя по ID
-		static async getUserById(req: Request, res: Response): Promise<Response> {
-			const { id } = req.params;
+	static async getUserById(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
 
-			try {
-				const user = await User.findOne({ where: { id: id } });
-				if (!user) {
-					return res.status(404).json({ message: 'User not found.' });
-				}
-
-				return res.status(200).json(user);
-			} catch (error) {
-				console.error(error);
-				return res.status(500).json({ message: 'Internal server error.' });
+		try {
+			const user = await User.findOne({ where: { id: id } });
+			if (!user) {
+				return res.status(404).json({ message: 'User not found.' });
 			}
+
+			return res.status(200).json(user);
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Internal server error.' });
 		}
+	}
 
 	// 	// Обновление пользователя
-		static async updateUser(req: Request, res: Response): Promise<Response> {
-			const { id } = req.params;
-			const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating } = req.body;
+	static async updateUser(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
+		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating } = req.body;
 
-			try {
-				// Ищем пользователя по ID
-				const user = await User.findOneBy({ id: id });
-				if (!user) {
-					return res.status(404).json({ message: 'User not found.' });
-				}
-
-				// Обновляем поля пользователя
-				if (fullName) user.fullName = fullName;
-				if (email) user.email = email;
-				if (login) user.login = login;
-				if (password) user.password = password;  // Хэшируем новый пароль
-				if (isEmailConfirmed !== undefined) user.isEmailConfirmed = isEmailConfirmed;
-				if (profilePicture) user.profilePicture = profilePicture;
-				if (isAdmin !== undefined) user.isAdmin = isAdmin;
-				if (isShowName !== undefined) user.isShowName = isShowName;
-				if (rating !== undefined) user.rating = rating;
-
-				// Сохраняем обновленного пользователя
-				await user.save();
-
-				return res.status(200).json({ message: 'User updated successfully.', user });
-			} catch (error) {
-				console.error(error);
-				return res.status(500).json({ message: 'Internal server error.' });
+		try {
+			// Ищем пользователя по ID
+			const user = await User.findOneBy({ id: id });
+			if (!user) {
+				return res.status(404).json({ message: 'User not found.' });
 			}
-		}
 
+			// Обновляем поля пользователя
+			if (fullName) user.fullName = fullName;
+			if (email) user.email = email;
+			if (login) user.login = login;
+			if (password) user.password = password; // Хэшируем новый пароль
+			if (isEmailConfirmed !== undefined) user.isEmailConfirmed = isEmailConfirmed;
+			if (profilePicture) user.profilePicture = profilePicture;
+			if (isAdmin !== undefined) user.isAdmin = isAdmin;
+			if (isShowName !== undefined) user.isShowName = isShowName;
+			if (rating !== undefined) user.rating = rating;
+
+			// Сохраняем обновленного пользователя
+			await user.save();
+
+			return res.status(200).json({ message: 'User updated successfully.', user });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Internal server error.' });
+		}
+	}
 
 	// 	// Удаление пользователя
-		static async deleteUser(req: Request, res: Response): Promise<Response> {
-			const { id } = req.params;
+	static async deleteUser(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
 
-			try {
-				const user = await User.findOneBy({ id: id });
-				if (!user) {
-					return res.status(404).json({ message: 'User not found.' });
-				}
-
-				await user.remove();
-				return res.status(200).json({ message: 'User deleted successfully.' });
-			} catch (error) {
-				console.error(error);
-				return res.status(500).json({ message: 'Internal server error.' });
+		try {
+			const user = await User.findOneBy({ id: id });
+			if (!user) {
+				return res.status(404).json({ message: 'User not found.' });
 			}
+
+			await user.remove();
+			return res.status(200).json({ message: 'User deleted successfully.' });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Internal server error.' });
 		}
+	}
 
 	// 	// Получение всех компаний пользователя
-		static async getUserCompanies(req: Request, res: Response): Promise<Response> {
-			const { id } = req.params;
+	static async getUserCompanies(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
 
-			try {
-				const user = await User.findOne({ where: { id: id } });
-				if (!user) {
-					return res.status(404).json({ message: 'User not found.' });
-				}
-
-				// Получаем все компании, где пользователь является владельцем
-				const companies = await Company.find({ where: { owner: { id: id } } });
-				return res.status(200).json(companies);
-			} catch (error) {
-				console.error(error);
-				return res.status(500).json({ message: 'Internal server error.' });
+		try {
+			const user = await User.findOne({ where: { id: id } });
+			if (!user) {
+				return res.status(404).json({ message: 'User not found.' });
 			}
+
+			// Получаем все компании, где пользователь является владельцем
+			const companies = await Company.find({ where: { owner: { id: id } } });
+			return res.status(200).json(companies);
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Internal server error.' });
 		}
+	}
+
+	static async getUserSubscriptions(req: Request, res: Response): Promise<Response> {
+		const { userId } = req.params;
+
+		try {
+			const subscriptions = await Subscription.find({
+				where: { user: { id: userId } },
+				relations: ['event'],
+			});
+
+			return res.status(200).json(subscriptions);
+		} catch (error) {
+			console.error('Get subscriptions error:', error);
+			return res.status(500).json({ message: 'Failed to fetch subscriptions' });
+		}
+	}
 
 	// 	// Получение всех билетов пользователя
 	// 	static async getUserTickets(req: Request, res: Response): Promise<Response> {

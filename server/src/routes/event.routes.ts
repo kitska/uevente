@@ -1,3 +1,17 @@
+import { Router } from 'express';
+import { EventController } from '../controllers/EventController';
+
+const router = Router();
+
+router.get('/', EventController.getAllEvents.bind(EventController));
+router.post('/', EventController.createEvent.bind(EventController));
+router.get('/:id', EventController.getEventById.bind(EventController));
+router.patch('/:id', EventController.updateEvent.bind(EventController));
+router.delete('/:id', EventController.deleteEvent.bind(EventController));
+router.get('/subscriptions/:eventId/count', EventController.getEventSubscriptionCount.bind(EventController));
+
+export default router;
+
 // import { Router } from 'express';
 // import { EventController } from '../controllers/EventController';
 // import { authMiddleware } from '../middlewares/Auth';
