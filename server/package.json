@@ -15,6 +15,7 @@
 	"description": "",
 	"dependencies": {
 		"@faker-js/faker": "^9.4.0",
+		"@types/jimp": "^0.2.1",
 		"axios": "^1.7.9",
 		"bcrypt": "^5.1.1",
 		"class-transformer": "^0.5.1",
@@ -25,13 +26,17 @@
 		"express": "^4.21.2",
 		"google-auth-library": "^9.15.1",
 		"googleapis": "^148.0.0",
+		"jimp": "^1.6.0",
 		"jsonwebtoken": "^9.0.2",
+		"jsqr": "^1.4.0",
 		"logger": "^0.0.1",
 		"multer": "^1.4.5-lts.2",
 		"nodemailer": "^6.9.16",
 		"nodemon": "^3.1.9",
 		"pg": "^8.13.1",
 		"pg-dump-restore": "^1.0.12",
+		"qrcode": "^1.5.4",
+		"qrcode-reader": "^1.0.4",
 		"reflect-metadata": "^0.2.2",
 		"stripe": "^18.0.0",
 		"ts-node": "^10.9.2",
@@ -42,6 +47,7 @@
 		"@types/express": "^5.0.0",
 		"@types/multer": "^1.4.12",
 		"@types/node": "^22.10.10",
+		"@types/qrcode": "^1.5.5",
 		"typescript": "^5.7.3"
 	}
 }
