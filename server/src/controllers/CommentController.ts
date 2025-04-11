@@ -6,18 +6,29 @@ import { User } from '../models/User';
 export class CommentController {
 	static async getCommentsByEvent(req: Request, res: Response) {
 		const { eventId } = req.params;
+		const page = parseInt(req.query.page as string) || 1;
+		const limit = parseInt(req.query.limit as string) || 10;
+		const skip = (page - 1) * limit;
 
 		try {
 			const event = await Event.findOne({ where: { id: eventId } });
 			if (!event) return res.status(404).json({ message: 'Event not found' });
 
-			const comments = await Comment.find({
+			const [comments, total] = await Comment.findAndCount({
 				where: { event: { id: eventId } },
 				relations: ['user'],
 				order: { createdAt: 'ASC' },
+				skip,
+				take: limit,
 			});
 
-			return res.status(200).json(comments);
+			return res.status(200).json({
+				data: comments,
+				page,
+				limit,
+				total,
+				totalPages: Math.ceil(total / limit),
+			});
 		} catch (error) {
 			console.error('Error fetching comments for event:', error);
 			return res.status(500).json({ message: 'Failed to fetch comments for event' });

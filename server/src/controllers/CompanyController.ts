@@ -142,7 +142,7 @@ export class CompanyController {
 
 			const events = await Event.find({
 				where: { company: { id: company.id } },
-				relations: ['calendar', 'format', 'theme'],
+				relations: ['formats', 'themes'],
 			});
 
 			return res.status(200).json(events);
