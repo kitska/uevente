@@ -3,7 +3,11 @@ import { Ticket } from '../models/Ticket';
 import { User } from '../models/User';
 import { Event } from '../models/Event';
 import * as QRCode from 'qrcode';
+import { converBase64ToImage } from 'convert-base64-to-image'
+import { Jimp } from 'jimp';
 import jsQR from 'jsqr';
+import fs from 'fs/promises';
+import path from 'path';
 
 export class TicketController {
 	static async createTicket(req: Request, res: Response): Promise<Response> {
@@ -43,27 +47,36 @@ export class TicketController {
 	}
 	// ТЫ СУКА ЕБАНАЯ ЯТВОЕ ВСЕ ЕБАЛ
 	static async decodeQRCode(req: Request, res: Response): Promise<Response> {
-		const { qrCode } = req.body;
-
+		const { qrCode, ticketId } = req.body;
+		const pathToSaveImage = `./uploads/qrcodes/${ticketId}.png`;
+	
 		try {
-			const base64Data = qrCode.replace(/^data:image\/png;base64,/, '');
-
-			const buffer = Buffer.from(base64Data, 'base64');
-
-			const uint8Array = new Uint8Array(buffer);
-
-			const clampedArray = new Uint8ClampedArray(uint8Array.buffer);
-
-			const decoded = jsQR(clampedArray, 300, 300);
-
-			if (!decoded) {
-				return res.status(400).json({ message: 'Failed to decode the QR code' });
+			converBase64ToImage(qrCode, pathToSaveImage);
+	
+			const image = await Jimp.read(pathToSaveImage);
+	
+			const imageData = {
+				data: new Uint8ClampedArray(image.bitmap.data),
+				width: image.bitmap.width,
+				height: image.bitmap.height,
+			};
+	
+			const decodedQR = jsQR(imageData.data, imageData.width, imageData.height);
+	
+			if (!decodedQR) {
+				throw new Error('QR code not found in the image.');
 			}
-
-			return res.status(200).json({ decodedText: decoded.data });
+	
+			return res.status(200).json({ decodedText: decodedQR.data });
 		} catch (error) {
 			console.error('Error when processing a QR code:', error);
 			return res.status(500).json({ message: 'There was an error when decoding the QR code' });
+		} finally {
+			try {
+				await fs.unlink(pathToSaveImage);
+			} catch (cleanupError) {
+				console.warn('Failed to remove temporary image:', cleanupError);
+			}
 		}
 	}
 
