@@ -47,38 +47,37 @@ export class TicketController {
 	}
 	// ТЫ СУКА ЕБАНАЯ ЯТВОЕ ВСЕ ЕБАЛ
 	static async decodeQRCode(req: Request, res: Response): Promise<Response> {
-		const { qrCode, ticketId } = req.body;
-		const pathToSaveImage = `./uploads/qrcodes/${ticketId}.png`;
+		const { qrCode } = req.body;
 	
 		try {
-			converBase64ToImage(qrCode, pathToSaveImage);
+			// Remove base64 prefix if present
+			const base64Data = qrCode.replace(/^data:image\/\w+;base64,/, '');
+			const buffer = Buffer.from(base64Data, 'base64');
 	
-			const image = await Jimp.read(pathToSaveImage);
+			// Read image from buffer using Jimp
+			const image = await Jimp.read(buffer);
 	
+			// Extract image data
 			const imageData = {
 				data: new Uint8ClampedArray(image.bitmap.data),
 				width: image.bitmap.width,
 				height: image.bitmap.height,
 			};
 	
+			// Decode with jsQR
 			const decodedQR = jsQR(imageData.data, imageData.width, imageData.height);
 	
 			if (!decodedQR) {
-				throw new Error('QR code not found in the image.');
+				return res.status(400).json({ message: 'QR code not found in the image.' });
 			}
 	
 			return res.status(200).json({ decodedText: decodedQR.data });
 		} catch (error) {
 			console.error('Error when processing a QR code:', error);
 			return res.status(500).json({ message: 'There was an error when decoding the QR code' });
-		} finally {
-			try {
-				await fs.unlink(pathToSaveImage);
-			} catch (cleanupError) {
-				console.warn('Failed to remove temporary image:', cleanupError);
-			}
 		}
 	}
+	
 
 	static async getTicketsByEvent(req: Request, res: Response): Promise<Response> {
 		const { eventId } = req.params;
