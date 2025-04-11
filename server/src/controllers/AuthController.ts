@@ -102,7 +102,7 @@ export const AuthController = {
 
 	async login(req: Request, res: Response): Promise<Response> {
 		const { email, login, password }: { email?: string; login?: string; password: string } = req.body;
-		console.log(email, password, login);
+		// console.log(email, password, login);
 
 		if (!password || (!email && !login)) {
 			return res.status(400).json({ message: 'Email or login and password are required' });

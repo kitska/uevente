@@ -6,9 +6,9 @@ DB_ADMIN_DB=postgres
 DB_ADMIN_USER=postgres
 DB_ADMIN_PASSWORD=12345678
 
-DB_NAME=CloOk
-DB_USER=test-clook-user
-DB_PASSWORD=clook
+DB_NAME=GOE
+DB_USER=GAY
+DB_PASSWORD=evnt
 
 FRONT_URL=http://localhost:3000
 BACK_URL=http://localhost:8000

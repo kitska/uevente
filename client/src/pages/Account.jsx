@@ -26,7 +26,7 @@ const Account = () => {
                 <div className="flex items-center space-x-6">
                     <div className="w-20 h-20 rounded-full bg-gray-200">
                         {!imgLoaded && (
-                            <div className="w-8 h-8 me-2 rounded-full bg-gray-300 animate-pulse" />
+                            <div className="w-20 h-20 me-2 rounded-full bg-gray-300 animate-pulse" />
                         )}
                         <img
                             className={`w-8 h-8 me-2 rounded-full transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute'

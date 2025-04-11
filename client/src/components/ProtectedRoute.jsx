@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { userStore } from "../store/userStore";
 
 const ProtectedRoute = observer(({ children }) => {
-  console.log(userStore?.user);
+  // console.log(userStore?.user);
   if (!userStore?.user) {
     // If not logged in, redirect to login page
     return <Navigate to="/login" replace />;

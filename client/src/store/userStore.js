@@ -150,7 +150,7 @@ class UserStore {
 		}
 
 		try {
-			console.log(this.user.email);
+			// console.log(this.user.email);
 			const response = await requestPasswordReset(this.user.email);
 			this.setNotification(response.message || 'Password reset link sent! Check your email.', 'success');
 		} catch (error) {

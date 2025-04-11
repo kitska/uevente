@@ -3,9 +3,15 @@ import { AppDataSource, createAdmin, seedDatabase } from './src/database/data-so
 import { createUserAndDatabase } from "./src/database/db.create";
 import userRoutes from './src/routes/user.routes';
 import callBackRoutes from './src/routes/callback.routes';
-// import eventRoutes from './src/routes/event.routes';
+import eventRoutes from './src/routes/event.routes';
+import companyRoutes from './src/routes/company.routes';
+import themeRoutes from './src/routes/theme.routes';
+import formatRoutes from './src/routes/format.routes';
+import commentRoutes from './src/routes/comment.routes';
+import ticketRoutes from './src/routes/ticket.routes'
 // import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
+import paymentRoutes from './src/routes/payment.routes'
 import cors from 'cors';
 import path from 'path';
 
@@ -33,7 +39,13 @@ app.use(express.json());
 
 // Connect routes
 app.use('/api/users', userRoutes);
-// app.use('/api/events', eventRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/companies', companyRoutes);
+app.use('/api/themes', themeRoutes);
+app.use('/api/formats', formatRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/tickets', ticketRoutes);
 // app.use('/api/calendars', calendarRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/avatars',express.static(path.join(__dirname, 'uploads')));
@@ -48,12 +60,12 @@ createUserAndDatabase()
 				// await checkAndRunKostilSQL();
 
 				// console.log('Data Source has been initialized!');
-				await createAdmin();
+				//await createAdmin();
 
 
 				// await localEventsBackup();
 
-				await seedDatabase();
+				//await seedDatabase();
 
 
 				// createLocalEventDump();
