@@ -1,96 +1,133 @@
 import React, { useState } from 'react';
-import { FaUser, FaCog, FaSignOutAlt, FaKey, FaLanguage, FaTrashAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom'; // Using useNavigate for navigation
+import { FaUser, FaCog, FaSignOutAlt, FaKey } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { userStore } from '../store/userStore';
 
 const Account = () => {
-    const [activeSection, setActiveSection] = useState('profile'); // Default section
-    const navigate = useNavigate(); // Hook for navigation
+    const navigate = useNavigate();
+    const [activeSection, setActiveSection] = useState('profile');
     const [imgLoaded, setImgLoaded] = useState(false);
 
-    // Handlers for the sidebar menu
-    const handleMenuClick = (section) => {
-        setActiveSection(section);
+    const [editingProfile, setEditingProfile] = useState(false);
+    const [fullName, setFullName] = useState(userStore?.user?.fullName || '');
+    const [login, setLogin] = useState(userStore?.user?.login || '');
+    const [profilePicture, setProfilePicture] = useState(userStore?.user?.profilePicture || '');
+
+    const handleMenuClick = (section) => setActiveSection(section);
+
+    const goToMainPage = () => navigate('/');
+
+    const handleSaveProfile = () => {
+        console.log('Saving Profile:', { fullName, login, profilePicture });
+        setEditingProfile(false);
+        // Optionally update userStore here
     };
 
-    // Navigate back to the main page
-    const goToMainPage = () => {
-        navigate('/'); // Assuming '/' is the main page
-    };
-
-    // Render Profile Section
-    const ProfileSection = () => (
-        <div className="p-4 space-y-4">
-            <h2 className="text-xl font-bold text-gray-800">Your Profile</h2>
-            {userStore?.user && (
-                <div className="flex items-center space-x-6">
-                    <div className="w-20 h-20 rounded-full bg-gray-200">
-                        {!imgLoaded && (
-                            <div className="w-20 h-20 me-2 rounded-full bg-gray-300 animate-pulse" />
-                        )}
-                        <img
-                            className={`w-8 h-8 me-2 rounded-full transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
-                                }`}
-                            src={userStore?.user.profilePicture}
-                            alt="user"
-                            onLoad={() => setImgLoaded(true)}
-                        />
-                    </div>
-                    <div>
-                        <p className="text-lg font-semibold">{userStore?.user.fullName}</p>
-                        <p className="text-gray-600">{userStore?.user.email}</p>
-                        <p className="text-gray-600">Language: English</p>
-                    </div>
-                </div>
-            )}
-
-        </div>
-    );
-
-    // Render Login Section
-    const LoginSection = () => (
-        <div className="p-4 space-y-4">
-            <h2 className="text-xl font-bold text-gray-800">Login Settings</h2>
-            <div className="space-y-2">
-                <button className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                    Reset Password
-                </button>
-                <button className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                    Enable Passkeys
-                </button>
-                <button className="w-full py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600">
-                    Delete Account
-                </button>
-            </div>
-        </div>
-    );
-
-    // Render Accessibility Section
-    const AccessibilitySection = () => (
-        <div className="p-4 space-y-4">
-            <h2 className="text-xl font-bold text-gray-800">Accessibility Settings</h2>
-            <div className="space-y-2">
-                <button className="w-full py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-                    Toggle Dark Mode
-                </button>
-                <button className="w-full py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-                    Change Font Size
-                </button>
-            </div>
-        </div>
-    );
-
-    // Main Content rendering based on selected section
     const renderContent = () => {
         switch (activeSection) {
             case 'profile':
-                return <ProfileSection />;
+                return (
+                    <div className="p-4 space-y-4">
+                        <h2 className="text-xl font-bold text-gray-800">Your Profile</h2>
+                        <div className="flex items-start space-x-6">
+                            <div className="relative w-24 h-24">
+                                {!imgLoaded && (
+                                    <div className="w-24 h-24 rounded-full bg-gray-300 animate-pulse" />
+                                )}
+                                <img
+                                    className={`w-24 h-24 rounded-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
+                                    src={profilePicture}
+                                    alt="user"
+                                    onLoad={() => setImgLoaded(true)}
+                                />
+                            </div>
+                            <div className="flex-1 space-y-4">
+                                {editingProfile ? (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm text-gray-700">Full Name</label>
+                                            <input
+                                                type="text"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                className="w-full p-2 border rounded-md"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-gray-700">Login</label>
+                                            <input
+                                                type="text"
+                                                value={login}
+                                                onChange={(e) => setLogin(e.target.value)}
+                                                className="w-full p-2 border rounded-md"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-gray-700">Profile Picture URL</label>
+                                            <input
+                                                type="text"
+                                                value={profilePicture}
+                                                onChange={(e) => setProfilePicture(e.target.value)}
+                                                className="w-full p-2 border rounded-md"
+                                            />
+                                        </div>
+                                        <button
+                                            className="mt-2 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                            onClick={handleSaveProfile}
+                                        >
+                                            Save Changes
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="text-lg font-semibold">{fullName}</p>
+                                        <p className="text-gray-600">{login}</p>
+                                        <p className="text-gray-600">Language: English</p>
+                                        <button
+                                            className="mt-2 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                            onClick={() => setEditingProfile(true)}
+                                        >
+                                            Edit Profile
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
             case 'login':
-                return <LoginSection />;
+                return (
+                    <div className="p-4 space-y-4">
+                        <h2 className="text-xl font-bold text-gray-800">Login Settings</h2>
+                        <div className="space-y-2">
+                            <button className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                Reset Password
+                            </button>
+                            <button className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                Enable Passkeys
+                            </button>
+                            <button className="w-full py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                );
             case 'accessibility':
-                return <AccessibilitySection />;
+                return (
+                    <div className="p-4 space-y-4">
+                        <h2 className="text-xl font-bold text-gray-800">Accessibility Settings</h2>
+                        <div className="space-y-2">
+                            <button className="w-full py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                                Toggle Dark Mode
+                            </button>
+                            <button className="w-full py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                                Change Font Size
+                            </button>
+                        </div>
+                    </div>
+                );
             default:
-                return <div>Select a section</div>;
+                return <div className="p-4">Select a section</div>;
         }
     };
 
@@ -98,7 +135,6 @@ const Account = () => {
         <div className="flex min-h-screen bg-gray-100">
             {/* Sidebar */}
             <div className="w-56 bg-gray-800 text-white p-4 fixed h-full">
-                {/* "Go Event" logo at the top */}
                 <div
                     onClick={goToMainPage}
                     className="text-2xl font-bold text-white cursor-pointer mb-6"
@@ -136,10 +172,13 @@ const Account = () => {
                         </button>
                     </li>
                 </ul>
-                <button className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded-md w-full mt-6" onClick={() => {
-                    userStore?.logout();
-                    goToMainPage();
-                }}>
+                <button
+                    className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded-md w-full mt-6"
+                    onClick={() => {
+                        userStore?.logout();
+                        goToMainPage();
+                    }}
+                >
                     <FaSignOutAlt />
                     <span className="text-sm">Sign Out</span>
                 </button>
