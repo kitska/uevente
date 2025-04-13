@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa'; // FontAwesome user icon
 import { AiOutlineLogin } from 'react-icons/ai'; // FontAwesome login icon
 import SearchBar from './SearchBar';
+import UserDropdown from './UserDropdown';
+import { userStore } from '../store/userStore';
 
 const Header = () => {
 	const handleSearch = (query) => {
@@ -21,15 +23,23 @@ const Header = () => {
 			<div className="flex-1 max-w-md mx-8">
 				<SearchBar onSearch={handleSearch} />
 			</div>
-
+			{
+				userStore?.user ? (
+					<UserDropdown />
+					// <img src={userStore.user.profilePicture} alt="" />
+				) : (
+					<div className="flex gap-2 items-center">
+						<Link to="/login" className="text-pink-400 text-2xl hover:text-pink-700">
+							<div className="flex items-center">
+								<AiOutlineLogin className="text-2xl" />
+								<span className="text-xl ml-2">Login</span>
+							</div>
+						</Link>
+					</div>
+				)
+			}
 			{/* Right: Login */}
-			<div className="flex gap-6 items-center">
-				{/* If user is not logged in, show Login icon */}
-				<Link to="/login" className="text-pink-400 text-2xl hover:text-pink-700">
-					<AiOutlineLogin />
-				</Link>
-			</div>
-		</header>
+		</header >
 	);
 };
 

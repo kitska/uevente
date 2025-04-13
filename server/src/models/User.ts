@@ -12,7 +12,7 @@ const defaultAvatars = [
 	'face_3.png',
 	'face_4.png',
 	'face_5.png'
-  ];
+];
 @Entity()
 export class User extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
@@ -48,8 +48,10 @@ export class User extends BaseEntity {
 	@BeforeInsert()
 	async initUser() {
 		this.password = await bcrypt.hash(this.password, 10);
-		const randomAvatar = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
-		this.profilePicture = `${process.env.BACK_URL || 'http://localhost:8000'}/avatars/${randomAvatar}`;
+		if (!this.profilePicture) {
+			const randomAvatar = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+			this.profilePicture = `${process.env.BACK_URL || 'http://localhost:8000'}/avatars/${randomAvatar}`;
+		}
 	}
 }
 

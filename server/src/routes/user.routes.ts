@@ -21,6 +21,7 @@ const upload = multer({ storage });
 
 router.post('/:id/avatar', authMiddleware, upload.single('avatar'), UserController.uploadAvatar.bind(UserController));
 router.post('/', UserController.createUser.bind(UserController));
+router.get('/subscriptions/:userId', UserController.getUserSubscriptions.bind(UserController));
 // router.get('/', UserController.getUsers.bind(UserController));
 // router.get('/:id', UserController.getUserById.bind(UserController));
 // router.patch('/:id', UserController.updateUser.bind(UserController));

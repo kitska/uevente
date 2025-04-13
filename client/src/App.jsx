@@ -8,6 +8,7 @@ import Account from './pages/Account'
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './components/PasswordReset';
+import ProtectedRoute from "./components/ProtectedRoute";
 import EmailConfirmation from './components/EmailConfirmation';
 import EmailSentPasswordReset from './components/EmailSentPasswordReset';
 import Error from './pages/Error';
@@ -15,6 +16,9 @@ import ScrollToTop from './components/ScrollToTop';
 import SomethingInteresting from './pages/SomethingInteresting';
 import { AxiosInterceptor } from './services/index';
 import { Toaster } from 'react-hot-toast';
+import { fetchCurrentUser } from './services/userService'; // Импорт функции
+import { userStore } from './store/userStore';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Smooth appearing on scroll
 import AOS from 'aos';
@@ -29,7 +33,6 @@ import 'aos/dist/aos.css'; // 🔥 required!
 function AppContent() {
     const location = useLocation(); // Get the current route
     const [loading, setLoading] = useState(true); // Loading state
-
     useEffect(() => {
         AOS.init({
             duration: 500,
@@ -40,6 +43,30 @@ function AppContent() {
         // Optional: refresh on route change
         AOS.refresh();
     }, [location.pathname]);
+    useEffect(() => {
+        const loadUser = async () => {
+            try {
+                const currentUser = await fetchCurrentUser();
+                if (!currentUser) {
+                    userStore.logout(); // Ensure userStore handles logout properly
+                    return;
+                }
+                userStore.setUser(currentUser);
+                // userStore.user = currentUser;
+                // setUser(currentUser); // Устанавливаем пользователя
+            } catch (error) {
+                console.error('Failed to fetch user:', error);
+                userStore.logout();
+            } finally {
+                setLoading(false); // Завершаем загрузку
+            }
+        };
+        // if (localStorage.getItem('token')) loadUser();
+        loadUser();
+    }, []);
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
     // You can uncomment and adjust this section to load the user as needed
     // useEffect(() => {
@@ -76,7 +103,7 @@ function AppContent() {
                 <Routes>
                     <Route path='/' element={<Main />} />
                     <Route path="/event/:id" element={<Event />} />
-                    <Route path='/account' element={<Account />} />
+                    <Route path='/account' element={<ProtectedRoute><Account /></ProtectedRoute>} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/auth/github/callback' element={<Login />} />
                     <Route path='/auth/discord/callback' element={<Login />} />

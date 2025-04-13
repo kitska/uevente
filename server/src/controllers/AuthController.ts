@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { sendResetPasswordEmail, sendConfirmationEmail } from '../utils/emailService';
+import { isAdmin } from '../middlewares/Auth';
 
 interface ConfirmNewPasswordParams {
 	token: string;
@@ -101,6 +102,7 @@ export const AuthController = {
 
 	async login(req: Request, res: Response): Promise<Response> {
 		const { email, login, password }: { email?: string; login?: string; password: string } = req.body;
+		// console.log(email, password, login);
 
 		if (!password || (!email && !login)) {
 			return res.status(400).json({ message: 'Email or login and password are required' });
@@ -118,7 +120,7 @@ export const AuthController = {
 
 			const isPasswordValid = await bcrypt.compare(password, user.password);
 			if (!isPasswordValid) {
-				return res.status(400).json({ message: 'Invalid credentials' });
+				return res.status(401).json({ message: 'Invalid credentials' });
 			}
 
 			const token = jwt.sign(
@@ -192,5 +194,35 @@ export const AuthController = {
 			console.log(error);
 			return res.status(400).json({ message: 'Invalid or expired token' });
 		}
-	}
+	},
+	async createFulluser(req: Request, res: Response): Promise<Response> {
+		const { fullName, email, password, login, profilePicture, isAdmin, isShowName, rating, isEmailConfirmed }:
+			{ fullName: string; email: string; password: string; login: string; profilePicture: string; isAdmin: boolean; isShowName: boolean; rating: number; isEmailConfirmed: boolean; } = req.body;
+
+		try {
+			const newUser = User.create({
+				login,
+				fullName,
+				email,
+				password,
+				profilePicture,
+				isAdmin, 
+				isShowName,
+				rating,
+				isEmailConfirmed
+			});
+
+
+			await newUser.save();
+			if(!newUser.isEmailConfirmed) {
+				const token = jwt.sign({ email: newUser.email }, process.env.SECRET_KEY!, { expiresIn: '1d' });
+				await sendConfirmationEmail(newUser.email, token);
+			}
+
+			return res.status(201).json({ message: 'User registered successfully. Please confirm your email.' });
+		} catch (error) {
+			console.error('Error registering user:', error);
+			return res.status(500).json({ message: 'Failed to register user' });
+		}
+	},
 };

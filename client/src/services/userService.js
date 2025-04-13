@@ -17,6 +17,25 @@ export const createUser = async (fullName, email, password, login) => {
 		throw error;
 	}
 };
+export const createFullUser = async (fullName, email, password, login, profilePicture, isAdmin, isShowName, rating, isEmailConfirmed ) => {
+	try {
+		const response = await api.post(`${API_URL}/users`, {
+			fullName,
+			email,
+			password,
+			login,
+			profilePicture,
+			isAdmin,
+			isShowName,
+			rating,
+			isEmailConfirmed
+		});
+		// const response = await userStore.register(login, email, fullName, password);
+		return response.data;
+	} catch (error) {
+		throw error;
+	}
+}
 
 export const getUser = async (email, password, login) => {
 	try {

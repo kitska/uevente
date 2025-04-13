@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -8,137 +7,28 @@ import { FcGoogle } from "react-icons/fc";
 import { userStore } from '../store/userStore';
 import { Link } from 'react-router-dom';
 import { FaGoogle, FaGithub, FaDiscord } from "react-icons/fa";
+import { useOAuth, useOAuthCallback } from '../utils/oauth';
 
 function Login() {
-    const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const onSuccess = response => console.log(response);
-    const onFailure = response => console.error(response);
+    const { googleLogin, loginWithGitHub, loginWithDiscord } = useOAuth();
+    // const onSuccess = response => console.log(response);
+    // const onFailure = response => console.error(response);
 
     useEffect(() => {
         if (userStore.user) {
             navigate('/');
         }
-    }, [navigate]);
+    }, [navigate, userStore.user]);
 
-    // Google Login
-    const googleLogin = useGoogleLogin({
-        onSuccess: (codeResponse) => setUser(codeResponse),
-        onError: (error) => console.log('Google Login Failed:', error),
-    });
+    useOAuthCallback('github');
+    useOAuthCallback('discord');
 
-    // TODO: maybe virezhim
-    useEffect(() => {
-        if (user) {
-            axios
-                .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-                    headers: {
-                        Authorization: `Bearer ${user.access_token}`,
-                        Accept: 'application/json',
-                    },
-                })
-                .then((res) => {
-                    setProfile(res.data);
-                    console.log('Google profile', res.data);
-                })
-                .catch((err) => console.log(err));
-        }
-    }, [user]);
-
-    // GitHub login
-    const loginWithGitHub = () => {
-        const clientID = import.meta.env.VITE_GITHUB_OAUTH_API;
-        const array = new Uint8Array(16);
-        window.crypto.getRandomValues(array);
-        const state = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
-
-        localStorage.setItem("latestCSRFToken", state);
-        const redirectURI = 'http://localhost:3000/auth/github/callback';
-        const link = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=read:user user:email&redirect_uri=${redirectURI}&state=${state}`;
-        // window.location.assign(link);
-        window.location.href = link;
-    };
-
-    useEffect(() => {
-        const fetchGitHubCallback = async () => {
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            const state = params.get('state');
-
-            if (window.location.href.includes('/auth/github/callback')) {
-                localStorage.removeItem("latestCSRFToken");
-                try {
-                    const res = await axios.post("http://localhost:8000/auth/github/callback", {
-                        code
-                    });
-                    console.log(res.data);
-                    // Optional: handle response, maybe set user token, etc.
-                } catch (error) {
-                    console.error('GitHub OAuth callback error:', error);
-                }
-            }
-        };
-
-        fetchGitHubCallback();
-    }, []);
-
-
-    // Discord login
-    const loginWithDiscord = () => {
-        const clientID = import.meta.env.VITE_DISCORD_OAUTH_CLIENTID;
-        const array = new Uint8Array(16);
-        window.crypto.getRandomValues(array);
-        const state = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
-
-        localStorage.setItem("latestCSRFToken", state);
-
-        const redirectURI = 'http://localhost:3000/auth/discord/callback';
-        const scope = 'identify email';
-        const link = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${encodeURIComponent(redirectURI)}&response_type=code&scope=${scope}`;
-        window.location.assign(link);
-    };
-
-    useEffect(() => {
-        const fetchDiscordCallBack = async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const state = urlParams.get('state');
-            console.log("x1");
-            // if (state && state === localStorage.getItem("latestCSRFToken")) {
-            if (window.location.href.includes('/auth/discord/callback')) {
-                console.log("<x2></x2>");
-                localStorage.removeItem("latestCSRFToken");
-                try {
-                    const res = await axios.post("http://localhost:8000/auth/discord/callback", {
-                        code
-                    });
-                    console.log(res.data);
-                } catch (error) {
-                    console.error('Discord OAuth callback error:', error);
-                }
-            }
-        };
-
-        fetchDiscordCallBack();
-
-        // fetch('http://localhost:8000/auth/discord/callback', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ code }),
-        // })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         console.log('Discord OAuth data:', data);
-        //     });
-        // }
-    }, []);
-
-    // Email/password login
     const handleSubmit = async (e) => {
         e.preventDefault();
         setServerError('');
@@ -164,7 +54,7 @@ function Login() {
     };
 
     const logOut = () => {
-        googleLogout();
+        // googleLogout();
         setProfile(null);
     };
 
@@ -172,7 +62,6 @@ function Login() {
         <LoadingSpinner />
     ) : (
         <div className="relative flex items-center justify-center min-h-screen overflow-hidden">
-            {/* Blurred Background */}
             <div
                 className="absolute inset-0 bg-cover bg-center blur-sm scale-110"
                 style={{
@@ -187,11 +76,10 @@ function Login() {
                     Go Event
                 </button>
             </div>
-            <div className="absolute inset-0 bg-opacity-50 z-0"></div> {/* Vignette Effect */}
+            <div className="absolute inset-0 bg-opacity-50 z-0"></div>
             <div data-aos="slide-up" className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-3xl font-semibold text-left text-gray-900 mb-6">Welcome Back!</h2>
 
-                {/* Email/password login */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <input
                         type="text"
@@ -225,7 +113,6 @@ function Login() {
                     </Tooltip>
                 </form>
 
-                {/* Google login */}
                 {profile ? (
                     <div className="flex flex-col items-center">
                         <img src={profile.picture} alt="Profile" className="w-16 h-16 rounded-full mb-2" />
@@ -261,7 +148,6 @@ function Login() {
                     </div>
                 )}
 
-                {/* Sign Up link */}
                 <div className="mt-4 text-center text-gray-600">
                     <span>Don't have an account? </span>
                     <Link to="/register" className="text-blue-500 hover:underline">

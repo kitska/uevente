@@ -1,3 +1,173 @@
+import { Request, Response } from 'express';
+import { In } from 'typeorm';
+import { Event } from '../models/Event';
+import { Company } from '../models/Company';
+import { Format } from '../models/Format';
+import { Theme } from '../models/Theme';
+import { Subscription } from '../models/Subscription';
+
+export const EventController = {
+	async createEvent(req: Request, res: Response): Promise<Response> {
+		const { title, description, price, location, date, ticket_limit, is_published, poster, companyId, formatIds, themeIds } = req.body;
+
+		try {
+			const company = await Company.findOne({ where: { id: companyId } });
+			if (!company) return res.status(404).json({ message: 'Company not found' });
+
+			const formats = formatIds?.length ? await Format.findBy({ id: In(formatIds) }) : [];
+			const themes = themeIds?.length ? await Theme.findBy({ id: In(themeIds) }) : [];
+
+			const event = Event.create({
+				title,
+				description,
+				price,
+				location,
+				date,
+				ticket_limit,
+				is_published,
+				poster,
+				company,
+				formats,
+				themes,
+			});
+
+			await event.save();
+			return res.status(201).json({ message: 'Event created successfully', event });
+		} catch (error) {
+			console.error('Error creating event:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async getAllEvents(req: Request, res: Response): Promise<Response> {
+		const page = parseInt(req.query.page as string) || 1;
+		const limit = parseInt(req.query.limit as string) || 10;
+		const sort = (req.query.sort as string) || 'date';
+		const order = (req.query.order as string) === 'DESC' ? 'DESC' : 'ASC';
+
+		try {
+			const [events, total] = await Event.findAndCount({
+				relations: ['company', 'formats', 'themes'],
+				order: { [sort]: order },
+				skip: (page - 1) * limit,
+				take: limit,
+			});
+
+			return res.status(200).json({
+				data: events,
+				meta: {
+					total,
+					page,
+					limit,
+					totalPages: Math.ceil(total / limit),
+				},
+			});
+		} catch (error) {
+			console.error('Error fetching events:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async getEventById(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
+
+		try {
+			const event = await Event.findOne({
+				where: { id },
+				relations: ['company', 'formats', 'themes'],
+			});
+
+			if (!event) {
+				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			return res.status(200).json(event);
+		} catch (error) {
+			console.error('Error fetching event:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async updateEvent(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
+		const { title, description, price, location, date, ticket_limit, is_published, poster, companyId, formatIds, themeIds } = req.body;
+
+		try {
+			const event = await Event.findOne({
+				where: { id },
+				relations: ['company', 'formats', 'themes'],
+			});
+
+			if (!event) {
+				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			if (title !== undefined) event.title = title;
+			if (description !== undefined) event.description = description;
+			if (price !== undefined) event.price = price;
+			if (location !== undefined) event.location = location;
+			if (date !== undefined) event.date = new Date(date);
+			if (ticket_limit !== undefined) event.ticket_limit = ticket_limit;
+			if (is_published !== undefined) event.is_published = is_published;
+			if (poster !== undefined) event.poster = poster;
+
+			if (companyId) {
+				const company = await Company.findOne({ where: { id: companyId } });
+				if (!company) {
+					return res.status(404).json({ message: 'Company not found' });
+				}
+				event.company = company;
+			}
+
+			if (Array.isArray(formatIds)) {
+				event.formats = await Format.findBy({ id: In(formatIds) });
+			}
+
+			if (Array.isArray(themeIds)) {
+				event.themes = await Theme.findBy({ id: In(themeIds) });
+			}
+
+			await event.save();
+
+			return res.status(200).json({ message: 'Event updated successfully', event });
+		} catch (error) {
+			console.error('Error updating event:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async deleteEvent(req: Request, res: Response): Promise<Response> {
+		const { id } = req.params;
+
+		try {
+			const event = await Event.findOne({ where: { id } });
+
+			if (!event) {
+				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			await event.remove();
+
+			return res.status(200).json({ message: 'Event deleted successfully' });
+		} catch (error) {
+			console.error('Error deleting event:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async getEventSubscriptionCount(req: Request, res: Response): Promise<Response> {
+		const { eventId } = req.params;
+
+		try {
+			const count = await Subscription.count({ where: { event: { id: eventId } } });
+			return res.status(200).json({ eventId, count });
+		} catch (error) {
+			console.error('Error getting subscription count:', error);
+			return res.status(500).json({ message: 'Failed to fetch subscription count' });
+		}
+	},
+};
+
 // import { Request, Response } from 'express';
 // import { Event } from '../models/Event';
 // import { Calendar } from '../models/Calendar';
@@ -22,7 +192,6 @@
 //     const permission = await Permission.findOne({ where: { user: { id: userId }, event: { id: eventId } } });
 //     return permission ? requiredRoles.includes(permission.role) : false;
 // };
-
 
 // async function getCalendarId(location: string): Promise<string | null> {
 //     return new Promise((resolve, reject) => {
@@ -253,8 +422,6 @@
 //             const startDate = start ? new Date(start as string) : undefined;
 //             const endDate = end ? new Date(end as string) : undefined;
 
-
-
 //             const events = await Event.find({
 //                 where: [
 //                     {
@@ -332,7 +499,6 @@
 //             return res.status(500).json({ message: 'Error sending invitation' });
 //         }
 //     },
-
 
 //     async joinEvent(req: Request, res: Response): Promise<Response> {
 //         const { inviteToken } = req.params;
