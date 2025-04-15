@@ -7,6 +7,7 @@ import Event from './pages/Event';
 import Account from './pages/Account'
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Company from './pages/Company';
 import ResetPassword from './components/PasswordReset';
 import ProtectedRoute from "./components/ProtectedRoute";
 import EmailConfirmation from './components/EmailConfirmation';
@@ -23,6 +24,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 // Smooth appearing on scroll
 import AOS from 'aos';
 import 'aos/dist/aos.css'; // 🔥 required!
+
 // fade-up
 // fade-right
 // zoom-in
@@ -108,6 +110,7 @@ function AppContent() {
                     <Route path='/auth/github/callback' element={<Login />} />
                     <Route path='/auth/discord/callback' element={<Login />} />
                     <Route path='/register' element={<Register />} />
+                    <Route path='/company/:companyId' element={<Company />} />
                     <Route path='/password-reset' element={<EmailSentPasswordReset />} />
                     <Route path='/password-reset/:token' element={<ResetPassword />} />
                     <Route path='/confirm-email/:token' element={<EmailConfirmation />} />

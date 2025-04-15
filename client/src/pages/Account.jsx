@@ -95,7 +95,7 @@ const Account = () => {
                     //         </div>
                     //     </div>
                     // </div>
-                    <ProfileSection initialUser={{fullName: fullName, email: email, login: login, profilePicture: profilePicture}}/>
+                    <ProfileSection />
                 );
             case 'login':
                 return (
