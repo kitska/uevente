@@ -69,7 +69,7 @@ createUserAndDatabase()
 
 				// await localEventsBackup();
 
-				//await seedDatabase();
+				await seedDatabase();
 
 
 				// createLocalEventDump();

@@ -5,16 +5,10 @@ import { faker } from '@faker-js/faker';
 require('dotenv').config();
 import path from 'path';
 import { User } from '../models/User';
-import { Event } from '../models/Event';
 import { Company } from '../models/Company';
 import { Format } from '../models/Format';
-import { Notification } from '../models/Notification';
-import { Comment } from '../models/Comment';
-import { Payment } from '../models/Payment';
-import { Promocode } from '../models/Promocode';
-import { Subscription } from '../models/Subscription';
 import { Theme } from '../models/Theme';
-import { Ticket } from '../models/Ticket';
+import { Event } from '../models/Event';
 
 const FAKER_USERS = 5;
 const FAKER_CALENDARS = 5;
@@ -30,7 +24,7 @@ export const AppDataSource = new DataSource({
 	synchronize: true,
 	logging: false,
 	// entities: [User, Event, Comment, Company, Promocode, Notification, Subscription, Theme, Format, Ticket, Payment],
-	entities: [path.join(__dirname, "../models/*.{ts,js}")],
+	entities: [path.join(__dirname, '../models/*.{ts,js}')],
 	migrations: [],
 	subscribers: [],
 });
@@ -65,13 +59,11 @@ export const createDatabaseIfNotExists = async () => {
 export const createAdmin = async () => {
 	// try {
 	// 	console.log('Creating admin user...');
-
 	// 	const existingAdmin = await User.findOne({ where: { email: "admin@example.com" } });
 	// 	if (existingAdmin) {
 	// 		console.log('Admin user already exists. Skipping creation.');
-	// 		return; 
+	// 		return;
 	// 	}
-
 	// 	const adminUser = User.create({
 	// 		login: 'admin',
 	// 		fullName: 'Admin',
@@ -79,7 +71,6 @@ export const createAdmin = async () => {
 	// 		password: 'admin',
 	// 		isEmailConfirmed: true,
 	// 	});
-
 	// 	await User.save(adminUser);
 	// 	console.log('Admin user created with id 0');
 	// } catch (error) {
@@ -88,82 +79,162 @@ export const createAdmin = async () => {
 };
 
 export const seedDatabase = async () => {
-	// try {
-	// 	console.log('Data source has been initialized. Starting to seed...');
+	const userCount = await User.count();
+	const companyCount = await Company.count();
+	const eventCount = await Event.count();
+	const formatCount = await Format.count();
+	const themeCount = await Theme.count();
 
-	// 	const userCount = await User.count();
-	// 	const calendarCount = await Calendar.count();
-	// 	const eventCount = await Event.count();
+	if (userCount > 0 || companyCount > 0 || eventCount > 0 || formatCount > 0 || themeCount > 0) {
+		console.log('Database already seeded. Skipping...');
+		return;
+	}
 
-	// 	let users = [];
+	const users: User[] = [];
 
-	// 	if (userCount >= FAKER_USERS) {
-	// 		console.log('Users table is not empty. Skipping user creation.');
-	// 		users = await User.find();
-	// 	} else {
-	// 		console.log('Creating users...');
-	// 		for (let i = userCount; i < FAKER_USERS; i++) {
-	// 			const user = User.create({
-	// 				login: faker.internet.username(),
-	// 				fullName: faker.person.fullName(),
-	// 				email: faker.internet.email(),
-	// 				password: faker.internet.password(),
-	// 			});
-	// 			await user.save();
-	// 			users.push(user);
-	// 		}
-	// 		console.log(`Created ${users.length} users.`);
-	// 	}
+	for (let i = 0; i < 3; i++) {
+		const user = User.create({
+			fullName: faker.person.fullName(),
+			email: faker.internet.email(),
+			login: faker.internet.username(),
+			password: 'password123',
+		});
+		await user.save();
+		users.push(user);
+	}
 
-	// 	let calendars = [];
-	// 	if (calendarCount >= FAKER_CALENDARS) {
-	// 		console.log('Calendars table is not empty. Skipping calendar creation.');
-	// 		calendars = await Calendar.find();
-	// 	} else {
-	// 		console.log('Creating calendars...');
-	// 		for (let i = calendarCount; i < FAKER_CALENDARS; i++) {
-	// 			const userID = Math.floor(Math.random() * users.length);
-	// 			const calendar = Calendar.create({
-	// 				name: `Calendar ${i + 1}`,
-	// 				description: faker.lorem.sentence(),
-	// 			});
-	// 			await calendar.save();
-	// 			const ownerPermission = Permission.create({
-	// 				user: users[userID],
-	// 				calendar: calendar,
-	// 				role: "owner"
-	// 			});
-	// 			await ownerPermission.save();
-	// 			calendars.push(calendar);
-	// 		}
-	// 		console.log(`Created ${calendars.length} calendars.`);
-	// 	}
+	const admin = User.create({
+		fullName: 'Admin User',
+		email: 'admin@example.com',
+		login: 'admin',
+		password: 'admin123',
+		isAdmin: true,
+	});
+	await admin.save();
+	users.push(admin);
 
-	// 	if (eventCount >= FAKER_EVENTS) {
-	// 		console.log('Events table is not empty. Skipping event creation.');
-	// 	} else {
-	// 		console.log('Creating events...');
-	// 		const events = [];
-	// 		for (let i = eventCount; i < FAKER_EVENTS; i++) {
-	// 			const calendar = calendars[i % calendars.length];
-	// 			const startDate = faker.date.future();
-	// 			const endDate = faker.date.future({ refDate: startDate });
+	const companies: Company[] = [];
+	for (let i = 0; i < 2; i++) {
+		const company = Company.create({
+			name: faker.company.name(),
+			email: faker.internet.email(),
+			location: faker.location.city(),
+			owner: users[i],
+		});
+		await company.save();
+		companies.push(company);
+	}
 
-	// 			const event = Event.create({
-	// 				title: faker.lorem.words(3),
-	// 				description: faker.lorem.sentence(),
-	// 				startDate,
-	// 				endDate,
-	// 				calendar,
-	// 			});
-	// 			await event.save();
-	// 			events.push(event);
-	// 		}
-	// 		console.log(`Created ${events.length} events.`);
-	// 	}
+	const formats: Format[] = [];
+	for (let i = 0; i < 5; i++) {
+		const format = Format.create({ title: faker.word.noun() });
+		await format.save();
+		formats.push(format);
+	}
 
-	// 	console.log('Database has been seeded successfully.');
-	// } catch (error) {
-	// 	console.error('Error seeding database:', error.message || error);
-	// }
+	const themes: Theme[] = [];
+	for (let i = 0; i < 5; i++) {
+		const theme = Theme.create({ title: faker.word.adjective() });
+		await theme.save();
+		themes.push(theme);
+	}
+
+	for (let i = 0; i < 4; i++) {
+		const event = Event.create({
+			title: faker.lorem.words(3),
+			description: faker.lorem.paragraph(),
+			price: parseFloat(faker.commerce.price({ min: 5, max: 100 })),
+			location: faker.location.streetAddress(),
+			date: faker.date.future(),
+			ticket_limit: faker.number.int({ min: 50, max: 500 }),
+			is_published: faker.datatype.boolean(),
+			poster: faker.image.url(),
+			company: faker.helpers.arrayElement(companies),
+			formats: faker.helpers.arrayElements(formats, 2),
+			themes: faker.helpers.arrayElements(themes, 2),
+		});
+		await event.save();
+	}
+
+	console.log('Database seeded successfully');
 };
+// try {
+// 	console.log('Data source has been initialized. Starting to seed...');
+
+// 	const userCount = await User.count();
+// 	const calendarCount = await Calendar.count();
+// 	const eventCount = await Event.count();
+
+// 	let users = [];
+
+// 	if (userCount >= FAKER_USERS) {
+// 		console.log('Users table is not empty. Skipping user creation.');
+// 		users = await User.find();
+// 	} else {
+// 		console.log('Creating users...');
+// 		for (let i = userCount; i < FAKER_USERS; i++) {
+// 			const user = User.create({
+// 				login: faker.internet.username(),
+// 				fullName: faker.person.fullName(),
+// 				email: faker.internet.email(),
+// 				password: faker.internet.password(),
+// 			});
+// 			await user.save();
+// 			users.push(user);
+// 		}
+// 		console.log(`Created ${users.length} users.`);
+// 	}
+
+// 	let calendars = [];
+// 	if (calendarCount >= FAKER_CALENDARS) {
+// 		console.log('Calendars table is not empty. Skipping calendar creation.');
+// 		calendars = await Calendar.find();
+// 	} else {
+// 		console.log('Creating calendars...');
+// 		for (let i = calendarCount; i < FAKER_CALENDARS; i++) {
+// 			const userID = Math.floor(Math.random() * users.length);
+// 			const calendar = Calendar.create({
+// 				name: `Calendar ${i + 1}`,
+// 				description: faker.lorem.sentence(),
+// 			});
+// 			await calendar.save();
+// 			const ownerPermission = Permission.create({
+// 				user: users[userID],
+// 				calendar: calendar,
+// 				role: "owner"
+// 			});
+// 			await ownerPermission.save();
+// 			calendars.push(calendar);
+// 		}
+// 		console.log(`Created ${calendars.length} calendars.`);
+// 	}
+
+// 	if (eventCount >= FAKER_EVENTS) {
+// 		console.log('Events table is not empty. Skipping event creation.');
+// 	} else {
+// 		console.log('Creating events...');
+// 		const events = [];
+// 		for (let i = eventCount; i < FAKER_EVENTS; i++) {
+// 			const calendar = calendars[i % calendars.length];
+// 			const startDate = faker.date.future();
+// 			const endDate = faker.date.future({ refDate: startDate });
+
+// 			const event = Event.create({
+// 				title: faker.lorem.words(3),
+// 				description: faker.lorem.sentence(),
+// 				startDate,
+// 				endDate,
+// 				calendar,
+// 			});
+// 			await event.save();
+// 			events.push(event);
+// 		}
+// 		console.log(`Created ${events.length} events.`);
+// 	}
+
+// 	console.log('Database has been seeded successfully.');
+// } catch (error) {
+// 	console.error('Error seeding database:', error.message || error);
+// }
+
+//};
