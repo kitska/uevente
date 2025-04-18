@@ -15,7 +15,7 @@ const EventCard = ({ event }) => {
             onMouseLeave={() => setHovered(false)}
         >
             <img
-                src={event.image || defaultImage}
+                src={event.poster || defaultImage}
                 alt={event.title}
                 className="w-full h-full object-cover"
             />
@@ -33,10 +33,10 @@ const EventCard = ({ event }) => {
                     <div className="flex justify-between text-sm items-center gap-4">
                         <span className="flex items-center gap-1">
                             <FaCalendarAlt />
-                            {new Date(event.startDate).toLocaleDateString()}
+                            {new Date(event.date).toLocaleDateString()}
                         </span>
                         <span className="flex items-center gap-1">
-                            {event.price}
+                            ${event.price}
                         </span>
                     </div>
                 </div>

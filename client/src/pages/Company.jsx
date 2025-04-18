@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../services';
+import { Link } from 'react-router-dom';
 import { userStore } from '../store/userStore';
 import EventCard from '../components/EventCard';
 import EventModal from '../components/EventModal';
@@ -106,7 +107,7 @@ const Company = () => {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {events.map((event) => (
-                            <EventCard key={event.id} event={event} />
+                            <Link to={`/event/${event.id}`}><EventCard key={event.id} event={event} /></Link>
                         ))}
                     </div>
                 )}
