@@ -160,7 +160,7 @@ function Register() {
 
                     <button
                         type="submit"
-                        className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-80 transition duration-200"
+                        className="cursor-pointer p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-80 transition duration-200"
                     >
                         Register
                     </button>
@@ -169,19 +169,19 @@ function Register() {
                 <div className="flex ">
                     <button
                         onClick={() => googleLogin()}
-                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        className="cursor-pointer w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
                     >
                         <FcGoogle className="w-6 h-6" />
                     </button>
                     <button
                         onClick={() => loginWithGitHub()}
-                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        className="cursor-pointer w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
                     >
                         <FaGithub className="w-6 h-6" />
                     </button>
                     <button
                         onClick={() => loginWithDiscord()}
-                        className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                        className="cursor-pointer w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
                     >
                         <FaDiscord className="w-6 h-6" />
                     </button>
@@ -189,7 +189,7 @@ function Register() {
 
                 <div className="mt-4 text-center text-gray-600">
                     <span>Already have an account? </span>
-                    <Link to="/login" className="text-blue-500 hover:underline">
+                    <Link to="/login" className="cursor-pointer text-blue-500 hover:underline">
                         Sign in
                     </Link>
                 </div >

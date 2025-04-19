@@ -17,7 +17,7 @@ const slides = [
     },
     {
         id: 3,
-        image: 'https://i.pinimg.com/1200x/64/1e/9b/641e9ba2ae6f6ba9585365d30efa09b4.jpg',
+        image: 'https://i.pinimg.com/1200x/0c/6e/a5/0c6ea5eab1c1fe08bc820f03763782a7.jpg',
         title: 'Chemistry Lecture',
         description: "Jesse we need to cook. Let dive deeply in the world of chemistry and learn a couple of nice things...",
         price: '$9.99'

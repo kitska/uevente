@@ -22,12 +22,11 @@ const upload = multer({ storage });
 router.post('/:id/avatar', authMiddleware, upload.single('avatar'), UserController.uploadAvatar.bind(UserController));
 router.post('/', UserController.createUser.bind(UserController));
 router.get('/subscriptions/:userId', UserController.getUserSubscriptions.bind(UserController));
-// router.get('/', UserController.getUsers.bind(UserController));
-// router.get('/:id', UserController.getUserById.bind(UserController));
-// router.patch('/:id', UserController.updateUser.bind(UserController));
-// router.delete('/:id', UserController.deleteUser.bind(UserController));
-// router.get('/:id/owned-calendars', UserController.getOwnedCalendars.bind(UserController));
-// router.get('/:id/shared-calendars', UserController.getSharedCalendars.bind(UserController));
-// router.get('/:id/shared-events', UserController.getSharedEvents.bind(UserController));
+router.get('/', UserController.getUsers.bind(UserController));
+router.get('/:id', UserController.getUserById.bind(UserController));
+router.get('/:id/companies', UserController.getUserCompanies.bind(UserController.getUserCompanies))
+router.patch('/:id', UserController.updateUser.bind(UserController));
+router.delete('/:id', UserController.deleteUser.bind(UserController));
+
 
 export default router;

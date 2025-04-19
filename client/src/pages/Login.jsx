@@ -98,7 +98,7 @@ function Login() {
                     {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
                     <button
                         type="submit"
-                        className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:opacity-80 transition duration-200"
+                        className="cursor-pointer p-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:opacity-80 transition duration-200"
                     >
                         Sign in
                     </button>
@@ -106,7 +106,7 @@ function Login() {
                         <button
                             type="button"
                             onClick={handleForgot}
-                            className="text-sm text-blue-500 hover:underline"
+                            className="cursor-pointer text-sm text-blue-500 hover:underline"
                         >
                             Forgot Password?
                         </button>
@@ -120,7 +120,7 @@ function Login() {
                         <p className="text-sm text-gray-500">{profile.email}</p>
                         <button
                             onClick={logOut}
-                            className="mt-3 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
+                            className="cursor-pointer mt-3 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
                         >
                             Log out
                         </button>
@@ -129,19 +129,19 @@ function Login() {
                     <div className="flex ">
                         <button
                             onClick={() => googleLogin()}
-                            className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                            className="cursor-pointer w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
                         >
                             <FcGoogle className="w-6 h-6" />
                         </button>
                         <button
                             onClick={() => loginWithGitHub()}
-                            className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                            className="cursor-pointer w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
                         >
                             <FaGithub className="w-6 h-6" />
                         </button>
                         <button
                             onClick={() => loginWithDiscord()}
-                            className="w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
+                            className="cursor-pointer w-full mt-4 p-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition duration-200 flex justify-center items-center"
                         >
                             <FaDiscord className="w-6 h-6" />
                         </button>
@@ -150,7 +150,7 @@ function Login() {
 
                 <div className="mt-4 text-center text-gray-600">
                     <span>Don't have an account? </span>
-                    <Link to="/register" className="text-blue-500 hover:underline">
+                    <Link to="/register" className="cursor-pointer text-blue-500 hover:underline">
                         Sign up
                     </Link>
                 </div>
