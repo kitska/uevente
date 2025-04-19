@@ -4,49 +4,56 @@ import EventFilters from '../components/EventFilters';
 import EventCard from '../components/EventCard';
 import Pagination from '../components/Pagination';
 import { Link, useSearchParams } from 'react-router-dom';
-import { eventStore } from '../store/eventStore'
+import { eventStore } from '../store/eventStore';
 import Subscribe from '../components/Subscribe';
+import { observer } from 'mobx-react-lite';
 
-const Main = () => {
-    const [filters, setFilters] = useState({});
-    const [searchParams] = useSearchParams();
-    const page = parseInt(searchParams.get('page')) || 1;
-    const pageSize = 60;
+const Main = observer(() => {
+	const [filters, setFilters] = useState({});
+	const [searchParams] = useSearchParams();
+	const page = parseInt(searchParams.get('page')) || 1;
+	const pageSize = 60;
 
-    const filteredEvents = eventStore.mockEvents.filter(e => {
-        // Apply filtering if needed
-        return true;
-    });
+	useEffect(() => {
+		eventStore.fetchEvents(page, pageSize);
+	}, [page]);
 
-    const paginatedEvents = filteredEvents.slice((page - 1) * pageSize, page * pageSize);
-    const totalPages = Math.ceil(filteredEvents.length / pageSize);
+	const filteredEvents = eventStore.events?.filter(e => {
+		return true;
+	});
 
-    return (
-        <>
-            <main className="">
-                <HeroSlider />
+	const totalPages = Math.ceil(filteredEvents?.length / pageSize);
 
-                <section className="px-4 mt-10">
-                    <EventFilters filters={filters} onChange={setFilters} />
-                </section>
+	return (
+		<>
+			<main>
+				<HeroSlider />
 
-                <section className="px-4 py-8">
-                    <div className="flex flex-wrap justify-center gap-15">
-                        {paginatedEvents.map(event => (
-                            <Link to={`/event/${event.id}`}><EventCard key={event.id} event={event} /></Link>
-                        ))}
-                    </div>
-                </section>
+				<section className='px-4 mt-10'>
+					<EventFilters filters={filters} onChange={setFilters} />
+				</section>
 
+				<section className='px-4 py-8'>
+					<div className='flex flex-wrap justify-center gap-15'>
+						{eventStore.loading && <p>Loading events ...</p>}
+						{eventStore.error && <p className='text-red-500'>{eventStore.error}</p>}
+						{!eventStore.loading &&
+							filteredEvents?.map(event => (
+								<Link key={event.id} to={`/event/${event.id}`}>
+									<EventCard event={event} />
+								</Link>
+							))}
+					</div>
+				</section>
 
-                <section className="">
-                    <Pagination currentPage={page} totalPages={totalPages} />
-                </section>
+				<section>
+					<Pagination currentPage={page} totalPages={totalPages} />
+				</section>
 
-                <Subscribe />
-            </main>
-        </>
-    );
-};
+				<Subscribe />
+			</main>
+		</>
+	);
+});
 
 export default Main;
