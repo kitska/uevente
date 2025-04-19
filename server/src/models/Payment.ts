@@ -1,9 +1,9 @@
 import {
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	ManyToOne,
-	BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  BaseEntity,
 } from 'typeorm';
 import { User } from './User';
 import { Event } from './Event';
@@ -16,7 +16,7 @@ export class Payment extends BaseEntity {
   @ManyToOne(() => User)
   user: User;
 
-  @ManyToOne(() => Event)
+  @ManyToOne(() => Event, { nullable: true, onDelete: 'SET NULL' })
   event: Event;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })

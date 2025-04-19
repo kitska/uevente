@@ -84,3 +84,19 @@ export const sendInviteEmail = async (email: string, inviteUrl: string, rights: 
 		throw new Error('Failed to send invitation email');
 	}
 };
+
+export const sendEmail = async (email: string, content: string, subject: string) => {
+	const mailOptions = {
+		from: process.env.EMAIL_USER,
+		to: email,
+		subject,
+		html: content,
+	};
+	try {
+		await transporter.sendMail(mailOptions);
+		console.log(`Email sent to ${email}`);
+	} catch (error) {
+		console.error('Error sending email:', error);
+		throw new Error('Failed to send email');
+	}
+};

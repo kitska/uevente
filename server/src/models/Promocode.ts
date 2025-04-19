@@ -12,7 +12,7 @@ export class Promocode extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Event)
+  @ManyToOne(() => Event, {cascade:true, onDelete: 'CASCADE' })
   event: Event;
 
   @Column({ length: 50, unique: true })

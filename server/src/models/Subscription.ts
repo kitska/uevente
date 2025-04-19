@@ -1,8 +1,8 @@
 import {
-	Entity,
-	PrimaryGeneratedColumn,
-	ManyToOne,
-	BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  BaseEntity,
 } from 'typeorm';
 import { User } from './User';
 import { Event } from './Event';
@@ -12,7 +12,7 @@ export class Subscription extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Event)
+  @ManyToOne(() => Event, { cascade: true, onDelete: 'CASCADE' })
   event: Event;
 
   @ManyToOne(() => User)
