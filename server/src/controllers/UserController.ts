@@ -129,7 +129,7 @@ export class UserController {
 	// 	// Обновление пользователя
 	static async updateUser(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
-		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating } = req.body;
+		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating, pushNotify, emailNotify, smsNotify } = req.body;
 
 		try {
 			// Ищем пользователя по ID
@@ -148,6 +148,9 @@ export class UserController {
 			if (isAdmin !== undefined) user.isAdmin = isAdmin;
 			if (isShowName !== undefined) user.isShowName = isShowName;
 			if (rating !== undefined) user.rating = rating;
+			if (pushNotify !== undefined) user.pushNotifications = pushNotify;
+			if (emailNotify !== undefined) user.emailNotifications = emailNotify;
+			if (smsNotify !== undefined) user.smsNotifications = smsNotify;
 
 			// Сохраняем обновленного пользователя
 			await user.save();

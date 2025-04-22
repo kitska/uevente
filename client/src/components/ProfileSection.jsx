@@ -11,6 +11,12 @@ const ProfileSection = () => {
         fullName: userStore?.user?.fullName || '',
         profilePicture: userStore?.user?.profilePicture || ''
     });
+    const [notifications, setNotifications] = useState({
+        push: userStore?.user?.pushNotifications,
+        email: userStore?.user?.emailNotifications,
+        sms: userStore?.user?.smsNotifications,
+    });
+    // console.log(userStore.user);
 
     const [companies, setCompanies] = useState([]);
     const [editingField, setEditingField] = useState(null);
@@ -124,27 +130,117 @@ const ProfileSection = () => {
         </div>
     );
 
+    const renderNotifications = () => (
+        <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+                <div className="flex items-center ps-3">
+                    <input id="push-checkbox-list" type="checkbox"
+                        checked={notifications.push}
+                        onChange={async () => {
+                            const updated = { ...notifications, push: !notifications.push };
+                            setNotifications(updated);
+                            await userStore.updateUser({
+                                ...user,
+                                pushNotify: updated.push,
+                                emailNotify: updated.email,
+                                smsNotify: updated.sms,
+                            });
+                        }}
+                        value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <label htmlFor="push-checkbox-list" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Push</label>
+                </div>
+            </li>
+            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+                <div className="flex items-center ps-3">
+                    <input id="email-checkbox-list" type="checkbox"
+                        checked={notifications.email}
+                        onChange={async () => {
+                            const updated = { ...notifications, email: !notifications.email };
+                            setNotifications(updated);
+                            await userStore.updateUser({
+                                ...user,
+                                pushNotify: updated.push,
+                                emailNotify: updated.email,
+                                smsNotify: updated.sms,
+                            });
+                        }}
+                        value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <label htmlFor="email-checkbox-list" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email</label>
+                </div>
+            </li>
+            <li className="w-full dark:border-gray-600">
+                <div className="flex items-center ps-3">
+                    <input id="sms-checkbox-list" type="checkbox"
+                        checked={notifications.sms}
+                        onChange={async () => {
+                            const updated = { ...notifications, sms: !notifications.sms };
+                            setNotifications(updated);
+                            await userStore.updateUser({
+                                ...user,
+                                pushNotify: updated.push,
+                                emailNotify: updated.email,
+                                smsNotify: updated.sms,
+                            });
+                        }}
+                        value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <label htmlFor="sms-checkbox-list" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">SMS</label>
+                </div>
+            </li>
+        </ul>
+    );
+
     const renderProfilePicture = () => (
-        <div className="flex items-center space-x-6">
-            <img
-                src={user.profilePicture || '/placeholder-profile.png'}
-                alt="Profile"
-                className="w-24 h-24 rounded-full object-cover border"
-            />
-            <div className="space-y-2">
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="block text-sm"
+        <div className='flex justify-between'>
+            <div className="flex items-center space-x-6">
+                <img
+                    src={user.profilePicture || '/placeholder-profile.png'}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full object-cover border"
                 />
-                <button
-                    onClick={handleRemoveImage}
-                    className="text-red-500 hover:underline text-sm"
-                >
-                    Remove Photo
-                </button>
+                <div className="space-y-2">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="block text-sm"
+                    />
+                    <button
+                        onClick={handleRemoveImage}
+                        className="text-red-500 hover:underline text-sm"
+                    >
+                        Remove Photo
+                    </button>
+                </div>
             </div>
+            <div>
+                {renderNotifications()}
+            </div>
+            {/* <div className="space-y-2 flex">
+                <label className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        checked={notifications.push}
+                        onChange={() => setNotifications(prev => ({ ...prev, push: !prev.push }))}
+                    />
+                    <span>Push</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        checked={notifications.email}
+                        onChange={() => setNotifications(prev => ({ ...prev, email: !prev.email }))}
+                    />
+                    <span>Email</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        checked={notifications.sms}
+                        onChange={() => setNotifications(prev => ({ ...prev, sms: !prev.sms }))}
+                    />
+                    <span>SMS</span>
+                </label>
+            </div> */}
         </div>
     );
 

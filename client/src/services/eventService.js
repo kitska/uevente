@@ -1,10 +1,11 @@
+import axios from 'axios';
 import { api } from './index';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const fetchEvents = async (page = 1, limit = 10, sort = 'date', order = 'ASC') => {
 	try {
-		const response = await api.get(`${API_URL}/events`, {
+		const response = await axios.get(`${API_URL}/events`, {
 			params: { page, limit, sort, order },
 		});
 		return response.data;
@@ -16,7 +17,7 @@ export const fetchEvents = async (page = 1, limit = 10, sort = 'date', order = '
 
 export const getEventById = async eventId => {
 	try {
-		const response = await api.get(`${API_URL}/events/${encodeURIComponent(eventId)}`);
+		const response = await axios.get(`${API_URL}/events/${encodeURIComponent(eventId)}`);
 		return response.data;
 	} catch (error) {
 		console.error('Failed to fetch event by ID:', error);

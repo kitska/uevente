@@ -77,7 +77,6 @@ class UserStore {
 		}
 	}
 	
-
 	async login(email, password, login) {
 		this.loading = true; // Устанавливаем состояние загрузки
 		this.error = null; // Сбрасываем ошибку
@@ -136,7 +135,7 @@ class UserStore {
 		try {
 			const response = await updateUser(this.user.id, updatedData);
 			runInAction(() => {
-				this.user = response;
+				this.user = response.user;
 			});
 		} catch (error) {
 			console.error('Failed to update user:', error);

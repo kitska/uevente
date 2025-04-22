@@ -45,6 +45,15 @@ export class User extends BaseEntity {
 	@Column({ default: false })
 	isEmailConfirmed: boolean;
 
+	@Column({ default: true })
+	emailNotifications: boolean;
+
+	@Column({ default: false })
+	pushNotifications: boolean;
+
+	@Column({ default: false })
+	smsNotifications: boolean;
+
 	@BeforeInsert()
 	async initUser() {
 		this.password = await bcrypt.hash(this.password, 10);
