@@ -16,7 +16,7 @@ export class Event extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Company)
+  @ManyToOne(() => Company, { cascade: true, onDelete: 'CASCADE' })
   company: Company;
 
   @Column({ length: 255 })

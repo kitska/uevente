@@ -6,16 +6,20 @@ import { FaMapMarkerAlt, FaCalendarAlt, FaMoneyBillAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
+import { PiStar, PiStarFill } from "react-icons/pi";
+import { userStore } from '../store/userStore';
 
 const Event = observer(() => {
 	const { id } = useParams();
 	const [event, setEvent] = useState(null);
-
+	const [favourited, setFavourited] = useState(false);
 	useEffect(() => {
 		const fetchEvent = async () => {
 			try {
 				const data = await eventStore.fetchEventById(id);
 				setEvent(data);
+				// console.log(userStore.isEventSubscribed(data.id));
+				setFavourited(userStore.isEventSubscribed(data.id));
 			} catch (error) {
 				console.error('Error fetching event:', error);
 			}
@@ -53,6 +57,26 @@ const Event = observer(() => {
 			<div data-aos='fade-up' className='relative z-10 grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 mx-auto -mt-16 bg-white shadow-xl md:grid-cols-3 rounded-xl'>
 				{/* Left: Details */}
 				<div className='space-y-4 md:col-span-2'>
+					<button
+						onClick={() => {
+							const newValue = !favourited;
+							setFavourited(newValue);
+							eventStore.handleSubscribe(newValue, event.id);
+							newValue ? userStore.addSub(event) : userStore.removeSub(event);
+						}}
+						className="flex items-center justify-center p-2 hover:scale-110"
+					>
+						{favourited ? (
+							<PiStarFill
+								size={24}
+								color="#FACC15"
+							/>
+						) : (
+							<PiStar
+								size={24}
+							/>
+						)}
+					</button>
 					<div className='space-y-2 text-gray-700'>
 						<p className='flex items-center gap-2 text-lg font-semibold'>
 							<FaMapMarkerAlt className='text-red-600' /> {event.location}
@@ -67,7 +91,7 @@ const Event = observer(() => {
 
 					<p className='text-lg leading-relaxed text-gray-800'>{event.description}</p>
 
-					<button className='px-6 py-3 mt-8 font-semibold text-white transition bg-blue-600 shadow-md hover:bg-blue-700 rounded-xl'>Register Now</button>
+					<button className='px-6 py-3 mt-8 font-semibold text-white transition bg-blue-600 shadow-md hover:bg-blue-700 rounded-xl'>Buy ticket</button>
 				</div>
 
 				{/* Right: Map Embed */}

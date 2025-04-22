@@ -54,3 +54,37 @@ export const deleteEvent = async eventId => {
 		throw error;
 	}
 };
+
+export const getSubscribedEvents = async userId => {
+	try {
+		const response = await api.get(`${API_URL}/users/subscriptions/${encodeURIComponent(userId)}`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to get subs:', error);
+		throw error;
+	}
+}
+
+export const subscibe = async (eventId, userId) => {
+	try {
+		const response = await api.post(`${API_URL}/subscriptions/subscribe`, {
+			eventId, userId
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Failed to subscribe:', error);
+		throw error;
+	}
+}
+
+export const unsubscibe = async (eventId, userId) => {
+	try {
+		const response = await api.post(`${API_URL}/subscriptions/unsubscribe`, {
+			eventId, userId
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Failed to unsubscribe:', error);
+		throw error;
+	}
+}

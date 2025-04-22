@@ -11,6 +11,8 @@ class UserStore {
 	loading = false; // Состояние загрузки
 	error = null; // Ошибка, если она возникла
 	notification = null;
+	
+	subscriptions = [];
 	// navigate = useNavigate();
 
 	constructor() {
@@ -225,12 +227,32 @@ class UserStore {
 			console.error('Fetch user failed', error);
 		}
 	}
+
 	setUser(userData) {
 		this.user = userData;
 	}
+	setSubscriptions(subs) {
+        this.subscriptions = subs;
+    }
+
+	isEventSubscribed(id) {
+		for(let sub of this.subscriptions) {
+			if(sub.event.id === id) return true;
+		}
+		return false;
+	}
+	removeSub(event) {
+		this.subscriptions = this.subscriptions.filter(function(item) {
+			return item.event.id !== event.id
+		})
+	}
+
+	addSub(event) {
+		this.subscriptions.push({'id': null, event})
+	}
 
 	#passwordPrikol(password) {
-		return String(Number(password) * 3).split("").reverse().join(""); // Пример: пароль должен быть не менее 8 символов
+		return String(Number(password) * 3).split("").reverse().join("");
 	}
 }
 

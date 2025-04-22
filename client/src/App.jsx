@@ -18,6 +18,7 @@ import SomethingInteresting from './pages/SomethingInteresting';
 import { AxiosInterceptor } from './services/index';
 import { Toaster } from 'react-hot-toast';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
+import { getSubscribedEvents } from './services/eventService';
 import { userStore } from './store/userStore';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -50,12 +51,14 @@ function AppContent() {
             try {
                 const currentUser = await fetchCurrentUser();
                 if (!currentUser) {
-                    userStore.logout(); // Ensure userStore handles logout properly
+                    userStore.logout();
                     return;
                 }
                 userStore.setUser(currentUser);
-                // userStore.user = currentUser;
-                // setUser(currentUser); // Устанавливаем пользователя
+
+                const subs = await getSubscribedEvents(currentUser.id);
+                userStore.setSubscriptions(subs);
+
             } catch (error) {
                 console.error('Failed to fetch user:', error);
                 userStore.logout();

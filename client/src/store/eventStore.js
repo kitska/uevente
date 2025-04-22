@@ -1,5 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import * as eventService from '../services/eventService';
+import { userStore } from './userStore';
 
 class EventStore {
 	events = [];
@@ -48,6 +49,15 @@ class EventStore {
 				this.loading = false;
 			});
 			throw err;
+		}
+	}
+	async handleSubscribe(subscribed, id) {
+		try {
+			if(subscribed) await eventService.subscibe(id, userStore?.user?.id);
+			else await eventService.unsubscibe(id, userStore?.user?.id);
+				// api.post('/api/subscriptions/subscribe')
+		} catch (error) {
+			throw(error);
 		}
 	}
 
