@@ -30,6 +30,25 @@ export const EventController = {
 		}
 	},
 
+	async uploadPoster(req: Request, res: Response): Promise<Response> {
+		try {
+			if (!req.file) {
+				return res.status(400).json({ message: 'No file provided' });
+			}
+	
+			// Convert file to base64
+			const fileBase64 = req.file.buffer.toString('base64');
+	
+			// Upload to Imgur
+			const uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
+	
+			res.json({ url: uploadedPosterUrl });
+		} catch (error) {
+			console.error('Error uploading poster:', error);
+			res.status(500).json({ message: 'Failed to upload poster' });
+		}
+	},	
+
 	async createEvent(req: Request, res: Response): Promise<Response> {
 		const {
 			title,

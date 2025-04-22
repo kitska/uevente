@@ -15,6 +15,10 @@ const Company = () => {
     const [isOwner, setIsOwner] = useState(false);
     const [events, setEvents] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [editingEvent, setEditingEvent] = useState(null);
+    const [posterFile, setPosterFile] = useState(null);
+    const [posterPreview, setPosterPreview] = useState(null);
+
     const [eventForm, setEventForm] = useState({
         title: '',
         description: '',
@@ -22,9 +26,8 @@ const Company = () => {
         location: '',
         date: '',
         ticket_limit: '',
-        poster: null,
+        poster: '',
     });
-    const [editingEvent, setEditingEvent] = useState(null);
 
     useEffect(() => {
         const fetchCompany = async () => {
@@ -48,11 +51,11 @@ const Company = () => {
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
 
-        if (name === 'poster') {
-            setEventForm((prev) => ({
-                ...prev,
-                poster: files[0],
-            }));
+        if (name === 'posterFile') {
+            const file = files?.[0];
+            setPosterFile(file);
+            setPosterPreview(file ? URL.createObjectURL(file) : null);
+            setEventForm((prev) => ({ ...prev, poster: '' }));
         } else {
             setEventForm((prev) => ({
                 ...prev,
@@ -63,31 +66,58 @@ const Company = () => {
 
     const handleCreateEvent = async () => {
         try {
-            const formData = new FormData();
-            formData.append('companyId', companyId);
-            for (const key in eventForm) {
-                if (eventForm[key]) {
-                    formData.append(key, eventForm[key]);
-                }
-            }
+            const {
+                title,
+                description,
+                price,
+                location,
+                date,
+                ticket_limit,
+                poster,
+            } = eventForm;
 
+            const body = {
+                title,
+                description,
+                price,
+                location,
+                date,
+                ticket_limit,
+                companyId,
+                poster: posterFile ? null : poster || null,
+            };
+
+            console.log(body)
+
+            let response;
             if (editingEvent) {
-                await api.put(`/events/${editingEvent.id}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                response = await api.put(`/events/${editingEvent.id}`, body);
             } else {
-                await api.post(`/events`, formData, {
+                response = await api.post(`/events`, body);
+            }
+
+            const createdEvent = response.data.event || response.data;
+
+            // Upload poster file if exists
+            if (posterFile) {
+                const formData = new FormData();
+                formData.append('avatar', posterFile);
+
+                await api.post(`/events/${createdEvent.id}/upload`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
             }
 
-            const eventRes = await api.get(`/companies/${companyId}/events`);
-            setEvents(eventRes.data);
+            const updatedEvents = await api.get(`/companies/${companyId}/events`);
+            setEvents(updatedEvents.data);
+
+            // Reset state
             setShowModal(false);
+            setEditingEvent(null);
+            setPosterFile(null);
+            setPosterPreview(null);
             setEventForm({
                 title: '',
                 description: '',
@@ -95,9 +125,8 @@ const Company = () => {
                 location: '',
                 date: '',
                 ticket_limit: '',
-                poster: null,
+                poster: '',
             });
-            setEditingEvent(null);
         } catch (err) {
             console.error('Error creating/updating event', err);
         }
@@ -112,8 +141,10 @@ const Company = () => {
             location: event.location,
             date: event.date,
             ticket_limit: event.ticket_limit,
-            poster: null, // We don't load existing image into input field
+            poster: event.poster || '',
         });
+        setPosterFile(null);
+        setPosterPreview(null);
         setShowModal(true);
     };
 
@@ -179,7 +210,7 @@ const Company = () => {
                                     <EventCard event={event} />
                                 </Link>
                                 {isOwner && (
-                                    <div className="top-2 right-2 space-y-2">
+                                    <div className="absolute top-2 right-2 space-y-2">
                                         <button
                                             onClick={() => handleEditEvent(event)}
                                             className="text-blue-600 hover:text-blue-800"
@@ -205,12 +236,17 @@ const Company = () => {
                 onClose={() => {
                     setShowModal(false);
                     setEditingEvent(null);
+                    setPosterFile(null);
+                    setPosterPreview(null);
                 }}
                 onSubmit={handleCreateEvent}
                 form={eventForm}
                 onChange={handleInputChange}
                 isEdit={editingEvent !== null}
                 event={editingEvent}
+                posterFile={posterFile}
+                posterPreview={posterPreview}
+                setForm={setEventForm}
             />
         </div>
     );

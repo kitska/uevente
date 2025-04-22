@@ -1,14 +1,37 @@
 import React, { useRef } from 'react';
+import { api } from '../services';
 
-const EventModal = ({ show, onClose, onSubmit, form, onChange, onFileChange }) => {
+const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
     const fileInputRef = useRef();
 
     if (!show) return null;
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await api.post('/events/upload-poster', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            const imageUrl = res.data.url;
+
+            setForm((prev) => ({ ...prev, poster: imageUrl }));
+        } catch (err) {
+            console.error('Upload failed:', err);
+        }
+    };
+
     const previewSrc =
-        form.poster instanceof File
+        typeof form.poster === 'string'
+            ? form.poster
+            : form.poster instanceof File
             ? URL.createObjectURL(form.poster)
-            : form.poster;
+            : '';
 
     return (
         <div className="fixed inset-0 z-50 backdrop-blur-sm bg-black/30 flex justify-center items-center">
@@ -69,7 +92,6 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, onFileChange }) =
 
                     {/* Poster Section */}
                     <div className="space-y-2">
-                        {/* URL input */}
                         <input
                             type="text"
                             name="poster"
@@ -87,21 +109,15 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, onFileChange }) =
                             >
                                 Upload Image
                             </button>
-                            {form.poster instanceof File && (
-                                <span className="text-sm text-gray-600 truncate max-w-[160px]">
-                                    {form.poster.name}
-                                </span>
-                            )}
                             <input
                                 type="file"
                                 ref={fileInputRef}
                                 accept="image/*"
-                                onChange={onFileChange}
+                                onChange={handleFileUpload}
                                 className="hidden"
                             />
                         </div>
 
-                        {/* Optional preview */}
                         {previewSrc && (
                             <div className="mt-2">
                                 <img
