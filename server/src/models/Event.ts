@@ -1,11 +1,11 @@
 import {
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	ManyToOne,
-	ManyToMany,
-	JoinTable,
-	BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+  BaseEntity,
 } from 'typeorm';
 import { Company } from './Company';
 import { Format } from './Format';
@@ -16,7 +16,7 @@ export class Event extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Company)
+  @ManyToOne(() => Company, { cascade: true, onDelete: 'CASCADE' })
   company: Company;
 
   @Column({ length: 255 })

@@ -92,7 +92,7 @@ export const seedDatabase = async () => {
 
 	const users: User[] = [];
 
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < 25; i++) {
 		const user = User.create({
 			fullName: faker.person.fullName(),
 			email: faker.internet.email(),
@@ -114,7 +114,7 @@ export const seedDatabase = async () => {
 	users.push(admin);
 
 	const companies: Company[] = [];
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < 25; i++) {
 		const company = Company.create({
 			name: faker.company.name(),
 			email: faker.internet.email(),
@@ -139,7 +139,7 @@ export const seedDatabase = async () => {
 		themes.push(theme);
 	}
 
-	for (let i = 0; i < 4; i++) {
+	for (let i = 0; i < 400; i++) {
 		const event = Event.create({
 			title: faker.lorem.words(3),
 			description: faker.lorem.paragraph(),
