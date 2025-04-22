@@ -2,14 +2,16 @@ import { useParams } from 'react-router-dom';
 import { eventStore } from '../store/eventStore';
 import { useEffect, useState } from 'react';
 import Comment from '../components/Comment';
-import { FaMapMarkerAlt, FaCalendarAlt, FaMoneyBillAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaMoneyBillAlt, FaMinus, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
+import { loadStripe } from '@stripe/stripe-js';
 
 const Event = observer(() => {
 	const { id } = useParams();
 	const [event, setEvent] = useState(null);
+	const [count, setCount] = useState(1);
 
 	useEffect(() => {
 		const fetchEvent = async () => {
@@ -34,6 +36,70 @@ const Event = observer(() => {
 			</div>
 		);
 	}
+
+	const handleBuy = async () => {
+		try {
+			const stripe = await loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
+
+			const response = await fetch('http://localhost:8000/api/payment/create-checkout-session', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${localStorage.getItem('token')}`,
+				},
+				body: JSON.stringify({
+					items: [
+						{
+							name: event.title,
+							amount: Math.round(event.price * 100), // Stripe expects amount in cents
+							quantity: count,
+							image: event.poster,
+						},
+					],
+				}),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || 'Stripe checkout failed');
+			}
+
+			const data = await response.json();
+
+			const result = await stripe.redirectToCheckout({
+				sessionId: data.sessionId,
+			});
+
+			if (result.error) {
+				console.error(result.error.message);
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	const increase = () => {
+		if (count < event.ticket_limit) setCount(prev => Number(prev) + 1);
+	};
+
+	const decrease = () => {
+		if (count > 1) setCount(prev => Number(prev) - 1);
+	};
+
+	const handleChange = e => {
+		const value = parseInt(e.target.value);
+		if (!isNaN(value) && value >= 1 && value <= event.ticket_limit) {
+			setCount(value);
+		} else if (e.target.value === '') {
+			setCount('');
+		}
+	};
+
+	const handleBlur = () => {
+		if (count === '' || count < 1) {
+			setCount(1);
+		}
+	};
 
 	const handleMapClick = () => {
 		const query = encodeURIComponent(event.location);
@@ -68,6 +134,32 @@ const Event = observer(() => {
 					<p className='text-lg leading-relaxed text-gray-800'>{event.description}</p>
 
 					<button className='px-6 py-3 mt-8 font-semibold text-white transition bg-blue-600 shadow-md hover:bg-blue-700 rounded-xl'>Register Now</button>
+					<div className='flex flex-col items-start gap-4 mt-6'>
+						<label className='text-lg font-medium text-gray-700'>Number of tickets</label>
+						<div className='flex items-center gap-4'>
+							<div className='flex items-center bg-gray-100 border border-gray-300 rounded-lg shadow-inner'>
+								<button onClick={decrease} className='px-4 py-2 text-gray-700 transition hover:text-red-500'>
+									<FaMinus />
+								</button>
+								<input
+									type='number'
+									value={count}
+									onChange={handleChange}
+									onBlur={handleBlur}
+									min={1}
+									max={100}
+									className='w-16 px-2 py-2 text-lg text-center text-gray-800 bg-white border-0 outline-none'
+								/>
+								<button onClick={increase} className='px-4 py-2 text-gray-700 transition hover:text-green-500'>
+									<FaPlus />
+								</button>
+							</div>
+
+							<button onClick={handleBuy} className='px-6 py-2 font-semibold text-white transition bg-blue-600 rounded-lg shadow hover:bg-blue-700'>
+								Buy {count || 1} ticket{count > 1 ? 's' : ''}
+							</button>
+						</div>
+					</div>
 				</div>
 
 				{/* Right: Map Embed */}
