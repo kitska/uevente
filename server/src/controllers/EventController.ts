@@ -5,10 +5,45 @@ import { Company } from '../models/Company';
 import { Format } from '../models/Format';
 import { Theme } from '../models/Theme';
 import { Subscription } from '../models/Subscription';
+import axios from 'axios';
 
 export const EventController = {
+	async uploadToImgur(imageData: string, type: 'base64' | 'url'): Promise<string | null> {
+		try {
+			const response = await axios.post(
+				'https://api.imgur.com/3/image',
+				{
+					image: imageData,
+					type: type,
+				},
+				{
+					headers: {
+						Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`,
+					},
+				}
+			);
+
+			return response.data.data.link;
+		} catch (error) {
+			console.error('Imgur upload error:', error.response?.data || error);
+			return null;
+		}
+	},
+
 	async createEvent(req: Request, res: Response): Promise<Response> {
-		const { title, description, price, location, date, ticket_limit, is_published, poster, companyId, formatIds, themeIds } = req.body;
+		const {
+			title,
+			description,
+			price,
+			location,
+			date,
+			ticket_limit,
+			is_published,
+			poster, // string (URL or base64)
+			companyId,
+			formatIds,
+			themeIds,
+		} = req.body;
 
 		try {
 			const company = await Company.findOne({ where: { id: companyId } });
@@ -16,6 +51,21 @@ export const EventController = {
 
 			const formats = formatIds?.length ? await Format.findBy({ id: In(formatIds) }) : [];
 			const themes = themeIds?.length ? await Theme.findBy({ id: In(themeIds) }) : [];
+
+			let uploadedPosterUrl: string | null = null;
+
+			if (poster?.startsWith('http')) {
+				// URL — просто используем
+				uploadedPosterUrl = poster;
+			} else if (poster?.startsWith('data:image')) {
+				// Base64 — вырезаем данные и заливаем
+				const base64Data = poster.split(',')[1];
+				uploadedPosterUrl = await this.uploadToImgur(base64Data, 'base64');
+			} else if (req.file) {
+				// Файл — конвертируем в base64 и заливаем
+				const fileBase64 = req.file.buffer.toString('base64');
+				uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
+			}
 
 			const event = Event.create({
 				title,
@@ -25,7 +75,7 @@ export const EventController = {
 				date,
 				ticket_limit,
 				is_published,
-				poster,
+				poster: uploadedPosterUrl,
 				company,
 				formats,
 				themes,
