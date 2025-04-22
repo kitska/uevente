@@ -25,6 +25,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 // Smooth appearing on scroll
 import AOS from 'aos';
 import 'aos/dist/aos.css'; // 🔥 required!
+import Subscriptions from './pages/Subscriptions';
 
 // fade-up
 // fade-right
@@ -109,6 +110,7 @@ function AppContent() {
                     <Route path='/' element={<Main />} />
                     <Route path="/event/:id" element={<Event />} />
                     <Route path='/account' element={<ProtectedRoute><Account /></ProtectedRoute>} />
+                    <Route path='/subscriptions' element={<Subscriptions />} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/auth/github/callback' element={<Login />} />
                     <Route path='/auth/discord/callback' element={<Login />} />
