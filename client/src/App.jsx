@@ -110,7 +110,7 @@ function AppContent() {
                     <Route path='/' element={<Main />} />
                     <Route path="/event/:id" element={<Event />} />
                     <Route path='/account' element={<ProtectedRoute><Account /></ProtectedRoute>} />
-                    <Route path='/subscriptions' element={<Subscriptions />} />
+                    <Route path='/subscriptions' element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/auth/github/callback' element={<Login />} />
                     <Route path='/auth/discord/callback' element={<Login />} />
