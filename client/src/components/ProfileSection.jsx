@@ -4,13 +4,15 @@ import { api } from '../services';
 import { FaPlusCircle } from 'react-icons/fa';
 import CompanySection from './CompanySection';
 import { savePushSubscription } from '../services/userService'
+import Swal from 'sweetalert2';
 
 const ProfileSection = () => {
     const [user, setUser] = useState({
         login: userStore?.user?.login || '',
         email: userStore?.user?.email || '',
         fullName: userStore?.user?.fullName || '',
-        profilePicture: userStore?.user?.profilePicture || ''
+        profilePicture: userStore?.user?.profilePicture || '',
+        phone: userStore?.user?.phone || ''
     });
     const [notifications, setNotifications] = useState({
         push: userStore?.user?.pushNotifications,
@@ -93,21 +95,47 @@ const ProfileSection = () => {
             console.error('Failed to create company:', error);
         }
     };
-
+    const numberHandler = (val) => {
+        if (val.startsWith('+')) {
+            val = '+' + val.slice(1).replace(/[^0-9]/g, '');
+        } else {
+            val = '+' + val.replace(/[^0-9]/g, '');
+        }
+    
+        if (val === '+') {
+            setTempValue('');
+            return;
+        }
+    
+        if (val.length > 15) {
+            val = val.slice(0, 15);
+        }
+    
+        setTempValue(val);
+    };
     const renderEditableField = (label, field) => (
         <div className="flex items-center justify-between">
             <div>
                 <p className="text-sm text-gray-500">{label}</p>
-                {editingField === field ? (
-                    <input
-                        type="text"
-                        value={tempValue}
-                        onChange={(e) => setTempValue(e.target.value)}
-                        className="mt-1 p-2 border rounded-md w-64"
-                    />
-                ) : (
-                    <p className="text-lg font-medium">{user[field]}</p>
-                )}
+                {
+                    editingField === field ? field === 'phone' ? (
+                        <input
+                            type="tel"
+                            value={tempValue}
+                            onChange={(e) => numberHandler(e.target.value)}
+                            className="mt-1 p-2 border rounded-md w-64"
+                            placeholder="Enter phone number"
+                        />
+                    ) : (
+                        <input
+                            type="text"
+                            value={tempValue}
+                            onChange={(e) => setTempValue(e.target.value)}
+                            className="mt-1 p-2 border rounded-md w-64"
+                        />
+                    ) : (
+                        <p className="text-lg font-medium">{user[field]}</p>
+                    )}
             </div>
             <div>
                 {editingField === field ? (
@@ -144,6 +172,16 @@ const ProfileSection = () => {
                     <input id="push-checkbox-list" type="checkbox"
                         checked={notifications.push}
                         onChange={async () => {
+                            const permission = await Notification.requestPermission();
+                            if (permission !== 'granted' && notifications.push === false) {
+                                Swal.fire({
+                                    text: 'Provide notify permission first',
+                                    icon: 'warning',
+                                    confirmButtonText: 'Ok'
+                                })
+                                await Notification.requestPermission();
+                                return;
+                            }
                             const updated = { ...notifications, push: !notifications.push };
                             setNotifications(updated);
                             await userStore.updateUser({
@@ -180,14 +218,23 @@ const ProfileSection = () => {
                     <input id="sms-checkbox-list" type="checkbox"
                         checked={notifications.sms}
                         onChange={async () => {
-                            const updated = { ...notifications, sms: !notifications.sms };
-                            setNotifications(updated);
-                            await userStore.updateUser({
-                                ...user,
-                                pushNotify: updated.push,
-                                emailNotify: updated.email,
-                                smsNotify: updated.sms,
-                            });
+                            if(userStore?.user?.phone) {
+                                const updated = { ...notifications, sms: !notifications.sms };
+                                setNotifications(updated);
+                                await userStore.updateUser({
+                                    ...user,
+                                    pushNotify: updated.push,
+                                    emailNotify: updated.email,
+                                    smsNotify: updated.sms,
+                                });
+                            }
+                            else {
+                                Swal.fire({
+                                    text: 'Provide phone number first',
+                                    icon: 'warning',
+                                    confirmButtonText: 'Ok'
+                                })
+                            }
                         }}
                         value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
                     <label htmlFor="sms-checkbox-list" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">SMS</label>
@@ -257,6 +304,7 @@ const ProfileSection = () => {
             <div className="space-y-4">
                 {renderEditableField('Full Name', 'fullName')}
                 {renderEditableField('Login', 'login')}
+                {renderEditableField('Phone', 'phone')}
             </div>
         </div>
     );

@@ -42,6 +42,9 @@ export class User extends BaseEntity {
 	@Column({ default: 0 })
 	rating: number;
 
+	@Column({ length: 15, unique: true, nullable: true })
+	phone: string;
+
 	@Column({ default: false })
 	isEmailConfirmed: boolean;
 
@@ -56,6 +59,7 @@ export class User extends BaseEntity {
 
 	@Column({ type: 'json', nullable: true })
 	pushSubscription: any;
+
 
 	@BeforeInsert()
 	async initUser() {

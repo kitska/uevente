@@ -47,8 +47,7 @@ cron.schedule('* * * * *', async () => {
         });
       }
       if(user?.smsNotifications) {
-        await sendSMS('', '');
-        console.log('sent');
+        await sendSMS(user.phone, `GoEvent reminds you to not forget about event ${event.title} on ${event.date}`);
       }
     }
 

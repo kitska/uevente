@@ -129,7 +129,7 @@ export class UserController {
 	// 	// Обновление пользователя
 	static async updateUser(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
-		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating, pushNotify, emailNotify, smsNotify } = req.body;
+		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating, pushNotify, emailNotify, smsNotify, phone } = req.body;
 
 		try {
 			// Ищем пользователя по ID
@@ -151,6 +151,7 @@ export class UserController {
 			if (pushNotify !== undefined) user.pushNotifications = pushNotify;
 			if (emailNotify !== undefined) user.emailNotifications = emailNotify;
 			if (smsNotify !== undefined) user.smsNotifications = smsNotify;
+			if (phone !== undefined) user.phone = phone;
 
 			// Сохраняем обновленного пользователя
 			await user.save();
@@ -226,7 +227,7 @@ export class UserController {
 			}
 
 			user.pushSubscription = subscription;
-			user.pushNotifications = true;
+			// user.pushNotifications = true;
 			await user.save();
 
 			return res.status(200).json({ message: "Push subscription saved." });
