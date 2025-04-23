@@ -48,6 +48,15 @@ function AppContent() {
         AOS.refresh();
     }, [location.pathname]);
     useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                .then(() => {
+                    console.log('Service Worker registered');
+                })
+                .catch(console.error);
+        }
+    }, []);
+    useEffect(() => {
         const loadUser = async () => {
             try {
                 const currentUser = await fetchCurrentUser();

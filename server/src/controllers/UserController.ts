@@ -215,6 +215,27 @@ export class UserController {
 		}
 	}
 
+	static async pushSub(req: Request, res: Response): Promise<Response> {
+		try {
+			const userId = req.user.id; // assuming you attach user from auth middleware
+			const { subscription } = req.body;
+			const user = await User.findOne({ where: { id: String(userId) } })
+
+			if (!subscription) {
+				return res.status(400).json({ error: "Subscription object is required." });
+			}
+
+			user.pushSubscription = subscription;
+			user.pushNotifications = true;
+			await user.save();
+
+			return res.status(200).json({ message: "Push subscription saved." });
+		} catch (error) {
+			console.error("Error saving push subscription:", error);
+			return res.status(500).json({ error: "Failed to save push subscription." });
+		}
+	}
+
 	// 	// Получение всех билетов пользователя
 	// 	static async getUserTickets(req: Request, res: Response): Promise<Response> {
 	// 		const { id } = req.params;

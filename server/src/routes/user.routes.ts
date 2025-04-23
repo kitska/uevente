@@ -27,6 +27,9 @@ router.get('/:id', UserController.getUserById.bind(UserController));
 router.get('/:id/companies', UserController.getUserCompanies.bind(UserController.getUserCompanies))
 router.patch('/:id', UserController.updateUser.bind(UserController));
 router.delete('/:id', UserController.deleteUser.bind(UserController));
+// routes/user.ts
+router.post('/push-subscription', authMiddleware, UserController.pushSub.bind(UserController));
+  
 
 
 export default router;

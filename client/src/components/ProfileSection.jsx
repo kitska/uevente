@@ -3,6 +3,7 @@ import { userStore } from '../store/userStore';
 import { api } from '../services';
 import { FaPlusCircle } from 'react-icons/fa';
 import CompanySection from './CompanySection';
+import { savePushSubscription } from '../services/userService'
 
 const ProfileSection = () => {
     const [user, setUser] = useState({
@@ -16,6 +17,12 @@ const ProfileSection = () => {
         email: userStore?.user?.emailNotifications,
         sms: userStore?.user?.smsNotifications,
     });
+    useEffect(() => {
+        const initPushSubscription = async () => {
+            await savePushSubscription();
+        };
+        initPushSubscription();
+    }, [userStore?.user?.pushNotifications]);
     // console.log(userStore.user);
 
     const [companies, setCompanies] = useState([]);

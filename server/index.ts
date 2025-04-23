@@ -16,6 +16,7 @@ import authRoutes from './src/routes/auth.routes'
 import paymentRoutes from './src/routes/payment.routes'
 import cors from 'cors';
 import path from 'path';
+import './src/utils/notificationScheduler';
 
 export const app = express();
 const PORT = process.env.PORT;

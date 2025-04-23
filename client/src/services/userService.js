@@ -17,7 +17,7 @@ export const createUser = async (fullName, email, password, login) => {
 		throw error;
 	}
 };
-export const createFullUser = async (fullName, email, password, login, profilePicture, isAdmin, isShowName, rating, isEmailConfirmed ) => {
+export const createFullUser = async (fullName, email, password, login, profilePicture, isAdmin, isShowName, rating, isEmailConfirmed) => {
 	try {
 		const response = await api.post(`${API_URL}/users`, {
 			fullName,
@@ -122,5 +122,35 @@ export const getSharedEvents = async userId => {
 	} catch (error) {
 		console.error('Failed to fetch shared events:', error);
 		throw error;
+	}
+};
+function urlBase64ToUint8Array(base64String) {
+	const padding = '='.repeat((4 - base64String.length % 4) % 4);
+	const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+	const rawData = window.atob(base64);
+	const outputArray = new Uint8Array(rawData.length);
+
+	for (let i = 0; i < rawData.length; ++i) {
+		outputArray[i] = rawData.charCodeAt(i);
+	}
+	return outputArray;
+};
+export const savePushSubscription = async () => {
+	const permission = await Notification.requestPermission();
+	if (permission !== 'granted') {
+		console.warn('Notification permission not granted.');
+		return;
+	}
+	if ('serviceWorker' in navigator && 'PushManager' in window) {
+		const registration = await navigator.serviceWorker.ready;
+
+		const subscription = await registration.pushManager.subscribe({
+			userVisibleOnly: true,
+			applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY),
+		});
+
+		await api.post(`${API_URL}/users/push-subscription`, {
+			subscription
+		});
 	}
 };
