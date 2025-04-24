@@ -12,6 +12,9 @@ const Event = observer(() => {
 	const { id } = useParams();
 	const [event, setEvent] = useState(null);
 	const [count, setCount] = useState(1);
+	const [showPromo, setShowPromo] = useState(false);
+	const [promoCode, setPromoCode] = useState('');
+	const [discountPercent, setDiscountPercent] = useState(0);
 
 	useEffect(() => {
 		const fetchEvent = async () => {
@@ -40,7 +43,7 @@ const Event = observer(() => {
 	const handleBuy = async () => {
 		try {
 			const stripe = await loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
-
+			const finalPrice = discountPercent > 0 ? Math.round(event.price * (1 - discountPercent / 100) * 100) : Math.round(event.price * 100);
 			const response = await fetch('http://localhost:8000/api/payment/create-checkout-session', {
 				method: 'POST',
 				headers: {
@@ -51,7 +54,7 @@ const Event = observer(() => {
 					items: [
 						{
 							name: event.title,
-							amount: Math.round(event.price * 100), // Stripe expects amount in cents
+							amount: finalPrice,
 							quantity: count,
 							image: event.poster,
 						},
@@ -106,6 +109,12 @@ const Event = observer(() => {
 		window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
 	};
 
+	const handleApplyPromo = () => {
+		if (!promoCode.trim()) {
+			return;
+		}
+	};
+
 	return (
 		<div className='min-h-screen bg-gray-100'>
 			{/* Hero */}
@@ -127,7 +136,15 @@ const Event = observer(() => {
 							<FaCalendarAlt className='text-blue-600' /> {new Date(event.date).toLocaleString()}
 						</p>
 						<p className='flex items-center gap-2 text-lg font-semibold'>
-							<FaMoneyBillAlt className='text-green-600' /> ${event.price}
+							<FaMoneyBillAlt className='text-green-600' />
+							{discountPercent > 0 ? (
+								<>
+									<span className='mr-2 text-red-500 line-through'>${Number(event.price).toFixed(2)}</span>
+									<span className='font-bold text-green-600'>${Number((event.price * (1 - discountPercent / 100))).toFixed(2)}</span>
+								</>
+							) : (
+								<span>${Number(event.price).toFixed(2)}</span>
+							)}
 						</p>
 					</div>
 
@@ -158,6 +175,28 @@ const Event = observer(() => {
 							<button onClick={handleBuy} className='px-6 py-2 font-semibold text-white transition bg-blue-600 rounded-lg shadow hover:bg-blue-700'>
 								Buy {count || 1} ticket{count > 1 ? 's' : ''}
 							</button>
+
+							{/* Promo Code Toggle + Input */}
+							<div className='w-full mt-4'>
+								<button onClick={() => setShowPromo(prev => !prev)} className='text-sm font-medium text-blue-600 hover:underline focus:outline-none'>
+									{showPromo ? 'Hide promo code' : 'Have a promo code?'}
+								</button>
+
+								{showPromo && (
+									<div className='flex items-center gap-2 mt-3'>
+										<input
+											type='text'
+											value={promoCode}
+											onChange={e => setPromoCode(e.target.value)}
+											placeholder='Enter promo code'
+											className='px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none'
+										/>
+										<button onClick={handleApplyPromo} className='px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700'>
+											Apply
+										</button>
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
 				</div>

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Promocode } from '../models/Promocode';
+import { Payment } from '../models/Payment';
 import { Event } from '../models/Event';
 import { randomBytes } from 'crypto';
 
@@ -40,6 +41,49 @@ export class PromocodeController {
 		} catch (error) {
 			console.error('Error creating promocode:', error);
 			return res.status(500).json({ message: 'Failed to create promocode' });
+		}
+	}
+
+	static async validatePromocode(req: Request, res: Response): Promise<Response> {
+		const { code, eventId, userId } = req.body;
+
+		try {
+			const promocode = await Promocode.findOne({
+				where: {
+					code,
+					event: { id: eventId },
+				},
+				relations: ['event'],
+			});
+
+			if (!promocode) {
+				return res.status(404).json({ message: 'Invalid or expired promocode' });
+			}
+
+			const existingPromoUse = await Payment.findOne({
+				where: {
+					user: { id: userId },
+					event: { id: eventId },
+					status: 'successful',
+					promocode: { id: promocode.id },
+				},
+				relations: ['user', 'event', 'promocode'],
+			});
+
+			if (existingPromoUse) {
+				return res.status(400).json({
+					message: 'This promocode has already been used by the user for this event.',
+				});
+			}
+
+			return res.status(200).json({
+				message: 'Valid promocode',
+				code: promocode.code,
+				discount: Number(promocode.discount),
+			});
+		} catch (error) {
+			console.error('Error validating promocode:', error);
+			return res.status(500).json({ message: 'Failed to validate promocode' });
 		}
 	}
 
