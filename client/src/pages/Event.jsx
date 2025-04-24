@@ -25,6 +25,8 @@ const Event = observer(() => {
 			try {
 				const data = await eventStore.fetchEventById(id);
 				setEvent(data);
+
+				console.log(data);
 			} catch (error) {
 				console.error('Error fetching event:', error);
 			}
@@ -33,8 +35,6 @@ const Event = observer(() => {
 		const fetchComments = async () => {
 			try {
 				const res = await api.get(`http://localhost:8000/api/comments/event/${id}`);
-
-				console.log(res);
 				const data = res.data.data;
 
 				setComments(data.reverse());
@@ -56,8 +56,6 @@ const Event = observer(() => {
 		fetchComments();
 		checkLogin();
 		checkIsAdmin();
-
-		console.log(isAdmin);
 	}, [id]);
 
 	if (eventStore.loading) {
@@ -176,11 +174,20 @@ const Event = observer(() => {
 	return (
 		<div className='min-h-screen bg-gray-100'>
 			{/* Header image */}
-			<div className='relative bg-center bg-cover h-96' style={{ backgroundImage: `url('${event.poster || 'https://picsum.photos/1920/1080'}')` }}>
+			<div
+				className='relative bg-cover h-200'
+				style={{
+					backgroundImage: `url('${event.poster || 'http://localhost:8000/avatars/mr.penis.png'}')`,
+					backgroundPosition: 'center 10%' // move background down from center
+				}}
+			>
 				<div className='absolute inset-0 flex items-center justify-center bg-opacity-50'>
-					<h1 className='text-4xl font-bold text-white md:text-5xl drop-shadow-lg'>{event.title}</h1>
+					<h1 className='text-4xl font-bold text-white md:text-5xl drop-shadow-lg'>
+						{event.title}
+					</h1>
 				</div>
 			</div>
+
 
 			{/* Event details */}
 			<div className='relative z-10 grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 mx-auto -mt-16 bg-white shadow-xl md:grid-cols-3 rounded-xl'>

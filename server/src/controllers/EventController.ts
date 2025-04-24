@@ -85,6 +85,7 @@ export const EventController = {
 				const fileBase64 = req.file.buffer.toString('base64');
 				uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
 			}
+			
 
 			const event = Event.create({
 				title,

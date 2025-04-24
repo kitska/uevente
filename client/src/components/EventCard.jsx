@@ -5,7 +5,7 @@ import { FaCalendarAlt, FaDollarSign } from 'react-icons/fa';
 const EventCard = ({ event }) => {
     const [hovered, setHovered] = useState(false);
 
-    const defaultImage = 'https://i1.sndcdn.com/avatars-IDREzi3RhXdPHLsZ-MBxJoQ-t1080x1080.jpg';
+    const defaultImage = 'http://localhost:8000/avatars/mr.penis.png';
 
     return (
         <div
