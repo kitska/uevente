@@ -7,6 +7,7 @@ import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
 import { loadStripe } from '@stripe/stripe-js';
 import { api } from '../services';
+import { PiStar, PiStarFill } from "react-icons/pi";
 import { userStore } from '../store/userStore';
 
 const Event = observer(() => {
@@ -23,13 +24,14 @@ const Event = observer(() => {
 	const [newComment, setNewComment] = useState('');
 	const [loadingComment, setLoadingComment] = useState(false);
 
+	const [favourited, setFavourited] = useState(false);
 	useEffect(() => {
 		const fetchEvent = async () => {
 			try {
 				const data = await eventStore.fetchEventById(id);
 				setEvent(data);
-
-				console.log(data);
+				// console.log(userStore.isEventSubscribed(data.id));
+				setFavourited(userStore.isEventSubscribed(data.id));
 			} catch (error) {
 				console.error('Error fetching event:', error);
 			}
@@ -187,20 +189,28 @@ const Event = observer(() => {
 				className='relative bg-cover h-200'
 				style={{
 					backgroundImage: `url('${event.poster || 'http://localhost:8000/avatars/mr.penis.png'}')`,
-					backgroundPosition: 'center 10%' // move background down from center
+					backgroundPosition: 'center 10%', // move background down from center
 				}}
 			>
 				<div className='absolute inset-0 flex items-center justify-center bg-opacity-50'>
-					<h1 className='text-4xl font-bold text-white md:text-5xl drop-shadow-lg'>
-						{event.title}
-					</h1>
+					<h1 className='text-4xl font-bold text-white md:text-5xl drop-shadow-lg'>{event.title}</h1>
 				</div>
 			</div>
-
 
 			{/* Event details */}
 			<div className='relative z-10 grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 mx-auto -mt-16 bg-white shadow-xl md:grid-cols-3 rounded-xl'>
 				<div className='space-y-4 md:col-span-2'>
+					<button
+						onClick={() => {
+							const newValue = !favourited;
+							setFavourited(newValue);
+							eventStore.handleSubscribe(newValue, event.id);
+							newValue ? userStore.addSub(event) : userStore.removeSub(event);
+						}}
+						className='flex items-center justify-center p-2 hover:scale-110'
+					>
+						{favourited ? <PiStarFill size={24} color='#FACC15' /> : <PiStar size={24} />}
+					</button>
 					<div className='space-y-2 text-gray-700'>
 						<p className='flex items-center gap-2 text-lg font-semibold'>
 							<FaMapMarkerAlt className='text-red-600' /> {event.location}
@@ -213,7 +223,7 @@ const Event = observer(() => {
 							{discountPercent > 0 ? (
 								<>
 									<span className='mr-2 text-red-500 line-through'>${Number(event.price).toFixed(2)}</span>
-									<span className='font-bold text-green-600'>${Number((event.price * (1 - discountPercent / 100))).toFixed(2)}</span>
+									<span className='font-bold text-green-600'>${Number(event.price * (1 - discountPercent / 100)).toFixed(2)}</span>
 								</>
 							) : (
 								<span>${Number(event.price).toFixed(2)}</span>
@@ -222,55 +232,6 @@ const Event = observer(() => {
 					</div>
 
 					<p className='text-lg leading-relaxed text-gray-800'>{event.description}</p>
-
-					<div className='flex flex-col items-start gap-4 mt-6'>
-						<label className='text-lg font-medium text-gray-700'>Number of tickets</label>
-						<div className='flex items-center gap-4'>
-							<div className='flex items-center bg-gray-100 border border-gray-300 rounded-lg shadow-inner'>
-								<button onClick={decrease} className='px-4 py-2 text-gray-700 transition hover:text-red-500'>
-									<FaMinus />
-								</button>
-								<input
-									type='number'
-									value={count}
-									onChange={handleChange}
-									onBlur={handleBlur}
-									min={1}
-									max={100}
-									className='w-16 px-2 py-2 text-lg text-center text-gray-800 bg-white border-0 outline-none'
-								/>
-								<button onClick={increase} className='px-4 py-2 text-gray-700 transition hover:text-green-500'>
-									<FaPlus />
-								</button>
-							</div>
-
-							<button onClick={handleBuy} className='px-6 py-2 font-semibold text-white transition bg-blue-600 rounded-lg shadow hover:bg-blue-700'>
-								Buy {count || 1} ticket{count > 1 ? 's' : ''}
-							</button>
-
-							{/* Promo Code Toggle + Input */}
-							<div className='w-full mt-4'>
-								<button onClick={() => setShowPromo(prev => !prev)} className='text-sm font-medium text-blue-600 hover:underline focus:outline-none'>
-									{showPromo ? 'Hide promo code' : 'Have a promo code?'}
-								</button>
-
-								{showPromo && (
-									<div className='flex items-center gap-2 mt-3'>
-										<input
-											type='text'
-											value={promoCode}
-											onChange={e => setPromoCode(e.target.value)}
-											placeholder='Enter promo code'
-											className='px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none'
-										/>
-										<button onClick={handleApplyPromo} className='px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700'>
-											Apply
-										</button>
-									</div>
-								)}
-							</div>
-						</div>
-					</div>
 				</div>
 
 				<div className='w-full overflow-hidden shadow-lg rounded-xl h-80'>
@@ -283,6 +244,71 @@ const Event = observer(() => {
 						src={`https://www.google.com/maps?q=${encodeURIComponent(event.location)}&output=embed`}
 					></iframe>
 				</div>
+				<div className='space-y-4 md:col-span-4'>
+					<div className='w-full p-6 mt-2 transition-all duration-300 border border-gray-200 shadow-xl bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl'>
+						<h3 className='mb-4 text-2xl font-bold text-gray-800'>🎟️ Ticket Selection</h3>
+
+						{/* Ticket Counter */}
+						<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+							<div className='flex items-center'>
+								<span className='mr-4 text-lg font-medium text-gray-700'>Number of tickets:</span>
+								<div className='flex items-center overflow-hidden bg-white border border-gray-300 rounded-full shadow-inner'>
+									<button onClick={decrease} className='px-4 py-2 text-gray-600 transitio hover:text-red-600'>
+										<FaMinus />
+									</button>
+									<input
+										type='number'
+										value={count}
+										onChange={handleChange}
+										onBlur={handleBlur}
+										min={1}
+										max={100}
+										className='w-16 px-2 py-2 text-lg font-semibold text-center bg-transparent outline-none'
+									/>
+									<button onClick={increase} className='px-4 py-2 text-gray-600 transition hover:text-green-600'>
+										<FaPlus />
+									</button>
+								</div>
+							</div>
+
+							{/* Buy Button */}
+							<button
+								onClick={handleBuy}
+								className='flex items-center gap-2 px-6 py-3 text-white bg-blue-600 rounded-full shadow-lg transition hover:bg-blue-700 hover:scale-[1.02]'
+							>
+								<FaMoneyBillAlt />
+								<span className='text-lg font-semibold'>
+									Buy {count || 1} ticket{count > 1 ? 's' : ''}
+								</span>
+							</button>
+						</div>
+
+						{/* Promo Code */}
+						<div className='mt-6'>
+							<button onClick={() => setShowPromo(prev => !prev)} className='text-sm font-semibold text-blue-500'>
+								{showPromo ? 'Hide promo code' : 'Have a promo code?'}
+							</button>
+
+							{showPromo && (
+								<div className='flex flex-col gap-2 mt-3 sm:flex-row sm:items-center'>
+									<input
+										type='text'
+										value={promoCode}
+										onChange={e => setPromoCode(e.target.value)}
+										placeholder='Enter promo code'
+										className='flex-1 px-4 py-2 text-sm border border-gray-300 shadow-sm rounded-xl focus:ring focus:ring-blue-200 focus:outline-none'
+									/>
+									<button
+										onClick={handleApplyPromo}
+										className='px-5 py-2 text-sm font-semibold text-white transition bg-green-600 rounded-full hover:bg-green-700'
+									>
+										Apply
+									</button>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
 			</div>
 
 			{/* Comments */}
@@ -290,10 +316,7 @@ const Event = observer(() => {
 				<div className='flex items-center justify-between mb-4'>
 					<h2 className='text-2xl font-bold'>Comments</h2>
 					{isLoggedIn && (
-						<button
-							onClick={() => setShowCommentBox(prev => !prev)}
-							className='px-4 py-2 text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700'
-						>
+						<button onClick={() => setShowCommentBox(prev => !prev)} className='px-4 py-2 text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700'>
 							{showCommentBox ? 'Cancel' : 'Create Comment'}
 						</button>
 					)}
@@ -320,21 +343,10 @@ const Event = observer(() => {
 
 				<div className='space-y-4'>
 					{comments.length > 0 ? (
-						comments.map(comment => (
-							<Comment
-								key={comment.id}
-								id={comment.id}
-								content={comment.content}
-								isAdmin={isAdmin}
-								onDelete={handleDeleteComment}
-							/>
-						))
+						comments.map(comment => <Comment key={comment.id} id={comment.id} content={comment.content} isAdmin={isAdmin} onDelete={handleDeleteComment} />)
 					) : (
 						<p className='text-gray-500'>No comments yet.</p>
 					)}
-
-
-
 				</div>
 			</div>
 

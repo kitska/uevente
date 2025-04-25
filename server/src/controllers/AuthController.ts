@@ -59,7 +59,7 @@ export const AuthController = {
 
 			const user = await User.findOne({
 				where: { id: decoded.id },
-				select: ['id', 'fullName', 'email', 'login', 'isEmailConfirmed', 'profilePicture', 'isAdmin', 'isShowName', 'rating'],
+				// select: ['id', 'fullName', 'email', 'login', 'isEmailConfirmed', 'profilePicture', 'isAdmin', 'isShowName', 'rating', 'emailNotifications', 'pushNotifications', 'smsNotifications'],
 			});
 
 			if (!user) {

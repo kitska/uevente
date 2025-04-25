@@ -129,7 +129,7 @@ export class UserController {
 	// 	// Обновление пользователя
 	static async updateUser(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
-		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating } = req.body;
+		const { fullName, email, password, login, isEmailConfirmed, profilePicture, isAdmin, isShowName, rating, pushNotify, emailNotify, smsNotify, phone } = req.body;
 
 		try {
 			// Ищем пользователя по ID
@@ -148,6 +148,10 @@ export class UserController {
 			if (isAdmin !== undefined) user.isAdmin = isAdmin;
 			if (isShowName !== undefined) user.isShowName = isShowName;
 			if (rating !== undefined) user.rating = rating;
+			if (pushNotify !== undefined) user.pushNotifications = pushNotify;
+			if (emailNotify !== undefined) user.emailNotifications = emailNotify;
+			if (smsNotify !== undefined) user.smsNotifications = smsNotify;
+			if (phone !== undefined) user.phone = phone;
 
 			// Сохраняем обновленного пользователя
 			await user.save();
@@ -209,6 +213,27 @@ export class UserController {
 		} catch (error) {
 			console.error('Get subscriptions error:', error);
 			return res.status(500).json({ message: 'Failed to fetch subscriptions' });
+		}
+	}
+
+	static async pushSub(req: Request, res: Response): Promise<Response> {
+		try {
+			const userId = req.user.id; // assuming you attach user from auth middleware
+			const { subscription } = req.body;
+			const user = await User.findOne({ where: { id: String(userId) } })
+
+			if (!subscription) {
+				return res.status(400).json({ error: "Subscription object is required." });
+			}
+
+			user.pushSubscription = subscription;
+			// user.pushNotifications = true;
+			await user.save();
+
+			return res.status(200).json({ message: "Push subscription saved." });
+		} catch (error) {
+			console.error("Error saving push subscription:", error);
+			return res.status(500).json({ error: "Failed to save push subscription." });
 		}
 	}
 

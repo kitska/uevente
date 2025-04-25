@@ -43,6 +43,7 @@ function Login() {
                 navigate('/');
             }
         } catch (error) {
+            console.log(error);
             setServerError(error.response?.data?.message || 'Login failed');
         } finally {
             setLoading(false);

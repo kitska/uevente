@@ -23,6 +23,7 @@ const AxiosInterceptor = () => {
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             })
+            navigate("/");
 
             const controller = new AbortController();
             config.signal = controller.signal;

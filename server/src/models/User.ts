@@ -42,8 +42,24 @@ export class User extends BaseEntity {
 	@Column({ default: 0 })
 	rating: number;
 
+	@Column({ length: 15, unique: true, nullable: true })
+	phone: string;
+
 	@Column({ default: false })
 	isEmailConfirmed: boolean;
+
+	@Column({ default: true })
+	emailNotifications: boolean;
+
+	@Column({ default: false })
+	pushNotifications: boolean;
+
+	@Column({ default: false })
+	smsNotifications: boolean;
+
+	@Column({ type: 'json', nullable: true })
+	pushSubscription: any;
+
 
 	@BeforeInsert()
 	async initUser() {

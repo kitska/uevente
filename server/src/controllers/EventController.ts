@@ -6,6 +6,8 @@ import { Format } from '../models/Format';
 import { Theme } from '../models/Theme';
 import { Subscription } from '../models/Subscription';
 import axios from 'axios';
+import { User } from '../models/User';
+import { sendEmail } from '../utils/emailService';
 
 export const EventController = {
 	async uploadToImgur(imageData: string, type: 'base64' | 'url'): Promise<string | null> {
@@ -171,33 +173,107 @@ export const EventController = {
 			if (!event) {
 				return res.status(404).json({ message: 'Event not found' });
 			}
-
-			if (title !== undefined) event.title = title;
-			if (description !== undefined) event.description = description;
-			if (price !== undefined) event.price = price;
-			if (location !== undefined) event.location = location;
-			if (date !== undefined) event.date = new Date(date);
-			if (ticket_limit !== undefined) event.ticket_limit = ticket_limit;
-			if (is_published !== undefined) event.is_published = is_published;
-			if (poster !== undefined) event.poster = poster;
-
-			if (companyId) {
+			const changedFields: { field: string; oldValue: any; newValue: any }[] = [];
+			if (title !== undefined && title !== event.title) {
+				changedFields.push({ field: 'Title', oldValue: event.title, newValue: title });
+				event.title = title;
+			}
+			if (description !== undefined && description !== event.description) {
+				changedFields.push({ field: 'Description', oldValue: event.description, newValue: description });
+				event.description = description;
+			}
+			if (price !== undefined && price !== event.price) {
+				changedFields.push({ field: 'Price', oldValue: event.price, newValue: price });
+				event.price = price;
+			}
+			if (location !== undefined && location !== event.location) {
+				changedFields.push({ field: 'Location', oldValue: event.location, newValue: location });
+				event.location = location;
+			}
+			if (date !== undefined && new Date(date).getTime() !== event.date.getTime()) {
+				changedFields.push({ field: 'Date', oldValue: event.date.toISOString(), newValue: new Date(date).toISOString() });
+				event.date = new Date(date);
+			}
+			if (ticket_limit !== undefined && ticket_limit !== event.ticket_limit) {
+				changedFields.push({ field: 'Ticket Limit', oldValue: event.ticket_limit, newValue: ticket_limit });
+				event.ticket_limit = ticket_limit;
+			}
+			if (is_published !== undefined && is_published !== event.is_published) {
+				changedFields.push({ field: 'Publication Status', oldValue: event.is_published, newValue: is_published });
+				event.is_published = is_published;
+			}
+			if (poster !== undefined && poster !== event.poster) {
+				changedFields.push({ field: 'Poster', oldValue: event.poster, newValue: poster });
+				event.poster = poster;
+			}
+			if (companyId !== undefined && companyId !== event.company?.id) {
 				const company = await Company.findOne({ where: { id: companyId } });
 				if (!company) {
 					return res.status(404).json({ message: 'Company not found' });
 				}
+				changedFields.push({ field: 'Company', oldValue: event.company?.name || 'None', newValue: company.name });
 				event.company = company;
 			}
-
 			if (Array.isArray(formatIds)) {
-				event.formats = await Format.findBy({ id: In(formatIds) });
+				const newFormats = await Format.findBy({ id: In(formatIds) });
+				event.formats = newFormats;
+				changedFields.push({ field: 'Formats', oldValue: (event.formats || []).map(f => f.title).join(', '), newValue: newFormats.map(f => f.title).join(', ') });
 			}
-
 			if (Array.isArray(themeIds)) {
-				event.themes = await Theme.findBy({ id: In(themeIds) });
+				const newThemes = await Theme.findBy({ id: In(themeIds) });
+				event.themes = newThemes;
+				changedFields.push({ field: 'Themes', oldValue: (event.themes || []).map(t => t.title).join(', '), newValue: newThemes.map(t => t.title).join(', ') });
 			}
-
 			await event.save();
+
+			const subject = `Event "${event.title}" has been updated`;
+			const emailContent = `
+			<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #333;">
+			  <tr>
+				<td style="padding: 40px; font-family: Arial, sans-serif; color: #ffffff;">
+				  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: rgba(0,0,0,0.5); padding: 30px; border-radius: 10px;">
+					<tr>
+					  <td>
+						<h1 style="font-size: 32px; margin-bottom: 10px;">Event Update Notification</h1>
+						<p style="font-size: 18px; margin-bottom: 20px;">The following updates have been made to the event <strong>${event.title}</strong>:</p>
+						<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px;">
+						  <thead>
+							<tr>
+							  <th align="left" style="padding: 10px; border-bottom: 2px solid #fff;">Field</th>
+							  <th align="left" style="padding: 10px; border-bottom: 2px solid #fff;">Old Value</th>
+							  <th align="left" style="padding: 10px; border-bottom: 2px solid #fff;">New Value</th>
+							</tr>
+						  </thead>
+						  <tbody>
+							${changedFields.map(field => `
+							  <tr>
+								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.field}</td>
+								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.oldValue ?? '—'}</td>
+								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.newValue ?? '—'}</td>
+							  </tr>
+							`).join('')}
+						  </tbody>
+						</table>
+						<p style="font-size: 16px;">
+						  Feel free to check the 
+						  <a href="https://localhost:3000/events/${event.id}" style="color: #ffd700;">event page</a> 
+						  for full details and updates!
+						</p>
+						<p style="margin-top: 40px; font-size: 14px; color: #ccc;">
+						  You're receiving this email because you're subscribed to this event. Stay tuned for more updates!
+						</p>
+					  </td>
+					</tr>
+				  </table>
+				</td>
+			  </tr>
+			</table>
+		  `;
+			const subs = await Subscription.find({ where: { event: { id: event.id } }, relations: ['user'] });
+
+			for (const sub of subs) {
+				sendEmail(sub.user.email, emailContent, subject);
+			}
 
 			return res.status(200).json({ message: 'Event updated successfully', event });
 		} catch (error) {
@@ -215,8 +291,46 @@ export const EventController = {
 			if (!event) {
 				return res.status(404).json({ message: 'Event not found' });
 			}
+			const subs = await Subscription.find({ where: { event: { id: event.id } }, relations: ['user'] });
 
 			await event.remove();
+
+			const subject = `Event "${event.title}" has been deleted`;
+
+			const emailContent = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #333;">
+  <tr>
+    <td style="padding: 40px; font-family: Arial, sans-serif; color: #ffffff;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: rgba(0,0,0,0.5); padding: 30px; border-radius: 10px;">
+        <tr>
+          <td>
+            <h1 style="font-size: 32px; margin-bottom: 10px;">Event Deletion Notice</h1>
+            <p style="font-size: 18px; margin-bottom: 20px;">
+              We're reaching out to inform you that the event <strong>${event.title}</strong> has been <span style="color: #ff4d4f;">deleted</span>.
+            </p>
+            <p style="font-size: 16px;">
+              This means the event is no longer available and will not take place as originally scheduled. We apologize for any inconvenience.
+            </p>
+            <p style="margin-top: 40px; font-size: 14px; color: #ccc;">
+              You're receiving this email because you were subscribed to this event.
+            </p>
+			<p style="font-size: 14px; color: #ccc; opacity: 0.8;">
+              Due to event cancelation, your subscription is also canceled.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+`;
+			// (use the `emailContent` string from above)
+
+			for (const sub of subs) {
+				sendEmail(sub.user.email, emailContent, subject);
+			}
+
+
 
 			return res.status(200).json({ message: 'Event deleted successfully' });
 		} catch (error) {

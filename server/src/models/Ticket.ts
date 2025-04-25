@@ -1,9 +1,9 @@
 import {
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	ManyToOne,
-	BaseEntity
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  BaseEntity
 } from 'typeorm';
 import { User } from './User';
 import { Event } from './Event';
@@ -13,7 +13,7 @@ export class Ticket extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Event)
+  @ManyToOne(() => Event, { cascade: true, onDelete: 'CASCADE' })
   event: Event;
 
   @ManyToOne(() => User)

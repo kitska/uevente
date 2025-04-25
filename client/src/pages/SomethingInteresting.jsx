@@ -12,22 +12,27 @@ const SomethingInteresting = observer(() => {
 
         const handlePlay = () => setIsPlaying(true);
         const handlePause = () => setIsPlaying(false);
+        const handleLoadedMetadata = () => {
+            audio.currentTime = 18;
+        };
 
         if (audio) {
             audio.addEventListener("play", handlePlay);
             audio.addEventListener("pause", handlePause);
+            audio.addEventListener("loadedmetadata", handleLoadedMetadata);
         }
 
         return () => {
             if (audio) {
                 audio.removeEventListener("play", handlePlay);
                 audio.removeEventListener("pause", handlePause);
+                audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
             }
         };
     }, []);
 
     return (
-        <div className="flex h-max p-4 relative">
+        <div className="flex h-max p-4 relative mt-18">
             {/* Background cat gif */}
             {isPlaying && (
                 <img

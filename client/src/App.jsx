@@ -20,12 +20,14 @@ import SomethingInteresting from './pages/SomethingInteresting';
 import { AxiosInterceptor } from './services/index';
 import { Toaster } from 'react-hot-toast';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
+import { getSubscribedEvents } from './services/eventService';
 import { userStore } from './store/userStore';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Smooth appearing on scroll
 import AOS from 'aos';
 import 'aos/dist/aos.css'; // 🔥 required!
+import Subscriptions from './pages/Subscriptions';
 
 // fade-up
 // fade-right
@@ -48,16 +50,27 @@ function AppContent() {
         AOS.refresh();
     }, [location.pathname]);
     useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                .then(() => {
+                    console.log('Service Worker registered');
+                })
+                .catch(console.error);
+        }
+    }, []);
+    useEffect(() => {
         const loadUser = async () => {
             try {
                 const currentUser = await fetchCurrentUser();
                 if (!currentUser) {
-                    userStore.logout(); // Ensure userStore handles logout properly
+                    userStore.logout();
                     return;
                 }
                 userStore.setUser(currentUser);
-                // userStore.user = currentUser;
-                // setUser(currentUser); // Устанавливаем пользователя
+
+                const subs = await getSubscribedEvents(currentUser.id);
+                userStore.setSubscriptions(subs);
+
             } catch (error) {
                 console.error('Failed to fetch user:', error);
                 userStore.logout();
@@ -108,6 +121,7 @@ function AppContent() {
                     <Route path='/' element={<Main />} />
                     <Route path="/event/:id" element={<Event />} />
                     <Route path='/account' element={<ProtectedRoute><Account /></ProtectedRoute>} />
+                    <Route path='/subscriptions' element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/auth/github/callback' element={<Login />} />
                     <Route path='/auth/discord/callback' element={<Login />} />

@@ -98,10 +98,10 @@ const UserDropdown = () => {
             </li>
             <li>
               <a
-                href="/favourites"
+                href="/subscriptions"
                 className="block px-4 py-2 hover:bg-gray-100"
               >
-                Favourites
+                Subscriptions
               </a>
             </li>
           </ul>
