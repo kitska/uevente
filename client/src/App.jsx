@@ -131,8 +131,8 @@ function AppContent() {
                     <Route path='/password-reset/:token' element={<ResetPassword />} />
                     <Route path='/confirm-email/:token' element={<EmailConfirmation />} />
                     <Route path='/pashalka' element={<SomethingInteresting />} />
-                    <Route path='/success' element={<Success />} />
-                    <Route path='/error' element={<Error />} />
+                    <Route path='/success/:id' element={<Success />} />
+                    <Route path='/cancel/:id' element={<Error />} />
                     <Route path='*' element={<Error404 />} />
                 </Routes>
             </main>

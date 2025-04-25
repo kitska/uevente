@@ -4,8 +4,7 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
-	const { items } = req.body;
-
+	const { items, paymentId } = req.body;
 	try {
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ['card'],
@@ -21,8 +20,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 				quantity: item.quantity,
 			})),
 			mode: 'payment',
-			success_url: `${process.env.FRONT_URL}/success`,
-			cancel_url: `${process.env.FRONT_URL}/cancel`,
+			success_url: `${process.env.FRONT_URL}/success/${paymentId}`,
+			cancel_url: `${process.env.FRONT_URL}/cancel/${paymentId}`,
 		});
 
 		res.json({ sessionId: session.id });

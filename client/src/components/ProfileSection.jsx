@@ -273,7 +273,7 @@ const ProfileSection = () => {
                         className="block text-sm"
                     />
                     <button
-                        onClick={handleRemoveImage}
+                        // onClick={handleRemoveImage}
                         className="text-sm text-red-500 hover:underline"
                     >
                         Remove Photo

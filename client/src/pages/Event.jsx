@@ -7,7 +7,7 @@ import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
 import { loadStripe } from '@stripe/stripe-js';
 import { api } from '../services';
-import { PiStar, PiStarFill } from "react-icons/pi";
+import { PiStar, PiStarFill } from 'react-icons/pi';
 import { userStore } from '../store/userStore';
 
 const Event = observer(() => {
@@ -23,6 +23,9 @@ const Event = observer(() => {
 	const [showCommentBox, setShowCommentBox] = useState(false);
 	const [newComment, setNewComment] = useState('');
 	const [loadingComment, setLoadingComment] = useState(false);
+	const [promoMessage, setPromoMessage] = useState('');
+	const [promocodeId, setPromocodeId] = useState('');
+	const [promoError, setPromoError] = useState(false);
 
 	const [favourited, setFavourited] = useState(false);
 	useEffect(() => {
@@ -55,7 +58,7 @@ const Event = observer(() => {
 
 		const checkIsAdmin = () => {
 			setIsAdmin(userStore?.user?.isAdmin);
-		}
+		};
 
 		fetchEvent();
 		fetchComments();
@@ -79,6 +82,14 @@ const Event = observer(() => {
 		try {
 			const stripe = await loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 			const finalPrice = discountPercent > 0 ? Math.round(event.price * (1 - discountPercent / 100) * 100) : Math.round(event.price * 100);
+			const paymentResponse = await api.post(`/payment`, {
+				userId: userStore.user.id,
+				amount: finalPrice,
+				quantity: count,
+				eventId: id,
+				status: 'pending',
+				promocodeId: promocodeId,
+			});
 			const response = await fetch('http://localhost:8000/api/payment/create-checkout-session', {
 				method: 'POST',
 				headers: {
@@ -94,6 +105,7 @@ const Event = observer(() => {
 							image: event.poster,
 						},
 					],
+					paymentId: paymentResponse.data.payment.id,
 				}),
 			});
 
@@ -144,13 +156,17 @@ const Event = observer(() => {
 
 		setLoadingComment(true);
 		try {
-			const res = await api.post(`/comments/${id}`, { content: newComment }, {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem('token')}`,
-				},
-			});
+			const res = await api.post(
+				`/comments/${id}`,
+				{ content: newComment },
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('token')}`,
+					},
+				}
+			);
 
-			if (res.status != 201) throw new Error("Failed to create a comment!");
+			if (res.status != 201) throw new Error('Failed to create a comment!');
 
 			setComments(prev => [res.data, ...prev]);
 			setNewComment('');
@@ -162,13 +178,31 @@ const Event = observer(() => {
 		}
 	};
 
-	const handleApplyPromo = () => {
-		if (!promoCode.trim()) {
-			return;
+	const handleApplyPromo = async () => {
+		if (!promoCode.trim()) return;
+
+		try {
+			const res = await api.post('/promocodes/validate', {
+				code: promoCode.trim(),
+				eventId: id,
+				userId: userStore.user.id,
+			});
+
+			if (res.status === 200) {
+				const { message, discount, id } = res.data;
+				setPromocodeId(id);
+				setPromoMessage(message);
+				setPromoError(false);
+				setDiscountPercent(discount);
+			}
+		} catch (error) {
+			console.error('Promo code validation error:', error);
+			setPromoMessage(error.response?.data?.message || 'Failed to apply promo code');
+			setPromoError(true);
 		}
 	};
 
-	const handleDeleteComment = async (commentId) => {
+	const handleDeleteComment = async commentId => {
 		try {
 			await api.delete(`/comments/${commentId}`, {
 				headers: {
@@ -180,7 +214,6 @@ const Event = observer(() => {
 			console.error('Error deleting comment:', err);
 		}
 	};
-
 
 	return (
 		<div className='min-h-screen bg-gray-100'>
@@ -290,21 +323,24 @@ const Event = observer(() => {
 							</button>
 
 							{showPromo && (
-								<div className='flex flex-col gap-2 mt-3 sm:flex-row sm:items-center'>
-									<input
-										type='text'
-										value={promoCode}
-										onChange={e => setPromoCode(e.target.value)}
-										placeholder='Enter promo code'
-										className='flex-1 px-4 py-2 text-sm border border-gray-300 shadow-sm rounded-xl focus:ring focus:ring-blue-200 focus:outline-none'
-									/>
-									<button
-										onClick={handleApplyPromo}
-										className='px-5 py-2 text-sm font-semibold text-white transition bg-green-600 rounded-full hover:bg-green-700'
-									>
-										Apply
-									</button>
-								</div>
+								<>
+									<div className='flex flex-col gap-2 mt-3 sm:flex-row sm:items-center'>
+										<input
+											type='text'
+											value={promoCode}
+											onChange={e => setPromoCode(e.target.value)}
+											placeholder='Enter promo code'
+											className='flex-1 px-4 py-2 text-sm border border-gray-300 shadow-sm rounded-xl focus:ring focus:ring-blue-200 focus:outline-none'
+										/>
+										<button
+											onClick={handleApplyPromo}
+											className='px-5 py-2 text-sm font-semibold text-white transition bg-green-600 rounded-full hover:bg-green-700'
+										>
+											Apply
+										</button>
+									</div>
+									{promoMessage && <p className={`text-sm mt-1 ${promoError ? 'text-red-500' : 'text-green-600'}`}>{promoMessage}</p>}
+								</>
 							)}
 						</div>
 					</div>

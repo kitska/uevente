@@ -1,16 +1,35 @@
 // src/pages/Success.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { api } from '../services';
+import { Link, useParams } from 'react-router-dom';
 
 const Success = () => {
+    const { id } = useParams();
+
+	useEffect(() => {
+		const updatePayment = async () => {
+			try {
+				await api.patch(`/payment/${id}`, {
+					status: 'successful',
+				});
+			} catch (error) {
+				console.error('Failed to update payment status:', error);
+			}
+		};
+
+		if (id) {
+			updatePayment();
+		}
+	}, [id]);
+    
     return (
-        <div className="bg-green-50 flex items-center justify-center min-h-screen">
-            <div className="text-center p-8 bg-white shadow-xl rounded-xl max-w-md">
-                <h1 className="text-3xl font-bold text-green-600 mb-4">🎉 Purchase Successful!</h1>
-                <p className="text-gray-700 mb-6">Thank you for your purchase. Your ticket has been confirmed.</p>
+        <div className="flex items-center justify-center min-h-screen bg-green-50">
+            <div className="max-w-md p-8 text-center bg-white shadow-xl rounded-xl">
+                <h1 className="mb-4 text-3xl font-bold text-green-600">🎉 Purchase Successful!</h1>
+                <p className="mb-6 text-gray-700">Thank you for your purchase. Your ticket has been confirmed.</p>
                 <Link
                     to="/"
-                    className="inline-block bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition"
+                    className="inline-block px-6 py-2 text-white transition bg-green-500 rounded hover:bg-green-600"
                 >
                     Go to Main Page
                 </Link>

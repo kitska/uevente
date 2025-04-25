@@ -1,22 +1,38 @@
 // src/pages/Error.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { api } from '../services';
+import { Link, useParams } from 'react-router-dom';
 
 const Error = () => {
-    return (
-        <div className="bg-red-50 flex items-center justify-center min-h-screen">
-            <div className="text-center p-8 bg-white shadow-xl rounded-xl max-w-md">
-                <h1 className="text-3xl font-bold text-red-600 mb-4">❌ Purchase Failed</h1>
-                <p className="text-gray-700 mb-6">Something went wrong with your ticket purchase. Please try again.</p>
-                <Link
-                    to="/"
-                    className="inline-block bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition"
-                >
-                    Return to Main
-                </Link>
-            </div>
-        </div>
-    );
+	const { id } = useParams();
+
+	useEffect(() => {
+		const updatePayment = async () => {
+			try {
+				await api.patch(`/payment/${id}`, {
+					status: 'failed',
+				});
+			} catch (error) {
+				console.error('Failed to update payment status:', error);
+			}
+		};
+
+		if (id) {
+			updatePayment();
+		}
+	}, [id]);
+    
+	return (
+		<div className='flex items-center justify-center min-h-screen bg-red-50'>
+			<div className='max-w-md p-8 text-center bg-white shadow-xl rounded-xl'>
+				<h1 className='mb-4 text-3xl font-bold text-red-600'>❌ Purchase Failed</h1>
+				<p className='mb-6 text-gray-700'>Something went wrong with your ticket purchase. Please try again.</p>
+				<Link to='/' className='inline-block px-6 py-2 text-white transition bg-red-500 rounded hover:bg-red-600'>
+					Return to Main
+				</Link>
+			</div>
+		</div>
+	);
 };
 
 export default Error;

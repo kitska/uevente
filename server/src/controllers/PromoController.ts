@@ -78,6 +78,7 @@ export class PromocodeController {
 
 			return res.status(200).json({
 				message: 'Valid promocode',
+				id: promocode.id,
 				code: promocode.code,
 				discount: Number(promocode.discount),
 			});

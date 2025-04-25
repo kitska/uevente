@@ -6,7 +6,7 @@ import { Promocode } from '../models/Promocode';
 
 export class PaymentController {
 	static async create(req: Request, res: Response) {
-		const { userId, eventId, amount, status, promocodeId } = req.body;
+		const { userId, eventId, amount, status, promocodeId, quantity } = req.body;
 
 		try {
 			const user = await User.findOneBy({ id: userId });
@@ -18,7 +18,7 @@ export class PaymentController {
 
 			const promocode = promocodeId ? await Promocode.findOneBy({ id: promocodeId }) : null;
 
-			const payment = Payment.create({ user, event, amount, status, promocode });
+			const payment = Payment.create({ user, event, amount, status, promocode, quantity });
 			await payment.save();
 
 			return res.status(201).json({ message: 'Payment created', payment });
