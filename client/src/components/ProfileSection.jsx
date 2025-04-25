@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { userStore } from '../store/userStore';
 import { api } from '../services';
 import { FaPlusCircle } from 'react-icons/fa';
 import CompanySection from './CompanySection';
 
 const ProfileSection = () => {
+    const fileInputRef = useRef(null);
+
     const [user, setUser] = useState({
         login: userStore?.user?.login || '',
         email: userStore?.user?.email || '',
@@ -50,20 +52,32 @@ const ProfileSection = () => {
         setTempValue('');
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUser((prev) => ({ ...prev, profilePicture: reader.result }));
-                userStore.updateUser({ ...user, profilePicture: reader.result });
-            };
-            reader.readAsDataURL(file);
-        }
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
     };
 
-    const handleRemoveImage = () => {
-        setUser((prev) => ({ ...prev, profilePicture: '' }));
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+
+
+        if (!file) return;
+
+        console.log(file)
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await api.post(`/users/${userStore?.user?.id}/avatar`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            const newAvatar = response.data.avatar;
+            setUser((prev) => ({ ...prev, profilePicture: newAvatar }));
+            userStore.updateUser({ ...user, profilePicture: newAvatar });
+        } catch (err) {
+            console.error('Failed to upload avatar:', err);
+        }
     };
 
     const handleCompanySubmit = async (e) => {
@@ -101,13 +115,13 @@ const ProfileSection = () => {
                     <div className="space-x-2">
                         <button
                             onClick={handleSave}
-                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                            className="cursor-pointer px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
                         >
                             Save
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="px-3 py-1 bg-gray-300 text-black rounded hover:bg-gray-400"
+                            className="cursor-pointer px-3 py-1 bg-gray-300 text-black rounded hover:bg-gray-400"
                         >
                             Cancel
                         </button>
@@ -115,7 +129,7 @@ const ProfileSection = () => {
                 ) : (
                     <button
                         onClick={() => handleEdit(field)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        className="cursor-pointer px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                     >
                         Edit
                     </button>
@@ -135,14 +149,15 @@ const ProfileSection = () => {
                 <input
                     type="file"
                     accept="image/*"
+                    ref={fileInputRef}
                     onChange={handleImageChange}
-                    className="block text-sm"
+                    className="hidden"
                 />
                 <button
-                    onClick={handleRemoveImage}
-                    className="text-red-500 hover:underline text-sm"
+                    onClick={triggerFileInput}
+                    className="cursor-pointer px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
                 >
-                    Remove Photo
+                    Upload New Photo
                 </button>
             </div>
         </div>
@@ -155,66 +170,6 @@ const ProfileSection = () => {
                 {renderEditableField('Full Name', 'fullName')}
                 {renderEditableField('Login', 'login')}
             </div>
-        </div>
-    );
-
-    const renderCompaniesCard = () => (
-        <div className="p-6 bg-white text-black rounded-md shadow-md space-y-6">
-            <h3 className="text-lg font-bold">Your Companies</h3>
-
-            {companies.length === 0 && !showCompanyForm && (
-                <button
-                    onClick={() => setShowCompanyForm(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    <FaPlusCircle size={20} />
-                    <span>Create Company</span>
-                </button>
-            )}
-
-            {showCompanyForm && (
-                <form onSubmit={handleCompanySubmit} className="space-y-4">
-                    <input
-                        type="text"
-                        placeholder="Company Name"
-                        value={newCompany.name}
-                        onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
-                        required
-                        className="w-full p-2 border rounded"
-                    />
-                    <input
-                        type="email"
-                        placeholder="Company Email"
-                        value={newCompany.email}
-                        onChange={(e) => setNewCompany({ ...newCompany, email: e.target.value })}
-                        required
-                        className="w-full p-2 border rounded"
-                    />
-                    <div className="space-x-2">
-                        <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-                            Submit
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowCompanyForm(false)}
-                            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            )}
-
-            {companies.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {companies.map((company) => (
-                        <div key={company.id} className="p-4 border rounded bg-gray-50">
-                            <h4 className="text-md font-semibold">{company.name}</h4>
-                            <p className="text-sm text-gray-600">{company.email}</p>
-                        </div>
-                    ))}
-                </div>
-            )}
         </div>
     );
 

@@ -12,6 +12,8 @@ import ResetPassword from './components/PasswordReset';
 import ProtectedRoute from "./components/ProtectedRoute";
 import EmailConfirmation from './components/EmailConfirmation';
 import EmailSentPasswordReset from './components/EmailSentPasswordReset';
+import Error404 from './pages/Error404';
+import Success from './pages/Success';
 import Error from './pages/Error';
 import ScrollToTop from './components/ScrollToTop';
 import SomethingInteresting from './pages/SomethingInteresting';
@@ -115,7 +117,9 @@ function AppContent() {
                     <Route path='/password-reset/:token' element={<ResetPassword />} />
                     <Route path='/confirm-email/:token' element={<EmailConfirmation />} />
                     <Route path='/pashalka' element={<SomethingInteresting />} />
-                    <Route path='*' element={<Error />} />
+                    <Route path='/success' element={<Success />} />
+                    <Route path='/error' element={<Error />} />
+                    <Route path='*' element={<Error404 />} />
                 </Routes>
             </main>
 

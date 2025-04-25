@@ -110,13 +110,17 @@ export const AuthController = {
 
 
 		try {
-			const user = await User.findOne({
+			let user: User | null = null
+
+			user = await User.findOne({
 				where: email ? { email } : { login },
 			});
 
 			if (!user) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
+
+			console.log(password, user.password)
 
 			const isPasswordValid = await bcrypt.compare(password, user.password);
 			if (!isPasswordValid) {

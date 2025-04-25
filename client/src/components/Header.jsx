@@ -20,9 +20,9 @@ const Header = () => {
 			</Link>
 
 			{/* Middle: Search */}
-			<div className="flex-1 max-w-md mx-8">
+			{/* <div className="flex-1 max-w-md mx-8">
 				<SearchBar onSearch={handleSearch} />
-			</div>
+			</div> */}
 			{
 				userStore?.user ? (
 					<UserDropdown />

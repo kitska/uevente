@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { EventController } from '../controllers/EventController';
+const multer = require('multer');
+const upload = multer();
 
 const router = Router();
 
 router.get('/', EventController.getAllEvents.bind(EventController));
 router.post('/', EventController.createEvent.bind(EventController));
+router.post('/upload-poster', upload.single('file'), EventController.uploadPoster.bind(EventController));
 router.get('/:id', EventController.getEventById.bind(EventController));
 router.patch('/:id', EventController.updateEvent.bind(EventController));
 router.delete('/:id', EventController.deleteEvent.bind(EventController));
