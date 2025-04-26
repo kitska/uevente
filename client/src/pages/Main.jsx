@@ -3,7 +3,7 @@ import HeroSlider from '../components/HeroSlider';
 import EventFilters from '../components/EventFilters';
 import EventCard from '../components/EventCard';
 import Pagination from '../components/Pagination';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { eventStore } from '../store/eventStore';
 import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
@@ -11,18 +11,22 @@ import { observer } from 'mobx-react-lite';
 const Main = observer(() => {
 	const [filters, setFilters] = useState({});
 	const [searchParams] = useSearchParams();
+	const navigate = useNavigate();
+
 	const page = parseInt(searchParams.get('page')) || 1;
 	const pageSize = 60;
 
 	useEffect(() => {
 		eventStore.fetchEvents(page, pageSize);
-	}, [page]);
+	}, [page, pageSize]);
 
-	const filteredEvents = eventStore.events?.filter(e => {
-		return true;
-	});
+	const events = eventStore.events || [];
+	const totalPages = eventStore.totalPages || 1;
 
-	const totalPages = Math.ceil(filteredEvents?.length / pageSize);
+	const handlePageChange = newPage => {
+		searchParams.set('page', newPage);
+		navigate({ search: searchParams.toString() });
+	};
 
 	return (
 		<>
@@ -38,7 +42,7 @@ const Main = observer(() => {
 						{eventStore.loading && <p>Loading events ...</p>}
 						{eventStore.error && <p className='text-red-500'>{eventStore.error}</p>}
 						{!eventStore.loading &&
-							filteredEvents?.map(event => (
+							events.map(event => (
 								<Link key={event.id} to={`/event/${event.id}`}>
 									<EventCard event={event} />
 								</Link>
@@ -46,9 +50,11 @@ const Main = observer(() => {
 					</div>
 				</section>
 
-				<section>
-					<Pagination currentPage={page} totalPages={totalPages} />
-				</section>
+				{totalPages > 1 && (
+					<section>
+						<Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
+					</section>
+				)}
 
 				<Subscribe />
 			</main>
