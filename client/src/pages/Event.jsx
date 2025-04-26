@@ -9,6 +9,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { api } from '../services';
 import { PiStar, PiStarFill } from 'react-icons/pi';
 import { userStore } from '../store/userStore';
+import Swal from 'sweetalert2';
 
 const Event = observer(() => {
 	const { id } = useParams();
@@ -81,6 +82,10 @@ const Event = observer(() => {
 
 	const handleBuy = async () => {
 		try {
+			if(!userStore?.user?.id) {
+				Swal.fire('Error', 'Dear user, don\'t be an <b>idiot</b>. <p>Login to continue!</p>', 'error');
+				return;
+			}
 			const stripe = await loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 			const finalPrice = discountPercent > 0 ? Math.round(event.price * (1 - discountPercent / 100) * 100) : Math.round(event.price * 100);
 			const paymentResponse = await api.post(`/payment`, {
