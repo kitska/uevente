@@ -50,66 +50,95 @@ export const EventController = {
 			res.status(500).json({ message: 'Failed to upload poster' });
 		}
 	},	
-
+	
 	async createEvent(req: Request, res: Response): Promise<Response> {
-		const {
-			title,
-			description,
-			price,
-			location,
-			date,
-			ticket_limit,
-			is_published,
-			poster, // string (URL or base64)
-			companyId,
-			formatIds,
-			themeIds,
-		} = req.body;
-
-		try {
-			const company = await Company.findOne({ where: { id: companyId } });
-			if (!company) return res.status(404).json({ message: 'Company not found' });
-
-			const formats = formatIds?.length ? await Format.findBy({ id: In(formatIds) }) : [];
-			const themes = themeIds?.length ? await Theme.findBy({ id: In(themeIds) }) : [];
-
-			let uploadedPosterUrl: string | null = null;
-
-			if (poster?.startsWith('http')) {
-				// URL — просто используем
-				uploadedPosterUrl = poster;
-			} else if (poster?.startsWith('data:image')) {
-				// Base64 — вырезаем данные и заливаем
-				const base64Data = poster.split(',')[1];
-				uploadedPosterUrl = await this.uploadToImgur(base64Data, 'base64');
-			} else if (req.file) {
-				// Файл — конвертируем в base64 и заливаем
-				const fileBase64 = req.file.buffer.toString('base64');
-				uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
-			}
-			
-
-			const event = Event.create({
-				title,
-				description,
-				price,
-				location,
-				date,
-				ticket_limit,
-				is_published,
-				poster: uploadedPosterUrl,
-				company,
-				formats,
-				themes,
-			});
-
-			await event.save();
-			return res.status(201).json({ message: 'Event created successfully', event });
-		} catch (error) {
-			console.error('Error creating event:', error);
-			return res.status(500).json({ message: 'Internal server error' });
+	  const {
+		title,
+		description,
+		price,
+		location,
+		date,
+		ticket_limit,
+		is_published,
+		poster,
+		companyId,
+		formatIds,
+		themeIds,
+	  } = req.body;
+	
+	  try {
+		const company = await Company.findOne({ where: { id: companyId } });
+		if (!company) return res.status(404).json({ message: 'Company not found' });
+	
+		const formats = formatIds?.length ? await Format.findBy({ id: In(formatIds) }) : [];
+		const themes = themeIds?.length ? await Theme.findBy({ id: In(themeIds) }) : [];
+	
+		let uploadedPosterUrl: string | null = null;
+	
+		if (poster?.startsWith('http')) {
+		  uploadedPosterUrl = poster;
+		} else if (poster?.startsWith('data:image')) {
+		  const base64Data = poster.split(',')[1];
+		  uploadedPosterUrl = await this.uploadToImgur(base64Data, 'base64');
+		} else if (req.file) {
+		  const fileBase64 = req.file.buffer.toString('base64');
+		  uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
 		}
+	
+		const event = Event.create({
+		  title,
+		  description,
+		  price,
+		  location,
+		  date,
+		  ticket_limit,
+		  is_published,
+		  poster: uploadedPosterUrl,
+		  company,
+		  formats,
+		  themes,
+		});
+	
+		await event.save();
+	
+		// Send email to all subscribers of this event
+		try {
+		  const subject = `New event: "${event.title}"`;
+		  const emailContent = `
+			<h2>Hello!</h2>
+			<p>${company.name} has just published a new event: <strong>${event.title}</strong>.</p>
+			<p>🗓 <strong>When:</strong> ${new Date(event.date).toLocaleString()}</p>
+			<p>📍 <strong>Where:</strong> ${event.location}</p>
+			<p>${event.description}</p>
+			${uploadedPosterUrl ? `<img src="${uploadedPosterUrl}" alt="Event poster" style="max-width: 100%;"/>` : ''}
+			<br/>
+			<p>Feel free to check out the <a href="https://localhost:3000/events/${event.id}">event page</a> for full details!</p>
+			<hr/>
+			<small>You received this email because you're subscribed to this event.</small>
+		  `;
+	
+		  const subs = await Subscription.find({ where: { company: { id: event.company.id } }, relations: ['user'] });
+	
+		  // Send emails to all subscribers in parallel for efficiency
+		  await Promise.all(
+			subs.map(async (sub) => {
+			  const user = sub.user;
+			  if (user && user.email) {
+				await sendEmail(user.email, emailContent, subject);
+			  }
+			})
+		  );
+		} catch (emailError) {
+		  console.error('Error sending notification emails to subscribers:', emailError);
+		}
+	
+		return res.status(201).json({ message: 'Event created successfully', event });
+	  } catch (error) {
+		console.error('Error creating event:', error);
+		return res.status(500).json({ message: 'Internal server error' });
+	  }
 	},
+	
 
 	async getAllEvents(req: Request, res: Response): Promise<Response> {
 		const page = parseInt(req.query.page as string) || 1;
