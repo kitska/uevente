@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Comment from '../components/Comment';
 import { FaMapMarkerAlt, FaCalendarAlt, FaMoneyBillAlt, FaMinus, FaPlus } from 'react-icons/fa';
 import Subscribe from '../components/Subscribe';
+import SimilarEvents from '../components/SimilarEvents';
+import CompanyEvents from '../components/CompanyEvents';
 import { observer } from 'mobx-react-lite';
 import { loadStripe } from '@stripe/stripe-js';
 import { api } from '../services';
@@ -64,7 +66,10 @@ const Event = observer(() => {
 		fetchComments();
 		checkLogin();
 		checkIsAdmin();
+
 	}, [id]);
+
+	console.log(event);
 
 	if (eventStore.loading) {
 		return <div className='mt-20 text-xl text-center'>Loading...</div>;
@@ -264,7 +269,7 @@ const Event = observer(() => {
 						</p>
 					</div>
 
-					<p className='text-lg leading-relaxed text-gray-800'>{event.description}</p>
+					<p className='text-lg leading-relaxed text-gray-800 break-words'>{event.description}</p>
 				</div>
 
 				<div className='w-full overflow-hidden shadow-lg rounded-xl h-80'>
@@ -348,7 +353,7 @@ const Event = observer(() => {
 			</div>
 
 			{/* Comments */}
-			<div className='max-w-4xl px-4 mx-auto mt-10 mb-8'>
+			<div className='px-4 max-w-6xl mx-auto mt-10 mb-8'>
 				<div className='flex items-center justify-between mb-4'>
 					<h2 className='text-2xl font-bold'>Comments</h2>
 					{isLoggedIn && (
@@ -386,33 +391,14 @@ const Event = observer(() => {
 				</div>
 			</div>
 
-			{/* Similar Events */}
-			<hr className='max-w-6xl mx-auto my-8 border-gray-300' />
-			<div className='max-w-6xl px-4 pb-16 mx-auto'>
-				<h2 className='mb-4 text-2xl font-bold'>Similar Events</h2>
-				<div className='relative overflow-hidden'>
-					<div className='flex space-x-6 w-max animate-scroll'>
-						{eventStore.events
-							.filter(e => e.id !== event.id)
-							.slice(0, 10)
-							.map(e => (
-								<a
-									key={e.id}
-									href={`/event/${e.id}`}
-									className='min-w-[300px] max-w-[300px] flex-shrink-0 snap-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300'
-								>
-									<img src={e.poster || 'https://picsum.photos/300/200'} alt={e.title} className='object-cover w-full h-40' />
-									<div className='p-4'>
-										<h3 className='mb-1 text-lg font-semibold'>{e.title}</h3>
-										<p className='text-sm text-gray-600 line-clamp-3'>{e.description}</p>
-									</div>
-								</a>
-							))}
-					</div>
-				</div>
-			</div>
+			{/* Company Events */}
+			<CompanyEvents event={event} />
 
-			<Subscribe />
+			{/* Similar Events */}
+			<SimilarEvents event={event} />
+
+			{/* Subscribe Section */}
+			{/* <Subscribe /> */}
 		</div>
 	);
 });

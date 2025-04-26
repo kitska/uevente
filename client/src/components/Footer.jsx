@@ -1,13 +1,14 @@
 import React from 'react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa'; // Social media icons
 import { SiStripe, SiPaypal, SiVisa, SiMastercard } from 'react-icons/si'; // Payment method icons
+import ThemeToggleButton from './ThemeToggleButton';
 
 const Footer = () => {
     return (
         <footer className="bg-gray-900 text-white py-8">
             <div className="max-w-screen-xl mx-auto px-6">
                 {/* Footer Sections */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-8">
                     {/* Contacts Section */}
                     <div data-aos="fade-up">
                         <h3 className="text-xl font-semibold mb-4">Contacts</h3>
@@ -41,6 +42,9 @@ const Footer = () => {
                             <li><a href="/privacy" className="hover:underline opacity-70">Privacy Policy</a></li>
                             <li><a href="/terms" className="hover:underline opacity-70">Terms of Service</a></li>
                         </ul>
+                    </div>
+                    <div>
+                        <ThemeToggleButton />
                     </div>
                 </div>
 

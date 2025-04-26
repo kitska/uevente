@@ -10,12 +10,17 @@ const ProfileSection = () => {
     const fileInputRef = useRef(null);
 
     const [user, setUser] = useState({
+        id: userStore?.user?.id || 0,
         login: userStore?.user?.login || '',
         email: userStore?.user?.email || '',
         fullName: userStore?.user?.fullName || '',
         profilePicture: userStore?.user?.profilePicture || '',
-        phone: userStore?.user?.phone || ''
+        phone: userStore?.user?.phone || '',
+        isShowName: userStore?.user?.isShowName || false
     });
+
+    console.log(userStore?.user);
+
     const [notifications, setNotifications] = useState({
         push: userStore?.user?.pushNotifications,
         email: userStore?.user?.emailNotifications,
@@ -95,6 +100,18 @@ const ProfileSection = () => {
         }
     };
 
+    const handleCheckboxChange = async () => {
+        const newValue = !user.isShowName;
+        setUser((prev) => ({ ...prev, isShowName: newValue }));
+
+        try {
+            const response = await api.patch(`/users/${user.id}`, { isShowName: newValue });
+        } catch (error) {
+            console.error('Failed to update show name preference', error);
+            setIsShowName(!newValue); // revert if request failed
+        }
+    };
+
     const handleCompanySubmit = async (e) => {
         e.preventDefault();
         try {
@@ -109,22 +126,23 @@ const ProfileSection = () => {
             console.error('Failed to create company:', error);
         }
     };
+
     const numberHandler = (val) => {
         if (val.startsWith('+')) {
             val = '+' + val.slice(1).replace(/[^0-9]/g, '');
         } else {
             val = '+' + val.replace(/[^0-9]/g, '');
         }
-    
+
         if (val === '+') {
             setTempValue('');
             return;
         }
-    
+
         if (val.length > 15) {
             val = val.slice(0, 15);
         }
-    
+
         setTempValue(val);
     };
     const renderEditableField = (label, field) => (
@@ -181,7 +199,7 @@ const ProfileSection = () => {
 
     const renderNotifications = () => (
         <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <li className="pr-2 w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
                 <div className="flex items-center ps-3">
                     <input id="push-checkbox-list" type="checkbox"
                         checked={notifications.push}
@@ -209,7 +227,7 @@ const ProfileSection = () => {
                     <label htmlFor="push-checkbox-list" className="w-full py-3 text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">Push</label>
                 </div>
             </li>
-            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <li className="pr-2 w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
                 <div className="flex items-center ps-3">
                     <input id="email-checkbox-list" type="checkbox"
                         checked={notifications.email}
@@ -227,12 +245,12 @@ const ProfileSection = () => {
                     <label htmlFor="email-checkbox-list" className="w-full py-3 text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">Email</label>
                 </div>
             </li>
-            <li className="w-full dark:border-gray-600">
+            <li className="pr-2 w-full dark:border-gray-600">
                 <div className="flex items-center ps-3">
                     <input id="sms-checkbox-list" type="checkbox"
                         checked={notifications.sms}
                         onChange={async () => {
-                            if(userStore?.user?.phone) {
+                            if (userStore?.user?.phone) {
                                 const updated = { ...notifications, sms: !notifications.sms };
                                 setNotifications(updated);
                                 await userStore.updateUser({
@@ -319,6 +337,16 @@ const ProfileSection = () => {
                 {renderEditableField('Full Name', 'fullName')}
                 {renderEditableField('Login', 'login')}
                 {renderEditableField('Phone', 'phone')}
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="showName"
+                        checked={user.isShowName}
+                        onChange={handleCheckboxChange}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="showName" className="text-gray-700">Show name on Events</label>
+                </div>
             </div>
         </div>
     );
@@ -326,6 +354,7 @@ const ProfileSection = () => {
     return (
         <div className="space-y-6">
             {renderUserInfoCard()}
+
             <CompanySection userId={userStore?.user?.id} />
         </div>
     );

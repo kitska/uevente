@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa'; // FontAwesome user icon
 import { AiOutlineLogin } from 'react-icons/ai'; // FontAwesome login icon
+import ThemeToggleButton from './ThemeToggleButton';
 import SearchBar from './SearchBar';
 import UserDropdown from './UserDropdown';
 import { userStore } from '../store/userStore';

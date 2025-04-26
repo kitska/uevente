@@ -24,6 +24,8 @@ import { getSubscribedEvents } from './services/eventService';
 import { userStore } from './store/userStore';
 import LoadingSpinner from './components/LoadingSpinner';
 
+import ThemeProvider from './context/ThemeContext'
+
 // Smooth appearing on scroll
 import AOS from 'aos';
 import 'aos/dist/aos.css'; // 🔥 required!
@@ -145,11 +147,13 @@ function AppContent() {
 
 function App() {
     return (
-        <Router>
-            <AxiosInterceptor />
-            <ScrollToTop />
-            <AppContent />
-        </Router>
+        <ThemeProvider>
+            <Router>
+                <AxiosInterceptor />
+                <ScrollToTop />
+                <AppContent />
+            </Router>
+        </ThemeProvider>
     );
 }
 
