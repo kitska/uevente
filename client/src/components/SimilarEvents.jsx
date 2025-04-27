@@ -30,7 +30,7 @@ export default function SimilarEvents({ event }) {
     return (
         <>
             <hr className="max-w-6xl mx-auto my-8 border-gray-300" />
-            <div className="px-4 max-w-6xl mx-auto">
+            <div className="px-4 max-w-6xl mx-auto mb-10">
                 <h2 className="mb-4 text-2xl font-bold">Similar Events</h2>
 
                 <div className="relative">

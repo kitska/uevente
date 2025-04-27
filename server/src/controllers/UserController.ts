@@ -206,7 +206,7 @@ export class UserController {
 		try {
 			const subscriptions = await Subscription.find({
 				where: { user: { id: userId } },
-				relations: ['event'],
+				relations: ['event', 'company'],
 			});
 
 			return res.status(200).json(subscriptions);

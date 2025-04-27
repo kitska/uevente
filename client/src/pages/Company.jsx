@@ -199,7 +199,7 @@ const Company = () => {
                 )}
             </div>
 
-            <div className="w-full max-w-screen-xl mx-auto flex items-center justify-between">
+            <div className="w-full max-w-screen-xl mx-auto flex items-center justify-center">
                 {events.length === 0 ? (
                     <p className="text-gray-400 italic mt-8">No events have been created yet.</p>
                 ) : (

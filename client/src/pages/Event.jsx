@@ -11,6 +11,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { api } from '../services';
 import { PiStar, PiStarFill } from 'react-icons/pi';
 import { userStore } from '../store/userStore';
+import Swal from 'sweetalert2';
 
 const Event = observer(() => {
 	const { id } = useParams();
@@ -35,6 +36,7 @@ const Event = observer(() => {
 			try {
 				const data = await eventStore.fetchEventById(id);
 				setEvent(data);
+				console.log(data);
 				// console.log(userStore.isEventSubscribed(data.id));
 				setFavourited(userStore.isEventSubscribed(data.id));
 			} catch (error) {
@@ -85,6 +87,10 @@ const Event = observer(() => {
 
 	const handleBuy = async () => {
 		try {
+			if(!userStore?.user?.id) {
+				Swal.fire('Error', 'Dear user, don\'t be an <b>idiot</b>. <p>Login to continue!</p>', 'error');
+				return;
+			}
 			const stripe = await loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 			const finalPrice = discountPercent > 0 ? Math.round(event.price * (1 - discountPercent / 100) * 100) : Math.round(event.price * 100);
 			const paymentResponse = await api.post(`/payment`, {
@@ -236,7 +242,7 @@ const Event = observer(() => {
 			</div>
 
 			{/* Event details */}
-			<div className='relative z-10 grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 mx-auto -mt-16 bg-white shadow-xl md:grid-cols-3 rounded-xl'>
+			<div className='relative z-10 grid max-w-6xl grid-cols-1 gap-8 px-6 pt-5 pb-10 mx-auto -mt-16 bg-white shadow-xl md:grid-cols-3 rounded-xl'>
 				<div className='space-y-4 md:col-span-2'>
 					<button
 						onClick={() => {
@@ -270,6 +276,57 @@ const Event = observer(() => {
 					</div>
 
 					<p className='text-lg leading-relaxed text-gray-800 break-words'>{event.description}</p>
+					<div className='pt-4 mt-4 border-t border-gray-200'>
+						<div className='flex justify-between flex-wrap gap-4 mb-6'>
+							{event.themes?.length > 0 && (
+								<div>
+									<h4 className='font-semibold text-gray-800'>Themes:</h4>
+									<div className='flex flex-wrap gap-2 mt-1'>
+										{event.themes.map(theme => (
+											<span
+												key={theme.id}
+												className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'
+											>
+												{theme.title}
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+							{event.formats?.length > 0 && (
+								<div>
+									<h4 className='font-semibold text-gray-800'>Formats:</h4>
+									<div className='flex flex-wrap gap-2 mt-1'>
+										{event.formats.map(format => (
+											<span
+												key={format.id}
+												className='px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full'
+											>
+												{format.title}
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+						</div>
+						{/* <div className='flex flex-col justify-between gap-4 sm:flex-row sm:items-start'> */}
+						<div>
+							<h3 className='mb-2 text-xl font-semibold text-gray-800'>Organised by {event.company?.name || 'N/A'}</h3>
+							{/* <p className='text-gray-700'>
+								<span className='font-medium'>We are located in {event.company?.location || 'N/A'}</span> 
+							</p>
+							<p className='text-gray-700'>
+								<span className='font-medium'>For any questions contact us </span> {event.company?.email || 'N/A'}
+							</p> */}
+						</div>
+
+						{/* Subscribe to organizer */}
+						<div className='mt-2'>
+							<p className='text-sm text-gray-600'>Want to get notifications about this organiser’s events?</p>
+						</div>
+						{/* </div> */}
+					</div>
+
 				</div>
 
 				<div className='w-full overflow-hidden shadow-lg rounded-xl h-80'>

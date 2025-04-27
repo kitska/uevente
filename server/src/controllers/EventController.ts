@@ -88,7 +88,7 @@ export const EventController = {
 			date,
 			ticket_limit,
 			is_published,
-			poster, // string (URL or base64)
+			poster,
 			companyId,
 			formatIds,
 			themeIds,
@@ -104,14 +104,11 @@ export const EventController = {
 			let uploadedPosterUrl: string | null = null;
 
 			if (poster?.startsWith('http')) {
-				// URL — просто используем
 				uploadedPosterUrl = poster;
 			} else if (poster?.startsWith('data:image')) {
-				// Base64 — вырезаем данные и заливаем
 				const base64Data = poster.split(',')[1];
 				uploadedPosterUrl = await this.uploadToImgur(base64Data, 'base64');
 			} else if (req.file) {
-				// Файл — конвертируем в base64 и заливаем
 				const fileBase64 = req.file.buffer.toString('base64');
 				uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
 			}
@@ -131,12 +128,45 @@ export const EventController = {
 			});
 
 			await event.save();
+
+			// Send email to all subscribers of this event
+			try {
+				const subject = `New event: "${event.title}"`;
+				const emailContent = `
+					<h2>Hello!</h2>
+					<p>${company.name} has just published a new event: <strong>${event.title}</strong>.</p>
+					<p>🗓 <strong>When:</strong> ${new Date(event.date).toLocaleString()}</p>
+					<p>📍 <strong>Where:</strong> ${event.location}</p>
+					<p>${event.description}</p>
+					${uploadedPosterUrl ? `<img src="${uploadedPosterUrl}" alt="Event poster" style="max-width: 100%;"/>` : ''}
+					<br/>
+					<p>Feel free to check out the <a href="https://localhost:3000/events/${event.id}">event page</a> for full details!</p>
+					<hr/>
+					<small>You received this email because you're subscribed to this event.</small>
+				`;
+
+				const subs = await Subscription.find({ where: { company: { id: event.company.id } }, relations: ['user'] });
+
+				// Send emails to all subscribers in parallel for efficiency
+				await Promise.all(
+					subs.map(async (sub) => {
+						const user = sub.user;
+						if (user && user.email) {
+							await sendEmail(user.email, { html: emailContent }, subject);
+						}
+					})
+				);
+			} catch (emailError) {
+				console.error('Error sending notification emails to subscribers:', emailError);
+			}
+
 			return res.status(201).json({ message: 'Event created successfully', event });
 		} catch (error) {
 			console.error('Error creating event:', error);
 			return res.status(500).json({ message: 'Internal server error' });
 		}
 	},
+
 
 	async getAllEvents(req: Request, res: Response): Promise<Response> {
 		const page = parseInt(req.query.page as string) || 1;
@@ -274,16 +304,16 @@ export const EventController = {
 						  </thead>
 						  <tbody>
 							${changedFields
-								.map(
-									field => `
+						.map(
+							field => `
 							  <tr>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.field}</td>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.oldValue ?? '—'}</td>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.newValue ?? '—'}</td>
 							  </tr>
 							`
-								)
-								.join('')}
+						)
+						.join('')}
 						  </tbody>
 						</table>
 						<p style="font-size: 16px;">
