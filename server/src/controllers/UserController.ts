@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { Company } from '../models/Company'; // Добавим модель компании
 import { Subscription } from '../models/Subscription';
-// import { Ticket } from '../models/Ticket'; // Добавим модель билетов
+import { Ticket } from '../models/Ticket'; // Добавим модель билетов
 // import { Subscription } from '../models/Subscription'; // Добавим модель подписок
 // import { Notification } from '../models/Notification'; // Добавим модель уведомлений
 interface MulterRequest extends Request {
@@ -220,23 +220,52 @@ export class UserController {
 		try {
 			const userId = req.user.id; // assuming you attach user from auth middleware
 			const { subscription } = req.body;
-			const user = await User.findOne({ where: { id: String(userId) } })
+			const user = await User.findOne({ where: { id: String(userId) } });
 
 			if (!subscription) {
-				return res.status(400).json({ error: "Subscription object is required." });
+				return res.status(400).json({ error: 'Subscription object is required.' });
 			}
 
 			user.pushSubscription = subscription;
 			// user.pushNotifications = true;
 			await user.save();
 
-			return res.status(200).json({ message: "Push subscription saved." });
+			return res.status(200).json({ message: 'Push subscription saved.' });
 		} catch (error) {
-			console.error("Error saving push subscription:", error);
-			return res.status(500).json({ error: "Failed to save push subscription." });
+			console.error('Error saving push subscription:', error);
+			return res.status(500).json({ error: 'Failed to save push subscription.' });
 		}
 	}
+	
+	static async getUserTickets(req: Request, res: Response) {
+		try {
+			const userId = req.user?.id; // предполагаем что user в req.user
+			if (!userId) {
+				return res.status(401).json({ message: 'Unauthorized' });
+			}
 
+			const tickets = await Ticket.find({
+				where: { user: { id: String(userId) } },
+				relations: ['event'],
+			});
+
+			const formattedTickets = tickets.map(ticket => ({
+				ticketId: ticket.id,
+				qrCode: ticket.qr_code,
+				event: {
+					id: ticket.event.id,
+					title: ticket.event.title,
+					date: ticket.event.date,
+					location: ticket.event.location,
+				},
+			}));
+
+			return res.status(200).json({ tickets: formattedTickets });
+		} catch (error) {
+			console.error('Error fetching user tickets:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	}
 	// 	// Получение всех билетов пользователя
 	// 	static async getUserTickets(req: Request, res: Response): Promise<Response> {
 	// 		const { id } = req.params;

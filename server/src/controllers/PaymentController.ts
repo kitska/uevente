@@ -33,7 +33,10 @@ export class PaymentController {
 		const { status } = req.body;
 
 		try {
-			const payment = await Payment.findOneBy({ id });
+			const payment = await Payment.findOne({
+				where: { id },
+				relations: ['user', 'event', 'promocode'],
+			});
 
 			if (!payment) {
 				return res.status(404).json({ message: 'Payment not found' });

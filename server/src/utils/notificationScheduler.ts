@@ -26,7 +26,8 @@ cron.schedule('* * * * *', async () => {
       if (!event || (!user.emailNotifications && !user.pushNotifications)) continue;
       if (user?.emailNotifications) {
         const subject = `Reminder: event "${event.title}" tomorrow`;
-        const emailContent = `
+        const emailContent = {
+			  html: `
           <h2>Hi, ${user.fullName}!</h2>
           <p>GoEvent reminds, that tomorrow will be event <strong>${event.title}</strong>.</p>
           <p>🗓 <strong>When:</strong> ${new Date(event.date).toLocaleString()}</p>
@@ -35,7 +36,8 @@ cron.schedule('* * * * *', async () => {
           <p>See you there!</p>
           <hr/>
           <small>You received this email, because you are subscribed to this event</small>
-        `;
+        `,
+		};
 
         await sendEmail(user.email, emailContent, subject);
       }

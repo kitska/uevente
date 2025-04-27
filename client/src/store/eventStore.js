@@ -16,9 +16,13 @@ class EventStore {
 		this.error = null;
 
 		try {
-			const data = await eventService.fetchEvents(page, limit, sort, order);
+			const response = await eventService.fetchEvents(page, limit, sort, order);
+
 			runInAction(() => {
-				this.events = data.data;
+				this.events = response.data;
+				this.total = response.meta.total;
+				this.totalPages = response.meta.totalPages;
+				this.currentPage = response.meta.page;
 				this.loading = false;
 			});
 		} catch (err) {
@@ -53,11 +57,11 @@ class EventStore {
 	}
 	async handleSubscribe(subscribed, id) {
 		try {
-			if(subscribed) await eventService.subscibe(id, userStore?.user?.id);
+			if (subscribed) await eventService.subscibe(id, userStore?.user?.id);
 			else await eventService.unsubscibe(id, userStore?.user?.id);
-				// api.post('/api/subscriptions/subscribe')
+			// api.post('/api/subscriptions/subscribe')
 		} catch (error) {
-			throw(error);
+			throw error;
 		}
 	}
 

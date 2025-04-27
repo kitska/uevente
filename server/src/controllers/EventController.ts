@@ -10,6 +10,34 @@ import { User } from '../models/User';
 import { sendEmail } from '../utils/emailService';
 
 export const EventController = {
+	async decreaseTickets(req: Request, res: Response): Promise<Response> {
+		const { eventId, quantity } = req.body;
+
+		try {
+			const event = await Event.findOne({ where: { id: eventId } });
+
+			if (!event) {
+				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			if (event.ticket_limit === null) {
+				return res.status(400).json({ message: 'This event has unlimited tickets' });
+			}
+
+			if (event.ticket_limit < quantity) {
+				return res.status(400).json({ message: 'Not enough tickets available' });
+			}
+
+			event.ticket_limit -= quantity;
+			await event.save();
+
+			return res.status(200).json({ message: 'Tickets decreased successfully', ticket_limit: event.ticket_limit });
+		} catch (error) {
+			console.error('Error decreasing tickets:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
 	async uploadToImgur(imageData: string, type: 'base64' | 'url'): Promise<string | null> {
 		try {
 			const response = await axios.post(
@@ -37,19 +65,19 @@ export const EventController = {
 			if (!req.file) {
 				return res.status(400).json({ message: 'No file provided' });
 			}
-	
+
 			// Convert file to base64
 			const fileBase64 = req.file.buffer.toString('base64');
-	
+
 			// Upload to Imgur
 			const uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
-	
+
 			res.json({ url: uploadedPosterUrl });
 		} catch (error) {
 			console.error('Error uploading poster:', error);
 			res.status(500).json({ message: 'Failed to upload poster' });
 		}
-	},	
+	},
 
 	async createEvent(req: Request, res: Response): Promise<Response> {
 		const {
@@ -87,7 +115,6 @@ export const EventController = {
 				const fileBase64 = req.file.buffer.toString('base64');
 				uploadedPosterUrl = await this.uploadToImgur(fileBase64, 'base64');
 			}
-			
 
 			const event = Event.create({
 				title,
@@ -227,7 +254,8 @@ export const EventController = {
 			await event.save();
 
 			const subject = `Event "${event.title}" has been updated`;
-			const emailContent = `
+			const emailContent = {
+				html: `
 			<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #333;">
 			  <tr>
 				<td style="padding: 40px; font-family: Arial, sans-serif; color: #ffffff;">
@@ -245,13 +273,17 @@ export const EventController = {
 							</tr>
 						  </thead>
 						  <tbody>
-							${changedFields.map(field => `
+							${changedFields
+								.map(
+									field => `
 							  <tr>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.field}</td>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.oldValue ?? '—'}</td>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.newValue ?? '—'}</td>
 							  </tr>
-							`).join('')}
+							`
+								)
+								.join('')}
 						  </tbody>
 						</table>
 						<p style="font-size: 16px;">
@@ -268,7 +300,8 @@ export const EventController = {
 				</td>
 			  </tr>
 			</table>
-		  `;
+		  `,
+			};
 			const subs = await Subscription.find({ where: { event: { id: event.id } }, relations: ['user'] });
 
 			for (const sub of subs) {
@@ -297,7 +330,8 @@ export const EventController = {
 
 			const subject = `Event "${event.title}" has been deleted`;
 
-			const emailContent = `
+			const emailContent = {
+				html: `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #333;">
   <tr>
     <td style="padding: 40px; font-family: Arial, sans-serif; color: #ffffff;">
@@ -323,14 +357,13 @@ export const EventController = {
     </td>
   </tr>
 </table>
-`;
+`,
+			};
 			// (use the `emailContent` string from above)
 
 			for (const sub of subs) {
 				sendEmail(sub.user.email, emailContent, subject);
 			}
-
-
 
 			return res.status(200).json({ message: 'Event deleted successfully' });
 		} catch (error) {
