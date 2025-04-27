@@ -12,6 +12,7 @@ import { api } from '../services';
 import { PiStar, PiStarFill } from 'react-icons/pi';
 import { userStore } from '../store/userStore';
 import Swal from 'sweetalert2';
+import Attendees from '../components/Attendees';
 
 const Event = observer(() => {
 	const { id } = useParams();
@@ -36,7 +37,7 @@ const Event = observer(() => {
 			try {
 				const data = await eventStore.fetchEventById(id);
 				setEvent(data);
-				console.log(data);
+				
 				// console.log(userStore.isEventSubscribed(data.id));
 				setFavourited(userStore.isEventSubscribed(data.id));
 			} catch (error) {
@@ -71,8 +72,6 @@ const Event = observer(() => {
 
 	}, [id]);
 
-	console.log(event);
-
 	if (eventStore.loading) {
 		return <div className='mt-20 text-xl text-center'>Loading...</div>;
 	}
@@ -87,7 +86,7 @@ const Event = observer(() => {
 
 	const handleBuy = async () => {
 		try {
-			if(!userStore?.user?.id) {
+			if (!userStore?.user?.id) {
 				Swal.fire('Error', 'Dear user, don\'t be an <b>idiot</b>. <p>Login to continue!</p>', 'error');
 				return;
 			}
@@ -447,6 +446,9 @@ const Event = observer(() => {
 					)}
 				</div>
 			</div>
+
+			{/* Attendees */}
+			<Attendees event={event}/>
 
 			{/* Company Events */}
 			<CompanyEvents event={event} />

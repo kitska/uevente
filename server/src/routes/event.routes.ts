@@ -13,6 +13,7 @@ router.patch('/:id', EventController.updateEvent.bind(EventController));
 router.delete('/:id', EventController.deleteEvent.bind(EventController));
 router.post('/decrease-tickets', EventController.decreaseTickets.bind(EventController));
 router.get('/subscriptions/:eventId/count', EventController.getEventSubscriptionCount.bind(EventController));
+router.get('/:eventId/attendees', EventController.getEventAttendees.bind(EventController));
 
 export default router;
 

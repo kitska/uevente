@@ -290,12 +290,12 @@ const ProfileSection = () => {
                         onChange={handleImageChange}
                         className="block text-sm"
                     />
-                    <button
+                    {/* <button
                         // onClick={handleRemoveImage}
                         className="text-sm text-red-500 hover:underline"
                     >
                         Remove Photo
-                    </button>
+                    </button> */}
                 </div>
             </div>
             <div>

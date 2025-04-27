@@ -240,6 +240,7 @@ export class UserController {
 	static async getUserTickets(req: Request, res: Response) {
 		try {
 			const userId = req.user?.id; // предполагаем что user в req.user
+			
 			if (!userId) {
 				return res.status(401).json({ message: 'Unauthorized' });
 			}

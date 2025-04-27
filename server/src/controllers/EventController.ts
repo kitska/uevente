@@ -8,6 +8,7 @@ import { Subscription } from '../models/Subscription';
 import axios from 'axios';
 import { User } from '../models/User';
 import { sendEmail } from '../utils/emailService';
+import { Ticket } from '../models/Ticket';
 
 export const EventController = {
 	async decreaseTickets(req: Request, res: Response): Promise<Response> {
@@ -86,6 +87,9 @@ export const EventController = {
 			price,
 			location,
 			date,
+			publishDate,
+			visibility, // Who can see other attendees ? all : only other attendees
+			receiveEmails, // Does a company want to receive emails about new attendees ? 
 			ticket_limit,
 			is_published,
 			poster,
@@ -119,6 +123,8 @@ export const EventController = {
 				price,
 				location,
 				date,
+				publishDate,
+				allAttendeesVisible: visibility == 'everyone' ? true : false,
 				ticket_limit,
 				is_published,
 				poster: uploadedPosterUrl,
@@ -128,6 +134,9 @@ export const EventController = {
 			});
 
 			await event.save();
+
+			// If company wants to receive emails about new attendees...
+			// TODO
 
 			// Send email to all subscribers of this event
 			try {
@@ -413,6 +422,34 @@ export const EventController = {
 			return res.status(500).json({ message: 'Failed to fetch subscription count' });
 		}
 	},
+
+	async getEventAttendees(req: Request, res: Response): Promise<Response> {
+		const { eventId } = req.params;
+	
+		try {
+			// 1. Find all tickets for the event
+			const tickets = await Ticket.find({
+				where: { event: { id: eventId } },
+				relations: ['user'], // Load the user relation directly
+			});
+	
+			// 2. Extract unique users
+			const uniqueUsersMap = new Map<string, User>();
+			tickets.forEach(ticket => {
+				if (ticket.user && !uniqueUsersMap.has(ticket.user.id)) {
+					uniqueUsersMap.set(ticket.user.id, ticket.user);
+				}
+			});
+	
+			const attendees = Array.from(uniqueUsersMap.values());
+	
+			return res.json({ attendees });
+		} catch (error) {
+			console.error('Error getting event attendees:', error);
+			return res.status(500).json({ message: 'Failed to fetch event attendees' });
+		}
+	}
+	
 };
 
 // import { Request, Response } from 'express';

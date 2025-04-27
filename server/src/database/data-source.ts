@@ -109,6 +109,7 @@ export const seedDatabase = async () => {
 		login: 'admin',
 		password: 'admin123',
 		isAdmin: true,
+		isEmailConfirmed: true,
 	});
 	await admin.save();
 	users.push(admin);
@@ -140,21 +141,38 @@ export const seedDatabase = async () => {
 	}
 
 	for (let i = 0; i < 400; i++) {
+		const shouldHavePublishDate = faker.datatype.boolean();
+		const publishDate = shouldHavePublishDate ? faker.date.future({ years: 1 }) : null;
+
+		let eventDate;
+		if (publishDate) {
+			// Pick random number of days (1-180) after publishDate
+			const daysAfter = faker.number.int({ min: 1, max: 180 });
+			eventDate = new Date(publishDate);
+			eventDate.setDate(eventDate.getDate() + daysAfter);
+		} else {
+			// Just random future date if no publishDate
+			eventDate = faker.date.future();
+		}
+
 		const event = Event.create({
 			title: faker.lorem.words(3),
 			description: faker.lorem.paragraph(),
 			price: parseFloat(faker.commerce.price({ min: 5, max: 100 })),
 			location: faker.location.streetAddress(),
-			date: faker.date.future(),
+			date: eventDate,
+			publishDate: publishDate,
 			ticket_limit: faker.number.int({ min: 50, max: 500 }),
 			is_published: faker.datatype.boolean(),
 			poster: faker.image.url(),
 			company: faker.helpers.arrayElement(companies),
 			formats: faker.helpers.arrayElements(formats, 2),
 			themes: faker.helpers.arrayElements(themes, 2),
+			allAttendeesVisible: faker.datatype.boolean(),
 		});
 		await event.save();
 	}
+
 
 	console.log('Database seeded successfully');
 };

@@ -34,11 +34,17 @@ export class Event extends BaseEntity {
   @Column('timestamp')
   date: Date;
 
+  @Column({type: 'timestamp', nullable: true})
+  publishDate: Date
+
   @Column({ type: 'int', nullable: true })
   ticket_limit: number;
 
   @Column({ default: false })
   is_published: boolean;
+
+  @Column({default: true})
+  allAttendeesVisible: boolean
 
   @Column({ nullable: true })
   poster: string;
