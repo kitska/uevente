@@ -9,6 +9,7 @@ import axios from 'axios';
 import { User } from '../models/User';
 import { sendEmail } from '../utils/emailService';
 import { Ticket } from '../models/Ticket';
+import { MoreThanOrEqual, LessThanOrEqual } from "typeorm"
 
 export const EventController = {
 	async decreaseTickets(req: Request, res: Response): Promise<Response> {
@@ -182,15 +183,52 @@ export const EventController = {
 		const limit = parseInt(req.query.limit as string) || 10;
 		const sort = (req.query.sort as string) || 'date';
 		const order = (req.query.order as string) === 'DESC' ? 'DESC' : 'ASC';
-
+	
+		// Фильтры из запроса
+		const theme = req.query.theme as string || '';
+		const format = req.query.format as string || '';
+		const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined;
+		const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined;
+		const startDate = req.query.startDate as string || '';
+		const endDate = req.query.endDate as string || '';
+	
 		try {
+			// Построение условий фильтрации
+			const whereConditions: any = {};
+	
+			// if (theme) {
+			// 	whereConditions.themes = { name: theme };  // или другой критерий для фильтра по теме
+			// }
+	
+			// if (format) {
+			// 	whereConditions.formats = { name: format }; // или другой критерий для фильтра по формату
+			// }
+	
+			if (minPrice !== undefined) {
+				whereConditions.price = MoreThanOrEqual(minPrice);  // фильтрация по минимальной цене
+			}
+	
+			if (maxPrice !== undefined) {
+				whereConditions.price = LessThanOrEqual(maxPrice);  // фильтрация по максимальной цене
+			}
+	
+			// if (startDate) {
+			// 	whereConditions.date = { $gte: new Date(startDate) }; // фильтрация по начальной дате
+			// }
+	
+			// if (endDate) {
+			// 	whereConditions.date = { ...whereConditions.date, $lte: new Date(endDate) };  // фильтрация по конечной дате
+			// }
+	
+			// Выполнение запроса с учетом фильтров
 			const [events, total] = await Event.findAndCount({
 				relations: ['company', 'formats', 'themes'],
+				where: whereConditions,
 				order: { [sort]: order },
 				skip: (page - 1) * limit,
 				take: limit,
 			});
-
+	
 			return res.status(200).json({
 				data: events,
 				meta: {
@@ -204,7 +242,7 @@ export const EventController = {
 			console.error('Error fetching events:', error);
 			return res.status(500).json({ message: 'Internal server error' });
 		}
-	},
+	},	
 
 	async getEventById(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
