@@ -4,6 +4,8 @@ import { userStore } from './userStore';
 
 class EventStore {
 	events = [];
+	themes = [];
+	formats = [];
 	loading = false;
 	error = null;
 
@@ -11,12 +13,12 @@ class EventStore {
 		makeAutoObservable(this);
 	}
 
-	async fetchEvents(page = 1, limit = 10, sort = 'date', order = 'ASC') {
+	async fetchEvents(page = 1, limit = 10, sort = 'date', order = 'ASC', filters = {}) {
 		this.loading = true;
 		this.error = null;
 
 		try {
-			const response = await eventService.fetchEvents(page, limit, sort, order);
+			const response = await eventService.fetchEvents(page, limit, sort, order, filters);
 
 			runInAction(() => {
 				this.events = response.data;
@@ -74,6 +76,43 @@ class EventStore {
 		price: `$${(10 + i * 2).toFixed(2)}`,
 		location: `City ${i + 1}, Country ${i + 1}`,
 	}));
+
+	async fetchThemes() {
+		this.loading = true;
+		this.error = null;
+
+		try {
+			const response = await eventService.fetchThemes();
+
+			runInAction(() => {
+				this.themes = response;
+				this.loading = false;
+			});
+		} catch (err) {
+			runInAction(() => {
+				this.error = err.response?.data?.message || 'Failed to load themes';
+				this.loading = false;
+			});
+		}
+	}
+	async fetchFormats() {
+		this.loading = true;
+		this.error = null;
+
+		try {
+			const response = await eventService.fetchFormats();
+
+			runInAction(() => {
+				this.formats = response;
+				this.loading = false;
+			});
+		} catch (err) {
+			runInAction(() => {
+				this.error = err.response?.data?.message || 'Failed to load formats';
+				this.loading = false;
+			});
+		}
+	}
 }
 
 export const eventStore = new EventStore();

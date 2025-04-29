@@ -10,7 +10,7 @@ const EventCard = ({ event }) => {
     return (
         <div
             data-aos="fade-up"
-            className="relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-100 h-[300px] transition-transform transform hover:scale-105"
+            className="z-10 relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-100 h-[300px] transition-transform transform hover:scale-105"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >

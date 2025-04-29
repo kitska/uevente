@@ -22,6 +22,7 @@
     "aos": "^2.3.4",
     "axios": "^1.8.4",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.503.0",
     "mobx": "^6.13.7",
     "mobx-react-lite": "^4.1.0",
     "mui": "^0.0.1",
