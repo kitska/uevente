@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { In } from 'typeorm';
+import { Between, In } from 'typeorm';
 import { Event } from '../models/Event';
 import { Company } from '../models/Company';
 import { Format } from '../models/Format';
@@ -9,8 +9,31 @@ import axios from 'axios';
 import { User } from '../models/User';
 import { sendEmail } from '../utils/emailService';
 import { Ticket } from '../models/Ticket';
+import { MoreThanOrEqual, LessThanOrEqual } from "typeorm"
 
 export const EventController = {
+	async getFirstFiveEvents(req: Request, res: Response): Promise<Response> {
+		try {
+			const company = await Company.findOne({ where: { name: 'Admin Corporation' } });
+
+			if (!company) {
+				return res.status(404).json({ message: 'Company not found' });
+			}
+
+			const events = await Event.find({
+				where: { company: { id: company.id } },
+				order: { price: "DESC" },
+				take: 5
+			});
+
+			return res.status(200).json({ events });
+		} catch (error) {
+			console.error('Error getting events:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+
 	async decreaseTickets(req: Request, res: Response): Promise<Response> {
 		const { eventId, quantity } = req.body;
 
@@ -176,6 +199,73 @@ export const EventController = {
 		}
 	},
 
+	// async getAllEvents(req: Request, res: Response): Promise<Response> {
+	// 	const page = parseInt(req.query.page as string) || 1;
+	// 	const limit = parseInt(req.query.limit as string) || 10;
+	// 	const sort = (req.query.sort as string) || 'date';
+	// 	const order = (req.query.order as string) === 'DESC' ? 'DESC' : 'ASC';
+
+	// 	// Фильтры из запроса
+	// 	const themes = req.query.themes as string[] || [];
+	// 	const formats = req.query.formats as string[] || [];
+	// 	const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : null;
+	// 	const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : null;
+	// 	const startDate = req.query.startDate as string || null;
+	// 	const endDate = req.query.endDate as string || null;
+
+	// 	console.log(themes, formats, minPrice, maxPrice, startDate, endDate);
+
+	// 	try {
+	// 		// Построение условий фильтрации
+	// 		const whereConditions:any = {};
+
+	// 		if (themes) {
+	// 			whereConditions.themes = { name: themes };  // или другой критерий для фильтра по теме
+	// 		}
+
+	// 		if (formats) {
+	// 			whereConditions.formats = { name: formats }; // или другой критерий для фильтра по формату
+	// 		}
+
+	// 		if (minPrice) {
+	// 			whereConditions.price = MoreThanOrEqual(minPrice);  // фильтрация по минимальной цене
+	// 		}
+
+	// 		if (maxPrice) {
+	// 			whereConditions.price = LessThanOrEqual(maxPrice);  // фильтрация по максимальной цене
+	// 		}
+
+	// 		if (startDate) {
+	// 			whereConditions.date = { $gte: new Date(startDate) }; // фильтрация по начальной дате
+	// 		}
+
+	// 		if (endDate) {
+	// 			whereConditions.date = { ...whereConditions.date, $lte: new Date(endDate) };  // фильтрация по конечной дате
+	// 		}
+
+	// 		// Выполнение запроса с учетом фильтров
+	// 		const [events, total] = await Event.findAndCount({
+	// 			relations: ['company', 'formats', 'themes'],
+	// 			where: whereConditions,
+	// 			order: { [sort]: order },
+	// 			skip: (page - 1) * limit,
+	// 			take: limit,
+	// 		});
+
+	// 		return res.status(200).json({
+	// 			data: events,
+	// 			meta: {
+	// 				total,
+	// 				page,
+	// 				limit,
+	// 				totalPages: Math.ceil(total / limit),
+	// 			},
+	// 		});
+	// 	} catch (error) {
+	// 		console.error('Error fetching events:', error);
+	// 		return res.status(500).json({ message: 'Internal server error' });
+	// 	}
+	// },
 
 	async getAllEvents(req: Request, res: Response): Promise<Response> {
 		const page = parseInt(req.query.page as string) || 1;
@@ -183,13 +273,79 @@ export const EventController = {
 		const sort = (req.query.sort as string) || 'date';
 		const order = (req.query.order as string) === 'DESC' ? 'DESC' : 'ASC';
 
+		const themes = req.query.themes ? (Array.isArray(req.query.themes) ? req.query.themes : [req.query.themes]) : [];
+		const formats = req.query.formats ? (Array.isArray(req.query.formats) ? req.query.formats : [req.query.formats]) : [];
+
+		const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : null;
+		const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : null;
+		const startDate = req.query.startDate ? new Date(req.query.startDate as string) : null;
+		const endDate = req.query.endDate ? new Date(req.query.endDate as string) : null;
+
 		try {
-			const [events, total] = await Event.findAndCount({
-				relations: ['company', 'formats', 'themes'],
-				order: { [sort]: order },
-				skip: (page - 1) * limit,
-				take: limit,
-			});
+			const whereConditions: any = {};
+
+			if (minPrice && maxPrice) {
+				whereConditions.price = Between(minPrice, maxPrice);
+			} else if (minPrice) {
+				whereConditions.price = MoreThanOrEqual(minPrice);
+			} else if (maxPrice) {
+				whereConditions.price = LessThanOrEqual(maxPrice);
+			}
+
+			if (startDate && endDate) {
+				whereConditions.date = Between(startDate, endDate);
+			} else if (startDate) {
+				whereConditions.date = MoreThanOrEqual(startDate);
+			} else if (endDate) {
+				whereConditions.date = LessThanOrEqual(endDate);
+			}
+
+			const queryBuilder = Event.createQueryBuilder('event')
+				.leftJoinAndSelect('event.company', 'company')
+				.leftJoinAndSelect('event.formats', 'formats')
+				.leftJoinAndSelect('event.themes', 'themes')
+				.where(whereConditions)
+				.orderBy(`event.${sort}`, order)
+				.skip((page - 1) * limit)
+				.take(limit);
+
+			// if (themes.length > 0) {
+			// 	queryBuilder.andWhere('themes.title IN (:...themes)', { themes });
+			// }
+
+			// if (formats.length > 0) {
+			// 	queryBuilder.andWhere('formats.title IN (:...formats)', { formats });
+			// }
+
+			if (themes.length > 0) {
+				queryBuilder.andWhere('themes.title IN (:...themes)', { themes });
+			}
+
+			if (formats.length > 0) {
+				queryBuilder.andWhere('formats.title IN (:...formats)', { formats });
+			}
+
+			// // Ensure events have ALL selected themes AND ALL selected formats
+			// if (themes.length > 0 || formats.length > 0) {
+			// 	queryBuilder.groupBy('event.id');
+
+			// 	let havingConditions: string[] = [];
+			// 	let havingParams: any = {};
+
+			// 	if (themes.length > 0) {
+			// 		havingConditions.push('COUNT(DISTINCT themes.title) = :themeCount');
+			// 		havingParams.themeCount = themes.length;
+			// 	}
+
+			// 	if (formats.length > 0) {
+			// 		havingConditions.push('COUNT(DISTINCT formats.title) = :formatCount');
+			// 		havingParams.formatCount = formats.length;
+			// 	}
+
+			// 	queryBuilder.having(havingConditions.join(' AND '), havingParams);
+			// }
+
+			const [events, total] = await queryBuilder.getManyAndCount();
 
 			return res.status(200).json({
 				data: events,
@@ -205,6 +361,103 @@ export const EventController = {
 			return res.status(500).json({ message: 'Internal server error' });
 		}
 	},
+
+	// async getAllEvents(req: Request, res: Response): Promise<Response> {
+	// 	const page = parseInt(req.query.page as string) || 1;
+	// 	const limit = parseInt(req.query.limit as string) || 10;
+	// 	const sort = (req.query.sort as string) || 'date';
+	// 	const order = (req.query.order as string) === 'DESC' ? 'DESC' : 'ASC';
+	
+	// 	const themes = req.query.themes ? (Array.isArray(req.query.themes) ? req.query.themes : [req.query.themes]) : [];
+	// 	const formats = req.query.formats ? (Array.isArray(req.query.formats) ? req.query.formats : [req.query.formats]) : [];
+	
+	// 	const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : null;
+	// 	const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : null;
+	// 	const startDate = req.query.startDate ? new Date(req.query.startDate as string) : null;
+	// 	const endDate = req.query.endDate ? new Date(req.query.endDate as string) : null;
+	
+	// 	try {
+	// 		const whereConditions: any = {};
+	
+	// 		if (minPrice !== null && maxPrice !== null) {
+	// 			whereConditions.price = Between(minPrice, maxPrice);
+	// 		} else if (minPrice !== null) {
+	// 			whereConditions.price = MoreThanOrEqual(minPrice);
+	// 		} else if (maxPrice !== null) {
+	// 			whereConditions.price = LessThanOrEqual(maxPrice);
+	// 		}
+	
+	// 		if (startDate !== null && endDate !== null) {
+	// 			whereConditions.date = Between(startDate, endDate);
+	// 		} else if (startDate !== null) {
+	// 			whereConditions.date = MoreThanOrEqual(startDate);
+	// 		} else if (endDate !== null) {
+	// 			whereConditions.date = LessThanOrEqual(endDate);
+	// 		}
+	
+	// 		const queryBuilder = Event.createQueryBuilder('event')
+	// 			.leftJoinAndSelect('event.company', 'company')
+	// 			.leftJoin('event.formats', 'format')
+	// 			.leftJoin('event.themes', 'theme')
+	// 			.addSelect(['format.id', 'format.title'])
+	// 			.addSelect(['theme.id', 'theme.title'])
+	// 			.where(whereConditions)
+	// 			.orderBy(`event.${sort}`, order)
+	// 			.skip((page - 1) * limit)
+	// 			.take(limit);
+	
+	// 		// Apply WHERE clause for matching formats/themes
+	// 		if (formats.length > 0) {
+	// 			queryBuilder.andWhere('format.title IN (:...formats)', { formats });
+	// 		}
+	
+	// 		if (themes.length > 0) {
+	// 			queryBuilder.andWhere('theme.title IN (:...themes)', { themes });
+	// 		}
+	
+	// 		// Ensure event has all of the selected formats and/or themes
+	// 		if (formats.length > 0 || themes.length > 0) {
+	// 			queryBuilder.groupBy('event.id')
+	// 				.addGroupBy('company.id');
+	
+	// 			if (formats.length > 0) {
+	// 				queryBuilder.addGroupBy('format.id');
+	// 			}
+	// 			if (themes.length > 0) {
+	// 				queryBuilder.addGroupBy('theme.id');
+	// 			}
+	
+	// 			const havingConditions: string[] = [];
+	// 			const havingParams: any = {};
+	
+	// 			if (formats.length > 0) {
+	// 				havingConditions.push('COUNT(DISTINCT format.title) = :formatCount');
+	// 				havingParams.formatCount = formats.length;
+	// 			}
+	// 			if (themes.length > 0) {
+	// 				havingConditions.push('COUNT(DISTINCT theme.title) = :themeCount');
+	// 				havingParams.themeCount = themes.length;
+	// 			}
+	
+	// 			queryBuilder.having(havingConditions.join(' AND '), havingParams);
+	// 		}
+	
+	// 		const [events, total] = await queryBuilder.getManyAndCount();
+	
+	// 		return res.status(200).json({
+	// 			data: events,
+	// 			meta: {
+	// 				total,
+	// 				page,
+	// 				limit,
+	// 				totalPages: Math.ceil(total / limit),
+	// 			},
+	// 		});
+	// 	} catch (error) {
+	// 		console.error('Error fetching events:', error);
+	// 		return res.status(500).json({ message: 'Internal server error' });
+	// 	}
+	// },	
 
 	async getEventById(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
@@ -425,14 +678,14 @@ export const EventController = {
 
 	async getEventAttendees(req: Request, res: Response): Promise<Response> {
 		const { eventId } = req.params;
-	
+
 		try {
 			// 1. Find all tickets for the event
 			const tickets = await Ticket.find({
 				where: { event: { id: eventId } },
 				relations: ['user'], // Load the user relation directly
 			});
-	
+
 			// 2. Extract unique users
 			const uniqueUsersMap = new Map<string, User>();
 			tickets.forEach(ticket => {
@@ -440,16 +693,16 @@ export const EventController = {
 					uniqueUsersMap.set(ticket.user.id, ticket.user);
 				}
 			});
-	
+
 			const attendees = Array.from(uniqueUsersMap.values());
-	
+
 			return res.json({ attendees });
 		} catch (error) {
 			console.error('Error getting event attendees:', error);
 			return res.status(500).json({ message: 'Failed to fetch event attendees' });
 		}
 	}
-	
+
 };
 
 // import { Request, Response } from 'express';

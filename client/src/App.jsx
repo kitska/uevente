@@ -17,6 +17,7 @@ import Success from './pages/Success';
 import Error from './pages/Error';
 import ScrollToTop from './components/ScrollToTop';
 import SomethingInteresting from './pages/SomethingInteresting';
+import ThemeEvents from './pages/ThemeEvent';
 import { AxiosInterceptor } from './services/index';
 import { Toaster } from 'react-hot-toast';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
@@ -133,6 +134,7 @@ function AppContent() {
                     <Route path='/password-reset/:token' element={<ResetPassword />} />
                     <Route path='/confirm-email/:token' element={<EmailConfirmation />} />
                     <Route path='/pashalka' element={<SomethingInteresting />} />
+                    <Route path='/themes/:id/events' element= {<ThemeEvents />} />
                     <Route path='/success/:id' element={<Success />} />
                     <Route path='/cancel/:id' element={<Error />} />
                     <Route path='*' element={<Error404 />} />

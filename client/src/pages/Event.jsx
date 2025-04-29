@@ -12,7 +12,9 @@ import { api } from '../services';
 import { PiStar, PiStarFill } from 'react-icons/pi';
 import { userStore } from '../store/userStore';
 import Swal from 'sweetalert2';
+import { Link } from 'react-router-dom';
 import Attendees from '../components/Attendees';
+import ChatWindow from '../components/ChatWindow';
 
 const Event = observer(() => {
 	const { id } = useParams();
@@ -37,7 +39,7 @@ const Event = observer(() => {
 			try {
 				const data = await eventStore.fetchEventById(id);
 				setEvent(data);
-				
+
 				// console.log(userStore.isEventSubscribed(data.id));
 				setFavourited(userStore.isEventSubscribed(data.id));
 			} catch (error) {
@@ -282,12 +284,15 @@ const Event = observer(() => {
 									<h4 className='font-semibold text-gray-800'>Themes:</h4>
 									<div className='flex flex-wrap gap-2 mt-1'>
 										{event.themes.map(theme => (
-											<span
+											<Link
 												key={theme.id}
-												className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'
-											>
-												{theme.title}
-											</span>
+												to={`/themes/${theme.id}/events`}>
+												<span
+													className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'
+												>
+													{theme.title}
+												</span>
+											</Link>
 										))}
 									</div>
 								</div>
@@ -299,7 +304,7 @@ const Event = observer(() => {
 										{event.formats.map(format => (
 											<span
 												key={format.id}
-												className='px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full'
+												className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'
 											>
 												{format.title}
 											</span>
@@ -310,7 +315,12 @@ const Event = observer(() => {
 						</div>
 						{/* <div className='flex flex-col justify-between gap-4 sm:flex-row sm:items-start'> */}
 						<div>
-							<h3 className='mb-2 text-xl font-semibold text-gray-800'>Organised by {event.company?.name || 'N/A'}</h3>
+							<Link key={event.company?.id} to={`/company/${event.company?.id}`}>
+								<h3 className='text-xl font-semibold text-gray-800'>
+									Organised by <span className='px-3 py-1 font-medium text-green-800 bg-green-100 rounded-full'>{event.company?.name || 'N/A'}
+									</span>
+								</h3>
+							</Link>
 							{/* <p className='text-gray-700'>
 								<span className='font-medium'>We are located in {event.company?.location || 'N/A'}</span> 
 							</p>
@@ -320,9 +330,9 @@ const Event = observer(() => {
 						</div>
 
 						{/* Subscribe to organizer */}
-						<div className='mt-2'>
+						{/* <div className='mt-2'>
 							<p className='text-sm text-gray-600'>Want to get notifications about this organiser’s events?</p>
-						</div>
+						</div> */}
 						{/* </div> */}
 					</div>
 
@@ -448,13 +458,15 @@ const Event = observer(() => {
 			</div>
 
 			{/* Attendees */}
-			<Attendees event={event}/>
+			<Attendees event={event} />
 
 			{/* Company Events */}
 			<CompanyEvents event={event} />
 
 			{/* Similar Events */}
 			<SimilarEvents event={event} />
+
+			<ChatWindow />
 
 			{/* Subscribe Section */}
 			{/* <Subscribe /> */}

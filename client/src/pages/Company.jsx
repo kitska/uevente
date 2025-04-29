@@ -6,6 +6,7 @@ import EventCard from '../components/EventCard';
 import EventModal from '../components/EventModal';
 import { FaPlus, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import ChatWindow from '../components/ChatWindow'
 
 const Company = () => {
     const { companyId } = useParams();
@@ -20,6 +21,7 @@ const Company = () => {
     const [posterPreview, setPosterPreview] = useState(null);
 
     const [eventForm, setEventForm] = useState({
+        id:'',
         title: '',
         description: '',
         price: '',
@@ -70,6 +72,7 @@ const Company = () => {
     const handleCreateEvent = async () => {
         try {
             const {
+                id,
                 title,
                 description,
                 price,
@@ -83,6 +86,7 @@ const Company = () => {
             } = eventForm;
 
             const body = {
+                id,
                 title,
                 description,
                 price,
@@ -128,6 +132,7 @@ const Company = () => {
             setPosterFile(null);
             setPosterPreview(null);
             setEventForm({
+                id:'',
                 title: '',
                 description: '',
                 price: '',
@@ -147,6 +152,7 @@ const Company = () => {
     const handleEditEvent = (event) => {
         setEditingEvent(event);
         setEventForm({
+            id: event.id,
             title: event.title,
             description: event.description,
             price: event.price,
@@ -188,44 +194,44 @@ const Company = () => {
     };
 
     if (loading) {
-        return <div className="text-center p-10 text-gray-600">Loading company...</div>;
+        return <div className="p-10 text-center text-gray-600">Loading company...</div>;
     }
 
     if (!company) {
-        return <div className="text-center p-10 text-red-500">Company not found.</div>;
+        return <div className="p-10 text-center text-red-500">Company not found.</div>;
     }
 
     return (
         <div className="mt-24 space-y-12">
-            <div className="w-full max-w-screen-xl mx-auto flex justify-between items-end border-b border-gray-300 pb-2">
+            <div className="flex items-end justify-between w-full max-w-screen-xl pb-2 mx-auto border-b border-gray-300">
                 <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">{company.name}</h1>
-                <p className="text-gray-500 text-sm">{company.email}</p>
+                <p className="text-sm text-gray-500">{company.email}</p>
             </div>
 
-            <div className="w-full max-w-screen-xl mx-auto flex items-center justify-between">
+            <div className="flex items-center justify-between w-full max-w-screen-xl mx-auto">
                 <h2 className="text-2xl font-semibold text-gray-800">Events</h2>
                 {isOwner && (
                     <button
                         onClick={() => setShowModal(true)}
-                        className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700"
                     >
                         <FaPlus size={12} /> Create
                     </button>
                 )}
             </div>
 
-            <div className="w-full max-w-screen-xl mx-auto flex items-center justify-center">
+            <div className="flex items-center justify-center w-full max-w-screen-xl mx-auto">
                 {events.length === 0 ? (
-                    <p className="text-gray-400 italic mt-8">No events have been created yet.</p>
+                    <p className="mt-8 italic text-gray-400">No events have been created yet.</p>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 mb-6 relative">
+                    <div className="relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3">
                         {events.map((event) => (
                             <div key={event.id} className="relative">
                                 <Link to={`/event/${event.id}`}>
                                     <EventCard event={event} />
                                 </Link>
                                 {isOwner && (
-                                    <div className="absolute top-2 right-2 space-y-2">
+                                    <div className="absolute space-y-2 top-2 right-2">
                                         <button
                                             onClick={() => handleEditEvent(event)}
                                             className="text-blue-600 hover:text-blue-800"
@@ -245,6 +251,8 @@ const Company = () => {
                     </div>
                 )}
             </div>
+
+            <ChatWindow/>
 
             <EventModal
                 show={showModal}

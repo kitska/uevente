@@ -111,6 +111,7 @@ export const seedDatabase = async () => {
 		isAdmin: true,
 		isEmailConfirmed: true,
 	});
+
 	await admin.save();
 	users.push(admin);
 
@@ -126,6 +127,16 @@ export const seedDatabase = async () => {
 		companies.push(company);
 	}
 
+	const adminCompany = Company.create({
+		name: 'Admin Corporation',
+		email: 'admin@company.com',
+		location: faker.location.city(),
+		owner: admin,
+	});
+
+	await adminCompany.save();
+	companies.push(adminCompany);
+
 	const formats: Format[] = [];
 	for (let i = 0; i < 5; i++) {
 		const format = Format.create({ title: faker.word.noun() });
@@ -139,6 +150,91 @@ export const seedDatabase = async () => {
 		await theme.save();
 		themes.push(theme);
 	}
+
+	const event1 = Event.create({
+		title: 'The International 2025',
+		description: "That's right. The stars have aligned and the stage is once again being set for cosmic battle. And this time, that battle has returned to where it all began: Germany, the site of The International's humble debut on the world stage, where it was watched in person by many tens of people. Now, fourteen years later, The International returns to Germany, to Hamburg's Barclays Arena September 11 - 14 — in front of, we trust, a slightly bigger crowd this time around.",
+		price: 199,
+		location: faker.location.streetAddress(),
+		date: faker.date.future(),
+		publishDate: null,
+		ticket_limit: faker.number.int({ min: 50, max: 500 }),
+		is_published: true,
+		poster: 'https://esportsinsider.com/wp-content/uploads/2025/01/the-international-2025-location-revealed.jpg',
+		company: adminCompany,
+		formats: faker.helpers.arrayElements(formats, 2),
+		themes: faker.helpers.arrayElements(themes, 2),
+		allAttendeesVisible: true,
+	})
+	await event1.save();
+
+	const event2 = Event.create({
+		title: 'Porsche Exhibition',
+		description: "Yeah some dudes bring their porsches and we are going to look at them. Have fun...",
+		price: 199,
+		location: faker.location.streetAddress(),
+		date: faker.date.future(),
+		publishDate: null,
+		ticket_limit: faker.number.int({ min: 50, max: 500 }),
+		is_published: true,
+		poster: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cG9yc2NoZSUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D',
+		company: adminCompany,
+		formats: faker.helpers.arrayElements(formats, 2),
+		themes: faker.helpers.arrayElements(themes, 2),
+		allAttendeesVisible: true,
+	})
+	await event2.save();
+
+	const event3 = Event.create({
+		title: 'Chemistry Lecture',
+		description: "Jesse we need to cook. Let dive deeply in the world of chemistry and learn a couple of nice things...",
+		price: 499,
+		location: faker.location.streetAddress(),
+		date: faker.date.future(),
+		publishDate: null,
+		ticket_limit: faker.number.int({ min: 50, max: 500 }),
+		is_published: true,
+		poster: 'https://i.pinimg.com/1200x/0c/6e/a5/0c6ea5eab1c1fe08bc820f03763782a7.jpg',
+		company: adminCompany,
+		formats: faker.helpers.arrayElements(formats, 2),
+		themes: faker.helpers.arrayElements(themes, 2),
+		allAttendeesVisible: true,
+	})
+	await event3.save();
+
+	const event4 = Event.create({
+		title: 'Psycho Evening',
+		description: "Spend time watching the one of the best movies in the world.",
+		price: 99,
+		location: faker.location.streetAddress(),
+		date: faker.date.future(),
+		publishDate: null,
+		ticket_limit: faker.number.int({ min: 50, max: 500 }),
+		is_published: true,
+		poster: 'https://i.pinimg.com/1200x/0e/10/35/0e1035e4818ce2f47d09bea3bf95af41.jpg',
+		company: adminCompany,
+		formats: faker.helpers.arrayElements(formats, 2),
+		themes: faker.helpers.arrayElements(themes, 2),
+		allAttendeesVisible: true,
+	})
+	await event4.save();
+
+	const event5 = Event.create({
+		title: 'Fast & Furious Street Racing',
+		description: "Experience the thrill of underground racing in this high-octane event where speed, style, and skill collide. Compete against top drivers in intense street circuits, show off your customized ride, and feel the adrenaline of pure street power. Only the fastest survive!",
+		price: 999,
+		location: faker.location.streetAddress(),
+		date: faker.date.future(),
+		publishDate: null,
+		ticket_limit: faker.number.int({ min: 50, max: 500 }),
+		is_published: true,
+		poster: 'https://wallpapersok.com/images/hd/digital-illustration-of-fast-and-furious-dubzjas3amqndn86.jpg',
+		company: adminCompany,
+		formats: faker.helpers.arrayElements(formats, 2),
+		themes: faker.helpers.arrayElements(themes, 2),
+		allAttendeesVisible: true,
+	})
+	await event5.save();
 
 	for (let i = 0; i < 400; i++) {
 		const shouldHavePublishDate = faker.datatype.boolean();
@@ -164,7 +260,7 @@ export const seedDatabase = async () => {
 			publishDate: publishDate,
 			ticket_limit: faker.number.int({ min: 50, max: 500 }),
 			is_published: faker.datatype.boolean(),
-			poster: faker.image.url(),
+			poster: faker.image.urlPicsumPhotos({width: 1920, height: 1080}),
 			company: faker.helpers.arrayElement(companies),
 			formats: faker.helpers.arrayElements(formats, 2),
 			themes: faker.helpers.arrayElements(themes, 2),

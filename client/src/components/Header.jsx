@@ -14,7 +14,7 @@ const Header = () => {
 	};
 
 	return (
-		<header className="w-full fixed top-0 left-0 z-50 bg-transparent text-white px-8 py-4 flex items-center justify-between backdrop-blur-md shadow-sm">
+		<header className="z-999 w-full fixed top-0 left-0 z-50 bg-transparent text-white px-8 py-4 flex items-center justify-between backdrop-blur-md shadow-sm">
 			{/* Left: Logo/Name */}
 			<Link to="/" className="text-pink-400 text-2xl font-bold tracking-wide">
 				Go Event

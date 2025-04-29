@@ -274,31 +274,49 @@ const ProfileSection = () => {
             </li>
         </ul>
     );
-
+    const handleBorderClick = () => {
+        window.open('/pashalka', '_blank');
+    };
+    const handleAvatarClick = () => {
+        fileInputRef.current.click();
+    };
     const renderProfilePicture = () => (
         <div className='flex justify-between'>
             <div className="flex items-center space-x-6">
-                <img
-                    src={user.profilePicture || '/placeholder-profile.png'}
-                    alt="Profile"
-                    className="object-cover w-24 h-24 border rounded-full"
-                />
-                <div className="space-y-2">
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="block text-sm"
-                    />
-                    {/* <button
-                        // onClick={handleRemoveImage}
-                        className="text-sm text-red-500 hover:underline"
+                <div
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-bl from-[#0800A7] to-[#EC7EEA] p-[5px] cursor-pointer"
+                    onClick={handleBorderClick}
+                >
+                    <div
+                        className="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleAvatarClick();
+                        }}
                     >
-                        Remove Photo
-                    </button> */}
+                        <img
+                            src={user.profilePicture}
+                            alt="Avatar"
+                            className="w-full h-full object-cover rounded-full"
+                        />
+                        <input
+                            type="file"
+                            onChange={handleImageChange}
+                            className="hidden"
+                            ref={fileInputRef}
+                        />
+                    </div>
                 </div>
+                <button
+                    className="text-white text-sm font-medium bg-gray-700 bg-opacity-50 hover:bg-opacity-70 hover:scale-105 transition-all py-1 px-4 rounded-md"
+                    onClick={handleAvatarClick}
+                >
+                    Click to change
+                </button>
+
+
             </div>
-            <div>
+            <div className='flex flex-col justify-center'>
                 {renderNotifications()}
             </div>
             {/* <div className="flex space-y-2">

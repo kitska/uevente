@@ -10,10 +10,11 @@ import formatRoutes from './src/routes/format.routes';
 import commentRoutes from './src/routes/comment.routes';
 import ticketRoutes from './src/routes/ticket.routes'
 import promocodeRoutes from './src/routes/promo.routes'
-import subscriptionRoutes from './src/routes/subscription.routes' 
+import subscriptionRoutes from './src/routes/subscription.routes'
 // import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
 import paymentRoutes from './src/routes/payment.routes'
+// import adminRouter from './src/utils/admin'
 import cors from 'cors';
 import path from 'path';
 import './src/utils/notificationScheduler';
@@ -53,8 +54,10 @@ app.use('/api/promocodes', promocodeRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 // app.use('/api/calendars', calendarRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/avatars',express.static(path.join(__dirname, 'uploads')));
+app.use('/avatars', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', callBackRoutes);
+
+// app.use('/admin', adminRouter);
 
 // Create the database if it doesn't exist, then initialize the data source and start the server
 createUserAndDatabase()

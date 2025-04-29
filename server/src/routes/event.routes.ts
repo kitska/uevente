@@ -5,6 +5,7 @@ const upload = multer();
 
 const router = Router();
 
+router.get('/first-five-events', EventController.getFirstFiveEvents.bind(EventController));
 router.get('/', EventController.getAllEvents.bind(EventController));
 router.post('/', EventController.createEvent.bind(EventController));
 router.post('/upload-poster', upload.single('file'), EventController.uploadPoster.bind(EventController));

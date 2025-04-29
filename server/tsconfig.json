@@ -10,8 +10,17 @@
 		"skipLibCheck": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-		"typeRoots": ["node_modules/@types", "types"],
-		"types": ["express", "node"]
+		"typeRoots": [
+			"node_modules/@types",
+			"types"
+		],
+		"types": [
+			"express",
+			"node"
+		]
 	},
-	"include": ["src/**/*.ts", "src/**/*.test.ts"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.test.ts",
+	]
 }
