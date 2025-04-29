@@ -7,6 +7,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { eventStore } from '../store/eventStore';
 import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
+import ChatWindow from '../components/ChatWindow';
 
 const Main = observer(() => {
 	const [filters, setFilters] = useState({});
@@ -57,6 +58,8 @@ const Main = observer(() => {
 				)}
 
 				<Subscribe />
+
+				<ChatWindow/>
 			</main>
 		</>
 	);
