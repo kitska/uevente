@@ -106,3 +106,23 @@ export const unsubscibe = async (eventId, userId) => {
 		throw error;
 	}
 }
+
+export const getEventsByTheme = async themeId => {
+	try {
+		const response = await api.get(`${API_URL}/themes/${themeId}/events`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to fetch events by theme:', error);
+		throw error;
+	}
+};
+
+export const getThemeById = async themeId => {
+	try {
+		const response = await api.get(`${API_URL}/themes/${themeId}`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to fetch events by theme:', error);
+		throw error;
+	}
+};
