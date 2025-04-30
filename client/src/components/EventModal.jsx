@@ -4,13 +4,13 @@ import { promoService } from '../services/pronoService';
 import { fetchFormats } from '../services/eventService';
 import { fetchThemes } from '../services/eventService';
 
-const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
+const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating = false }) => {
 	const fileInputRef = useRef();
 	const [promoDiscount, setPromoDiscount] = useState('');
 	const [promoCodes, setPromoCodes] = useState([]);
 	const [creatingPromo, setCreatingPromo] = useState(false);
 	const [formats, setFormats] = useState([]);
-	const [themes, setThemes] = useState([]);	
+	const [themes, setThemes] = useState([]);
 
 	const handleGeneratePromo = async () => {
 		if (!promoDiscount) return;
@@ -95,17 +95,17 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 		setForm(prev => ({ ...prev, [name]: values }));
 	};
 
-	const toggleFormat = id => {
+	const toggleFormat = (id, title) => {
 		setForm(prev => ({
 			...prev,
-			formatIds: prev.formatIds?.includes(id) ? prev.formatIds.filter(f => f !== id) : [...(prev.formatIds || []), id],
+			formatIds: prev.formatIds?.some(f => f.id === id) ? prev.formatIds.filter(f => f.id !== id) : [...(prev.formatIds || []), { id, title }],
 		}));
 	};
 
-	const toggleTheme = id => {
+	const toggleTheme = (id, title) => {
 		setForm(prev => ({
 			...prev,
-			themeIds: prev.themeIds?.includes(id) ? prev.themeIds.filter(t => t !== id) : [...(prev.themeIds || []), id],
+			themeIds: prev.themeIds?.some(t => t.id === id) ? prev.themeIds.filter(t => t.id !== id) : [...(prev.themeIds || []), { id, title }],
 		}));
 	};
 
@@ -132,10 +132,10 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 
 	return (
 		<div className='fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30'>
-			<div className='bg-white rounded-lg p-8 w-full max-w-6xl shadow-lg overflow-y-auto max-h-[90vh] flex gap-8'>
+			<div className='bg-white rounded-lg p-8 w-full max-w-6xl shadow-lg overflow-y-auto max-h-[80vh] flex gap-8'>
 				{/* Левая часть — форма создания события */}
 				<div className='flex-1 space-y-8'>
-					<h3 className='text-3xl font-semibold text-gray-800'>Create Event</h3>
+					<h3 className='text-3xl font-semibold text-gray-800'>{updating ? "Update" : "Create"} Event</h3>
 					<form className='grid grid-cols-1 gap-6 md:grid-cols-2'>
 						{/* Title */}
 						<input
@@ -193,7 +193,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 							<input
 								type='date'
 								name='publishDate'
-								value={form.publishDate || ''}
+								value={form.publishDate ? new Date(form.publishDate).toISOString().slice(0, 10) : ''}
 								onChange={handlePublishDateChange}
 								min={today}
 								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -206,7 +206,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 							<input
 								type='datetime-local'
 								name='date'
-								value={form.date || ''}
+								value={form.date ? new Date(form.date).toISOString().slice(0, 16) : ''}
 								onChange={onChange}
 								min={form.publishDate || today}
 								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -249,15 +249,14 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 							<label className='text-sm text-gray-500'>Formats</label>
 							<div className='flex flex-wrap gap-2'>
 								{formats.map(format => {
-									const selected = form.formatIds?.includes(format.id);
+									const selected = form.formatIds?.some(f => f.id === format.id);
 									return (
 										<button
 											key={format.id}
 											type='button'
-											onClick={() => toggleFormat(format.id)}
-											className={`px-3 py-1 rounded-full border ${
-												selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-											}`}
+											onClick={() => toggleFormat(format.id, format.title)}
+											className={`px-3 py-1 rounded-full border ${selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+												}`}
 										>
 											{format.title} {selected && '×'}
 										</button>
@@ -271,15 +270,14 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 							<label className='text-sm text-gray-500'>Themes</label>
 							<div className='flex flex-wrap gap-2'>
 								{themes.map(theme => {
-									const selected = form.themeIds?.includes(theme.id);
+									const selected = form.themeIds?.some(t => t.id === theme.id);
 									return (
 										<button
 											key={theme.id}
 											type='button'
-											onClick={() => toggleTheme(theme.id)}
-											className={`px-3 py-1 rounded-full border ${
-												selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-											}`}
+											onClick={() => toggleTheme(theme.id, theme.title)}
+											className={`px-3 py-1 rounded-full border ${selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+												}`}
 										>
 											{theme.title} {selected && '×'}
 										</button>
@@ -319,7 +317,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 					</form>
 
 					{/* Кнопки */}
-					<div className='flex items-center justify-end gap-4 mt-6'>
+					<div className='flex items-center justify-end gap-4 mt-6 ml-50'>
 						<button onClick={onClose} className='px-4 py-2 text-gray-500 rounded-md cursor-pointer hover:text-gray-700'>
 							Cancel
 						</button>
@@ -327,14 +325,15 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 							onClick={onSubmit}
 							className='px-6 py-2 m-5 text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
 						>
-							Create
+							{updating ? "Update" : "Create"}
 						</button>
 					</div>
 				</div>
 
-				{/* Правая часть — промокоды */}
+				{/* Правая часть — промокоды 
+				// ШО реально???? */}
 				<div className='flex flex-col w-full max-w-xs space-y-6'>
-					<h4 className='text-2xl font-semibold text-gray-800'>Promocodes</h4>
+					<h4 className='text-3xl font-semibold text-gray-800 mb-8'>Promocodes</h4>
 
 					{/* Ввод скидки */}
 					<div className='flex flex-col gap-2'>
