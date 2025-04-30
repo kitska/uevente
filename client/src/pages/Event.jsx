@@ -278,20 +278,14 @@ const Event = observer(() => {
 
 					<p className='text-lg leading-relaxed text-gray-800 break-words'>{event.description}</p>
 					<div className='pt-4 mt-4 border-t border-gray-200'>
-						<div className='flex justify-between flex-wrap gap-4 mb-6'>
+						<div className='flex flex-wrap justify-between gap-4 mb-6'>
 							{event.themes?.length > 0 && (
 								<div>
 									<h4 className='font-semibold text-gray-800'>Themes:</h4>
 									<div className='flex flex-wrap gap-2 mt-1'>
 										{event.themes.map(theme => (
-											<Link
-												key={theme.id}
-												to={`/themes/${theme.id}/events`}>
-												<span
-													className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'
-												>
-													{theme.title}
-												</span>
+											<Link key={theme.id} to={`/themes/${theme.id}/events`}>
+												<span className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'>{theme.title}</span>
 											</Link>
 										))}
 									</div>
@@ -302,12 +296,11 @@ const Event = observer(() => {
 									<h4 className='font-semibold text-gray-800'>Formats:</h4>
 									<div className='flex flex-wrap gap-2 mt-1'>
 										{event.formats.map(format => (
-											<span
-												key={format.id}
-												className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'
-											>
-												{format.title}
-											</span>
+											<Link key={format.id} to={`/formats/${format.id}/events`}>
+												<span key={format.id} className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'>
+													{format.title}
+												</span>
+											</Link>
 										))}
 									</div>
 								</div>
@@ -317,8 +310,7 @@ const Event = observer(() => {
 						<div>
 							<Link key={event.company?.id} to={`/company/${event.company?.id}`}>
 								<h3 className='text-xl font-semibold text-gray-800'>
-									Organised by <span className='px-3 py-1 font-medium text-green-800 bg-green-100 rounded-full'>{event.company?.name || 'N/A'}
-									</span>
+									Organised by <span className='px-3 py-1 font-medium text-green-800 bg-green-100 rounded-full'>{event.company?.name || 'N/A'}</span>
 								</h3>
 							</Link>
 							{/* <p className='text-gray-700'>
@@ -335,7 +327,6 @@ const Event = observer(() => {
 						</div> */}
 						{/* </div> */}
 					</div>
-
 				</div>
 
 				<div className='w-full overflow-hidden shadow-lg rounded-xl h-80'>
@@ -352,12 +343,15 @@ const Event = observer(() => {
 					<div className='w-full p-6 mt-2 transition-all duration-300 border border-gray-200 shadow-xl bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl'>
 						<h3 className='mb-4 text-2xl font-bold text-gray-800'>🎟️ Ticket Selection</h3>
 
+						{/* Ticket Availability */}
+						{event.ticket_limit > 0 ? <p className='mb-2 text-green-600'>Available: {event.ticket_limit}</p> : <p className='mb-2 text-red-600'>All tickets Sold</p>}
+
 						{/* Ticket Counter */}
 						<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
 							<div className='flex items-center'>
 								<span className='mr-4 text-lg font-medium text-gray-700'>Number of tickets:</span>
 								<div className='flex items-center overflow-hidden bg-white border border-gray-300 rounded-full shadow-inner'>
-									<button onClick={decrease} className='px-4 py-2 text-gray-600 transitio hover:text-red-600'>
+									<button onClick={decrease} className='px-4 py-2 text-gray-600 transition hover:text-red-600'>
 										<FaMinus />
 									</button>
 									<input
@@ -419,7 +413,7 @@ const Event = observer(() => {
 			</div>
 
 			{/* Comments */}
-			<div className='px-4 max-w-6xl mx-auto mt-10 mb-8'>
+			<div className='max-w-6xl px-4 mx-auto mt-10 mb-8'>
 				<div className='flex items-center justify-between mb-4'>
 					<h2 className='text-2xl font-bold'>Comments</h2>
 					{isLoggedIn && (

@@ -23,6 +23,7 @@ const Main = observer(() => {
 		maxPrice: searchParams.get('maxPrice') || '',
 		startDate: searchParams.get('startDate') || '',
 		endDate: searchParams.get('endDate') || '',
+		soldOut: searchParams.get('soldOut') || ''
 	};
 
 	const [filters, setFilters] = useState(filtersFromParams);
@@ -55,6 +56,7 @@ const Main = observer(() => {
 			maxPrice: '',
 			startDate: '',
 			endDate: '',
+			soldOut: ''
 		});
 		setSearchParams({});  // Сбросить параметры фильтров в URL
 	};

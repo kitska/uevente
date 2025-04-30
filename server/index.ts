@@ -15,6 +15,7 @@ import subscriptionRoutes from './src/routes/subscription.routes'
 import authRoutes from './src/routes/auth.routes'
 import paymentRoutes from './src/routes/payment.routes'
 // import adminRouter from './src/utils/admin'
+import { createAdminRouter } from './src/utils/admin';
 import cors from 'cors';
 import path from 'path';
 import './src/utils/notificationScheduler';
@@ -25,6 +26,7 @@ const PORT = process.env.PORT;
 
 const allowedOrigins = [
 	'http://localhost:3000',
+	'http://localhost:8000',
 	// `http://${IP}:3000`,
 ];
 
@@ -58,8 +60,6 @@ app.use('/api/auth', authRoutes);
 app.use('/avatars', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', callBackRoutes);
 
-// app.use('/admin', adminRouter);
-
 // Create the database if it doesn't exist, then initialize the data source and start the server
 createUserAndDatabase()
 	.then(() => {
@@ -81,6 +81,8 @@ createUserAndDatabase()
 
 				// createLocalEventDump();
 				// restoreLocalEventDump();
+				const adminRouter = await createAdminRouter();
+				app.use('/admin', adminRouter);
 
 				app.listen(PORT, () => {
 					console.log(`Server is running on http://localhost:${PORT}`);

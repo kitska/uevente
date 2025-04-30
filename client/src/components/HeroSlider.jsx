@@ -111,12 +111,12 @@ const HeroSlider = () => {
                         alt={slide.title}
                         className="w-full h-full object-cover brightness-[0.3]"
                     />
-                    <div className="absolute inset-0 flex flex-col justify-center items-center text-white px-6 text-center">
-                        <h2 className="text-4xl font-bold mb-4">{slide.title}</h2>
-                        <p className="text-lg max-w-xl mb-4">{slide.description}</p>
-                        <p className="text-xl font-semibold mb-6">{slide.price}</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
+                        <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
+                        <p className="max-w-xl mb-4 text-lg">{slide.description}</p>
+                        <p className="mb-6 text-xl font-semibold">${slide.price}</p>
                         <Link to={`/event/${slide.id}`}>
-                            <button className="bg-white text-black px-6 py-2 rounded shadow hover:bg-gray-200 transition">
+                            <button className="px-6 py-2 text-black transition bg-white rounded shadow hover:bg-gray-200">
                                 Buy Ticket
                             </button>
                         </Link>
@@ -125,7 +125,7 @@ const HeroSlider = () => {
             ))}
 
             {/* Round Dots */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
+            <div className="absolute z-30 flex gap-2 transform -translate-x-1/2 bottom-6 left-1/2">
                 {slides.map((_, index) => (
                     <button
                         key={index}

@@ -18,6 +18,7 @@ import Error from './pages/Error';
 import ScrollToTop from './components/ScrollToTop';
 import SomethingInteresting from './pages/SomethingInteresting';
 import ThemeEvents from './pages/ThemeEvent';
+import FormatEvents from './pages/FormatEvent';
 import { AxiosInterceptor } from './services/index';
 import { Toaster } from 'react-hot-toast';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
@@ -114,37 +115,64 @@ function AppContent() {
     // }
 
     return (
-        <div className='flex flex-col h-screen'>
-            {/* Conditionally render Header only if the page is not login, register, password-reset, or error */}
-            {location.pathname !== '/account' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/password-reset' && location.pathname !== '/password-reset/:token' && location.pathname !== '/error' && <Header />}
+		<div className='flex flex-col h-screen'>
+			{/* Conditionally render Header only if the page is not login, register, password-reset, or error */}
+			{location.pathname !== '/account' &&
+				location.pathname !== '/login' &&
+				location.pathname !== '/register' &&
+				location.pathname !== '/password-reset' &&
+				location.pathname !== '/password-reset/:token' &&
+				location.pathname !== '/error' && <Header />}
 
-            <div><Toaster position="top-right" /></div>
-            <main className='flex flex-col flex-grow'>
-                <Routes>
-                    <Route path='/' element={<Main />} />
-                    <Route path="/event/:id" element={<Event />} />
-                    <Route path='/account' element={<ProtectedRoute><Account /></ProtectedRoute>} />
-                    <Route path='/subscriptions' element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
-                    <Route path='/login' element={<Login />} />
-                    <Route path='/auth/github/callback' element={<Login />} />
-                    <Route path='/auth/discord/callback' element={<Login />} />
-                    <Route path='/register' element={<Register />} />
-                    <Route path='/company/:companyId' element={<Company />} />
-                    <Route path='/password-reset' element={<EmailSentPasswordReset />} />
-                    <Route path='/password-reset/:token' element={<ResetPassword />} />
-                    <Route path='/confirm-email/:token' element={<EmailConfirmation />} />
-                    <Route path='/pashalka' element={<SomethingInteresting />} />
-                    <Route path='/themes/:id/events' element= {<ThemeEvents />} />
-                    <Route path='/success/:id' element={<Success />} />
-                    <Route path='/cancel/:id' element={<Error />} />
-                    <Route path='*' element={<Error404 />} />
-                </Routes>
-            </main>
+			<div>
+				<Toaster position='top-right' />
+			</div>
+			<main className='flex flex-col flex-grow'>
+				<Routes>
+					<Route path='/' element={<Main />} />
+					<Route path='/event/:id' element={<Event />} />
+					<Route
+						path='/account'
+						element={
+							<ProtectedRoute>
+								<Account />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path='/subscriptions'
+						element={
+							<ProtectedRoute>
+								<Subscriptions />
+							</ProtectedRoute>
+						}
+					/>
+					<Route path='/login' element={<Login />} />
+					<Route path='/auth/github/callback' element={<Login />} />
+					<Route path='/auth/discord/callback' element={<Login />} />
+					<Route path='/register' element={<Register />} />
+					<Route path='/company/:companyId' element={<Company />} />
+					<Route path='/password-reset' element={<EmailSentPasswordReset />} />
+					<Route path='/password-reset/:token' element={<ResetPassword />} />
+					<Route path='/confirm-email/:token' element={<EmailConfirmation />} />
+					<Route path='/pashalka' element={<SomethingInteresting />} />
+					<Route path='/themes/:id/events' element={<ThemeEvents />} />
+					<Route path='/formats/:id/events' element={<FormatEvents />} />
+					<Route path='/success/:id' element={<Success />} />
+					<Route path='/cancel/:id' element={<Error />} />
+					<Route path='*' element={<Error404 />} />
+				</Routes>
+			</main>
 
-            {/* Conditionally render Footer only if the page is not login, register, password-reset, or error */}
-            {location.pathname !== '/account' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/password-reset' && location.pathname !== '/password-reset/:token' && location.pathname !== '/error' && <Footer />}
-        </div>
-    );
+			{/* Conditionally render Footer only if the page is not login, register, password-reset, or error */}
+			{location.pathname !== '/account' &&
+				location.pathname !== '/login' &&
+				location.pathname !== '/register' &&
+				location.pathname !== '/password-reset' &&
+				location.pathname !== '/password-reset/:token' &&
+				location.pathname !== '/error' && <Footer />}
+		</div>
+	);
 }
 
 function App() {

@@ -199,7 +199,7 @@ const ProfileSection = () => {
 
     const renderNotifications = () => (
         <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <li className="pr-2 w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <li className="w-full pr-2 border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
                 <div className="flex items-center ps-3">
                     <input id="push-checkbox-list" type="checkbox"
                         checked={notifications.push}
@@ -227,7 +227,7 @@ const ProfileSection = () => {
                     <label htmlFor="push-checkbox-list" className="w-full py-3 text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">Push</label>
                 </div>
             </li>
-            <li className="pr-2 w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <li className="w-full pr-2 border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
                 <div className="flex items-center ps-3">
                     <input id="email-checkbox-list" type="checkbox"
                         checked={notifications.email}
@@ -245,7 +245,7 @@ const ProfileSection = () => {
                     <label htmlFor="email-checkbox-list" className="w-full py-3 text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">Email</label>
                 </div>
             </li>
-            <li className="pr-2 w-full dark:border-gray-600">
+            <li className="w-full pr-2 dark:border-gray-600">
                 <div className="flex items-center ps-3">
                     <input id="sms-checkbox-list" type="checkbox"
                         checked={notifications.sms}
@@ -281,45 +281,35 @@ const ProfileSection = () => {
         fileInputRef.current.click();
     };
     const renderProfilePicture = () => (
-        <div className='flex justify-between'>
-            <div className="flex items-center space-x-6">
-                <div
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-bl from-[#0800A7] to-[#EC7EEA] p-[5px] cursor-pointer"
-                    onClick={handleBorderClick}
-                >
-                    <div
-                        className="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleAvatarClick();
-                        }}
-                    >
-                        <img
-                            src={user.profilePicture}
-                            alt="Avatar"
-                            className="w-full h-full object-cover rounded-full"
-                        />
-                        <input
-                            type="file"
-                            onChange={handleImageChange}
-                            className="hidden"
-                            ref={fileInputRef}
-                        />
-                    </div>
-                </div>
-                <button
-                    className="text-white text-sm font-medium bg-gray-700 bg-opacity-50 hover:bg-opacity-70 hover:scale-105 transition-all py-1 px-4 rounded-md"
-                    onClick={handleAvatarClick}
-                >
-                    Click to change
-                </button>
-
-
-            </div>
-            <div className='flex flex-col justify-center'>
-                {renderNotifications()}
-            </div>
-            {/* <div className="flex space-y-2">
+		<div className='flex justify-between'>
+			<div className='flex items-center space-x-6'>
+				<div className='w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-bl from-[#0800A7] to-[#EC7EEA] p-[5px] cursor-pointer' onClick={handleBorderClick}>
+					<div
+						className='flex items-center justify-center w-full h-full overflow-hidden bg-white rounded-full'
+						onClick={e => {
+							e.stopPropagation();
+							handleAvatarClick();
+						}}
+					>
+						<img src={user.profilePicture} alt='Avatar' className='object-cover w-full h-full rounded-full' />
+						<input
+							type='file'
+							onChange={handleImageChange}
+							className='hidden'
+							accept='image/jpeg,image/png,image/gif,image/webp'
+							ref={fileInputRef}
+						/>
+					</div>
+				</div>
+				<button
+					className='px-4 py-1 text-sm font-medium text-white transition-all bg-gray-700 bg-opacity-50 rounded-md hover:bg-opacity-70 hover:scale-105'
+					onClick={handleAvatarClick}
+				>
+					Click to change
+				</button>
+			</div>
+			<div className='flex flex-col justify-center'>{renderNotifications()}</div>
+			{/* <div className="flex space-y-2">
                 <label className="flex items-center space-x-2">
                     <input
                         type="checkbox"
@@ -345,8 +335,8 @@ const ProfileSection = () => {
                     <span>SMS</span>
                 </label>
             </div> */}
-        </div>
-    );
+		</div>
+	);
 
     const renderUserInfoCard = () => (
         <div className="p-6 space-y-6 text-black bg-white rounded-md shadow-md">
