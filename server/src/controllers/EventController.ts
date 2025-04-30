@@ -9,7 +9,7 @@ import axios from 'axios';
 import { User } from '../models/User';
 import { sendEmail } from '../utils/emailService';
 import { Ticket } from '../models/Ticket';
-import { MoreThanOrEqual, LessThanOrEqual } from "typeorm"
+import { MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 
 export const EventController = {
 	async getFirstFiveEvents(req: Request, res: Response): Promise<Response> {
@@ -22,8 +22,8 @@ export const EventController = {
 
 			const events = await Event.find({
 				where: { company: { id: company.id } },
-				order: { price: "DESC" },
-				take: 5
+				order: { price: 'DESC' },
+				take: 5,
 			});
 
 			return res.status(200).json({ events });
@@ -32,7 +32,6 @@ export const EventController = {
 			return res.status(500).json({ message: 'Internal server error' });
 		}
 	},
-
 
 	async decreaseTickets(req: Request, res: Response): Promise<Response> {
 		const { eventId, quantity } = req.body;
@@ -112,7 +111,7 @@ export const EventController = {
 			date,
 			publishDate,
 			visibility, // Who can see other attendees ? all : only other attendees
-			receiveEmails, // Does a company want to receive emails about new attendees ? 
+			receiveEmails, // Does a company want to receive emails about new attendees ?
 			ticket_limit,
 			is_published,
 			poster,
@@ -181,7 +180,7 @@ export const EventController = {
 
 				// Send emails to all subscribers in parallel for efficiency
 				await Promise.all(
-					subs.map(async (sub) => {
+					subs.map(async sub => {
 						const user = sub.user;
 						if (user && user.email) {
 							await sendEmail(user.email, { html: emailContent }, subject);
@@ -280,7 +279,8 @@ export const EventController = {
 		const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : null;
 		const startDate = req.query.startDate ? new Date(req.query.startDate as string) : null;
 		const endDate = req.query.endDate ? new Date(req.query.endDate as string) : null;
-
+		const soldOut = req.query.excludeSoldOut === 'true';
+;
 		try {
 			const whereConditions: any = {};
 
@@ -323,6 +323,9 @@ export const EventController = {
 
 			if (formats.length > 0) {
 				queryBuilder.andWhere('formats.title IN (:...formats)', { formats });
+			}
+			if (soldOut) {
+				queryBuilder.andWhere('(event.ticket_limit IS NULL OR event.ticket_limit > 0)');
 			}
 
 			// // Ensure events have ALL selected themes AND ALL selected formats
@@ -367,18 +370,18 @@ export const EventController = {
 	// 	const limit = parseInt(req.query.limit as string) || 10;
 	// 	const sort = (req.query.sort as string) || 'date';
 	// 	const order = (req.query.order as string) === 'DESC' ? 'DESC' : 'ASC';
-	
+
 	// 	const themes = req.query.themes ? (Array.isArray(req.query.themes) ? req.query.themes : [req.query.themes]) : [];
 	// 	const formats = req.query.formats ? (Array.isArray(req.query.formats) ? req.query.formats : [req.query.formats]) : [];
-	
+
 	// 	const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : null;
 	// 	const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : null;
 	// 	const startDate = req.query.startDate ? new Date(req.query.startDate as string) : null;
 	// 	const endDate = req.query.endDate ? new Date(req.query.endDate as string) : null;
-	
+
 	// 	try {
 	// 		const whereConditions: any = {};
-	
+
 	// 		if (minPrice !== null && maxPrice !== null) {
 	// 			whereConditions.price = Between(minPrice, maxPrice);
 	// 		} else if (minPrice !== null) {
@@ -386,7 +389,7 @@ export const EventController = {
 	// 		} else if (maxPrice !== null) {
 	// 			whereConditions.price = LessThanOrEqual(maxPrice);
 	// 		}
-	
+
 	// 		if (startDate !== null && endDate !== null) {
 	// 			whereConditions.date = Between(startDate, endDate);
 	// 		} else if (startDate !== null) {
@@ -394,7 +397,7 @@ export const EventController = {
 	// 		} else if (endDate !== null) {
 	// 			whereConditions.date = LessThanOrEqual(endDate);
 	// 		}
-	
+
 	// 		const queryBuilder = Event.createQueryBuilder('event')
 	// 			.leftJoinAndSelect('event.company', 'company')
 	// 			.leftJoin('event.formats', 'format')
@@ -405,31 +408,31 @@ export const EventController = {
 	// 			.orderBy(`event.${sort}`, order)
 	// 			.skip((page - 1) * limit)
 	// 			.take(limit);
-	
+
 	// 		// Apply WHERE clause for matching formats/themes
 	// 		if (formats.length > 0) {
 	// 			queryBuilder.andWhere('format.title IN (:...formats)', { formats });
 	// 		}
-	
+
 	// 		if (themes.length > 0) {
 	// 			queryBuilder.andWhere('theme.title IN (:...themes)', { themes });
 	// 		}
-	
+
 	// 		// Ensure event has all of the selected formats and/or themes
 	// 		if (formats.length > 0 || themes.length > 0) {
 	// 			queryBuilder.groupBy('event.id')
 	// 				.addGroupBy('company.id');
-	
+
 	// 			if (formats.length > 0) {
 	// 				queryBuilder.addGroupBy('format.id');
 	// 			}
 	// 			if (themes.length > 0) {
 	// 				queryBuilder.addGroupBy('theme.id');
 	// 			}
-	
+
 	// 			const havingConditions: string[] = [];
 	// 			const havingParams: any = {};
-	
+
 	// 			if (formats.length > 0) {
 	// 				havingConditions.push('COUNT(DISTINCT format.title) = :formatCount');
 	// 				havingParams.formatCount = formats.length;
@@ -438,12 +441,12 @@ export const EventController = {
 	// 				havingConditions.push('COUNT(DISTINCT theme.title) = :themeCount');
 	// 				havingParams.themeCount = themes.length;
 	// 			}
-	
+
 	// 			queryBuilder.having(havingConditions.join(' AND '), havingParams);
 	// 		}
-	
+
 	// 		const [events, total] = await queryBuilder.getManyAndCount();
-	
+
 	// 		return res.status(200).json({
 	// 			data: events,
 	// 			meta: {
@@ -457,7 +460,7 @@ export const EventController = {
 	// 		console.error('Error fetching events:', error);
 	// 		return res.status(500).json({ message: 'Internal server error' });
 	// 	}
-	// },	
+	// },
 
 	async getEventById(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
@@ -566,16 +569,16 @@ export const EventController = {
 						  </thead>
 						  <tbody>
 							${changedFields
-						.map(
-							field => `
+								.map(
+									field => `
 							  <tr>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.field}</td>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.oldValue ?? '—'}</td>
 								<td style="padding: 10px; border-bottom: 1px solid #ccc;">${field.newValue ?? '—'}</td>
 							  </tr>
 							`
-						)
-						.join('')}
+								)
+								.join('')}
 						  </tbody>
 						</table>
 						<p style="font-size: 16px;">
@@ -701,8 +704,7 @@ export const EventController = {
 			console.error('Error getting event attendees:', error);
 			return res.status(500).json({ message: 'Failed to fetch event attendees' });
 		}
-	}
-
+	},
 };
 
 // import { Request, Response } from 'express';

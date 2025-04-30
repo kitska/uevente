@@ -296,9 +296,11 @@ const Event = observer(() => {
 									<h4 className='font-semibold text-gray-800'>Formats:</h4>
 									<div className='flex flex-wrap gap-2 mt-1'>
 										{event.formats.map(format => (
-											<span key={format.id} className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'>
-												{format.title}
-											</span>
+											<Link key={format.id} to={`/formats/${format.id}/events`}>
+												<span key={format.id} className='px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full'>
+													{format.title}
+												</span>
+											</Link>
 										))}
 									</div>
 								</div>
