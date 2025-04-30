@@ -32,6 +32,8 @@ const Company = () => {
         receiveEmails: true,
         ticket_limit: '',
         poster: '',
+        formatIds: [],
+        themeIds: [],
     });
 
     useEffect(() => {
@@ -72,33 +74,37 @@ const Company = () => {
     const handleCreateEvent = async () => {
         try {
             const {
-                id,
-                title,
-                description,
-                price,
-                location,
-                date,
-                publishDate,
-                visibility,
-                receiveEmails,
-                ticket_limit,
-                poster,
-            } = eventForm;
+				id,
+				title,
+				description,
+				price,
+				location,
+				date,
+				publishDate,
+				visibility,
+				receiveEmails,
+				ticket_limit,
+				poster,
+				formatIds,
+				themeIds,
+			} = eventForm;
 
             const body = {
-                id,
-                title,
-                description,
-                price,
-                location,
-                date,
-                publishDate,
-                visibility,
-                receiveEmails,
-                ticket_limit,
-                companyId,
-                poster: posterFile ? null : poster || null,
-            };
+				id,
+				title,
+				description,
+				price,
+				location,
+				date,
+				publishDate,
+				visibility,
+				receiveEmails,
+				ticket_limit,
+				companyId,
+				poster: posterFile ? null : poster || null,
+				formatIds,
+				themeIds,
+			};
 
             console.log(body)
 
@@ -132,18 +138,20 @@ const Company = () => {
             setPosterFile(null);
             setPosterPreview(null);
             setEventForm({
-                id:'',
-                title: '',
-                description: '',
-                price: '',
-                location: '',
-                date: null,
-                publishDate: null,
-                visibility: '',
-                receiveEmails: true,
-                ticket_limit: '',
-                poster: '',
-            });
+				id: '',
+				title: '',
+				description: '',
+				price: '',
+				location: '',
+				date: null,
+				publishDate: null,
+				visibility: '',
+				receiveEmails: true,
+				ticket_limit: '',
+				poster: '',
+				formatIds: [],
+				themeIds: [],
+			});
         } catch (err) {
             console.error('Error creating/updating event', err);
         }
@@ -152,18 +160,20 @@ const Company = () => {
     const handleEditEvent = (event) => {
         setEditingEvent(event);
         setEventForm({
-            id: event.id,
-            title: event.title,
-            description: event.description,
-            price: event.price,
-            location: event.location,
-            date: event.date,
-            publishDate: event.publishDate,
-            visibility: event.visibility,
-            receiveEmails: event.receiveEmails,
-            ticket_limit: event.ticket_limit,
-            poster: event.poster || '',
-        });
+			id: event.id,
+			title: event.title,
+			description: event.description,
+			price: event.price,
+			location: event.location,
+			date: event.date,
+			publishDate: event.publishDate,
+			visibility: event.visibility,
+			receiveEmails: event.receiveEmails,
+			ticket_limit: event.ticket_limit,
+			poster: event.poster || '',
+			formatIds: event.formats || [],
+            themeIds: event.themes || []
+		});
         setPosterFile(null);
         setPosterPreview(null);
         setShowModal(true);
