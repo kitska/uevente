@@ -1,12 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { api } from '../services';
 import { promoService } from '../services/pronoService';
+import { fetchFormats } from '../services/eventService';
+import { fetchThemes } from '../services/eventService';
 
 const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 	const fileInputRef = useRef();
 	const [promoDiscount, setPromoDiscount] = useState('');
 	const [promoCodes, setPromoCodes] = useState([]);
 	const [creatingPromo, setCreatingPromo] = useState(false);
+	const [formats, setFormats] = useState([]);
+	const [themes, setThemes] = useState([]);	
 
 	const handleGeneratePromo = async () => {
 		if (!promoDiscount) return;
@@ -34,6 +38,19 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 			console.error('Failed to delete promocode', error);
 		}
 	};
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const [fetchedFormats, fetchedThemes] = await Promise.all([fetchFormats(), fetchThemes()]);
+				setFormats(fetchedFormats);
+				setThemes(fetchedThemes);
+			} catch (error) {
+				console.error('Failed to load formats or themes', error);
+			}
+		};
+		fetchData();
+	}, []);
 
 	useEffect(() => {
 		const fetchPromos = async () => {
@@ -71,6 +88,27 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 			console.error('Upload failed:', err);
 		}
 	};
+
+	const handleMultiSelectChange = e => {
+		const { name, selectedOptions } = e.target;
+		const values = Array.from(selectedOptions, option => option.value);
+		setForm(prev => ({ ...prev, [name]: values }));
+	};
+
+	const toggleFormat = id => {
+		setForm(prev => ({
+			...prev,
+			formatIds: prev.formatIds?.includes(id) ? prev.formatIds.filter(f => f !== id) : [...(prev.formatIds || []), id],
+		}));
+	};
+
+	const toggleTheme = id => {
+		setForm(prev => ({
+			...prev,
+			themeIds: prev.themeIds?.includes(id) ? prev.themeIds.filter(t => t !== id) : [...(prev.themeIds || []), id],
+		}));
+	};
+
 
 	const handleCheckboxChange = e => {
 		setForm(prev => ({ ...prev, receiveEmails: e.target.checked }));
@@ -204,6 +242,49 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 								<label htmlFor='receiveEmails' className='ml-2 text-gray-700'>
 									Receive new attendees email
 								</label>
+							</div>
+						</div>
+						{/* Format */}
+						<div className='flex flex-col gap-2'>
+							<label className='text-sm text-gray-500'>Formats</label>
+							<div className='flex flex-wrap gap-2'>
+								{formats.map(format => {
+									const selected = form.formatIds?.includes(format.id);
+									return (
+										<button
+											key={format.id}
+											type='button'
+											onClick={() => toggleFormat(format.id)}
+											className={`px-3 py-1 rounded-full border ${
+												selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+											}`}
+										>
+											{format.title} {selected && '×'}
+										</button>
+									);
+								})}
+							</div>
+						</div>
+
+						{/* Theme */}
+						<div className='flex flex-col gap-2'>
+							<label className='text-sm text-gray-500'>Themes</label>
+							<div className='flex flex-wrap gap-2'>
+								{themes.map(theme => {
+									const selected = form.themeIds?.includes(theme.id);
+									return (
+										<button
+											key={theme.id}
+											type='button'
+											onClick={() => toggleTheme(theme.id)}
+											className={`px-3 py-1 rounded-full border ${
+												selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+											}`}
+										>
+											{theme.title} {selected && '×'}
+										</button>
+									);
+								})}
 							</div>
 						</div>
 

@@ -24,6 +24,7 @@ export const fetchThemes = async () => {
 		throw error;
 	}
 };
+
 export const fetchFormats = async () => {
 	try {
 		const response = await axios.get(`${API_URL}/formats`);
@@ -120,6 +121,26 @@ export const getEventsByTheme = async themeId => {
 export const getThemeById = async themeId => {
 	try {
 		const response = await api.get(`${API_URL}/themes/${themeId}`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to fetch events by theme:', error);
+		throw error;
+	}
+};
+
+export const getFormatById = async themeId => {
+	try {
+		const response = await api.get(`${API_URL}/formats/${themeId}`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to fetch events by theme:', error);
+		throw error;
+	}
+};
+
+export const getEventsByFormat = async themeId => {
+	try {
+		const response = await api.get(`${API_URL}/formats/${themeId}/events`);
 		return response.data;
 	} catch (error) {
 		console.error('Failed to fetch events by theme:', error);
