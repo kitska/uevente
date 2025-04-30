@@ -137,6 +137,7 @@ function AppContent() {
                     <Route path='/themes/:id/events' element= {<ThemeEvents />} />
                     <Route path='/success/:id' element={<Success />} />
                     <Route path='/cancel/:id' element={<Error />} />
+                    {/* <Route path='/admin'/> */}
                     <Route path='*' element={<Error404 />} />
                 </Routes>
             </main>

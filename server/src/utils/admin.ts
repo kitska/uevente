@@ -1,7 +1,9 @@
 import AdminJS from 'adminjs';
-import * as AdminJSExpress from '@adminjs/express/src/index'
-import * as AdminJSTypeORM from '@adminjs/typeorm/lib/index'
+import AdminJSExpress from '@adminjs/express';
+import * as AdminJSTypeORM from '@adminjs/typeorm';
 import bcrypt from 'bcrypt';
+
+// TypeORM entities
 import { User } from '../models/User';
 import { Ticket } from '../models/Ticket';
 import { Theme } from '../models/Theme';
@@ -12,58 +14,64 @@ import { Notification } from '../models/Notification';
 import { Format } from '../models/Format';
 import { Event } from '../models/Event';
 import { Company } from '../models/Company';
+import { Comment } from '../models/Comment'; // Make sure this exists
+import { AppDataSource, createAdmin, seedDatabase } from '../database/data-source';
 
-const authenticate = async (email, password) => {
+
+// Authentication logic
+const authenticate = async (email: string, password: string) => {
     const user = await User.findOne({
         where: { email, isAdmin: true },
     });
 
-    if (!user) {
-        return null;
-    }
-    const validPassword = bcrypt.compare(password, user.password);
-    if (!validPassword) {
-        return null;
-    }
-    return Promise.resolve({ email, password });
+    if (!user) return null;
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) return null;
+
+    return user;
 };
 
+// Register TypeORM adapter
 AdminJS.registerAdapter({
     Resource: AdminJSTypeORM.Resource,
     Database: AdminJSTypeORM.Database,
 });
 
-const locale = {
-    language: 'en',
-    translations: {
-        labels: {},
-        messages: {
-            loginWelcome: 'Welcome to Gayorgiy Eventovich admin page! Please provide admin credentials to continue.',
+export const createAdminRouter = async () => {
+    const admin = new AdminJS({
+        resources: [
+            User, Event, Comment, Company, Promocode,
+            Notification, Subscription, Theme, Format, Ticket, Payment,
+        ].map(entity => ({ resource: entity })),
+        rootPath: '/admin',
+        branding: {
+            companyName: 'Gayorgiy Eventovich',
         },
-    },
+        locale: {
+            language: 'en',
+            translations: {
+                messages: {
+                    loginWelcome: 'Welcome to Gayorgiy Eventovich admin page! Please provide admin credentials to continue.',
+                },
+            },
+        },
+        databases: [], // вручную указываем ресурсы
+    });
+
+    const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
+        admin,
+        {
+            authenticate,
+            cookieName: 'adminjs',
+            cookiePassword: 'sessionsecret',
+        },
+        null,
+        {
+            resave: true,
+            saveUninitialized: true,
+        }
+    );
+
+    return adminRouter;
 };
-
-
-const admin = new AdminJS({
-    resources: [
-        User, Ticket, Theme, Subscription, Promocode, Payment, Notification, Format, Event, Company, Comment
-    ],
-    locale,
-    branding: {}
-})
-
-const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
-    admin,
-    {
-        authenticate,
-        cookieName: 'adminjs',
-        cookiePassword: 'sessionsecret'
-    },
-    null,
-    {
-        resave: true,
-        saveUninitialized: true,
-    }
-)
-
-export default adminRouter;
