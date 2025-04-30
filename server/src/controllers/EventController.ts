@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Between, In } from 'typeorm';
+import { Between, Equal, In } from 'typeorm';
 import { Event } from '../models/Event';
 import { Company } from '../models/Company';
 import { Format } from '../models/Format';
@@ -283,6 +283,7 @@ export const EventController = {
 
 		try {
 			const whereConditions: any = {};
+			const now = new Date();
 
 			if (minPrice && maxPrice) {
 				whereConditions.price = Between(minPrice, maxPrice);
@@ -305,6 +306,7 @@ export const EventController = {
 				.leftJoinAndSelect('event.formats', 'formats')
 				.leftJoinAndSelect('event.themes', 'themes')
 				.where(whereConditions)
+				.andWhere('(event.publishDate <= :now OR event.publishDate IS NULL)', { now })
 				.orderBy(`event.${sort}`, order)
 				.skip((page - 1) * limit)
 				.take(limit);
@@ -489,6 +491,8 @@ export const EventController = {
 				relations: ['company', 'formats', 'themes'],
 			});
 
+			const oldTitle = event.title;
+
 			if (!event) {
 				return res.status(404).json({ message: 'Event not found' });
 			}
@@ -545,7 +549,7 @@ export const EventController = {
 			}
 			await event.save();
 
-			const subject = `Event "${event.title}" has been updated`;
+			const subject = `Event "${oldTitle}" has been updated`;
 			const emailContent = {
 				html: `
 			<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #333;">

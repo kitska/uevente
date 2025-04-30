@@ -166,7 +166,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm }) => {
 						<div className='flex flex-col'>
 							<label className='mb-1 text-sm text-gray-500'>Event Date</label>
 							<input
-								type='date'
+								type='datetime-local'
 								name='date'
 								value={form.date || ''}
 								onChange={onChange}
