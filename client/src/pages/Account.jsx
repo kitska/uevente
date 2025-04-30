@@ -4,10 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { userStore } from '../store/userStore';
 import ProfileSection from '../components/ProfileSection';
 import TicketSection from '../components/TicketSection';
+import { useLocation } from 'react-router-dom';
 
 const Account = () => {
 	const navigate = useNavigate();
-	const [activeSection, setActiveSection] = useState('profile');
+	// const initialSection = location.state?.section;
+	const location = useLocation();
+	const queryParams = new URLSearchParams(location.search);
+	const initialSection = queryParams.get('section');
+	const [activeSection, setActiveSection] = useState(initialSection || 'profile');
 	const [imgLoaded, setImgLoaded] = useState(false);
 
 	const [fullName, setFullName] = useState(userStore?.user?.fullName || '');
@@ -15,7 +20,10 @@ const Account = () => {
 	const [login, setLogin] = useState(userStore?.user?.login || '');
 	const [profilePicture, setProfilePicture] = useState(userStore?.user?.profilePicture || '');
 
-	const handleMenuClick = section => setActiveSection(section);
+	const handleMenuClick = section => {
+		setActiveSection(section);
+		navigate(`/account?section=${section}`, { replace: true });
+	  };
 
 	const goToMainPage = () => navigate('/');
 

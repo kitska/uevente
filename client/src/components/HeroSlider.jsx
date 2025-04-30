@@ -117,7 +117,7 @@ const HeroSlider = () => {
                         <p className="mb-6 text-xl font-semibold">${slide.price}</p>
                         <Link to={`/event/${slide.id}`}>
                             <button className="px-6 py-2 text-black transition bg-white rounded shadow hover:bg-gray-200">
-                                Buy Ticket
+                                Go to the event
                             </button>
                         </Link>
                     </div>

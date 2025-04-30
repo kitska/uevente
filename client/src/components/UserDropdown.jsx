@@ -1,11 +1,13 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import noname from '../assets/noname.png'
 import { userStore } from '../store/userStore';
+import { useNavigate } from 'react-router-dom';
 
 const UserDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   // const { user, logout } = useContext(AuthContext);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
@@ -90,10 +92,10 @@ const UserDropdown = () => {
             </li>
             <li>
               <a
-                href='/settings'
+                href='/account?section=tickets'
                 className="block px-4 py-2 hover:bg-gray-100"
               >
-                Settings
+                Tickets
               </a>
             </li>
             <li>

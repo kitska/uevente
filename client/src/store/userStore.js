@@ -11,7 +11,7 @@ class UserStore {
 	loading = false; // Состояние загрузки
 	error = null; // Ошибка, если она возникла
 	notification = null;
-	
+
 	subscriptions = [];
 	// navigate = useNavigate();
 
@@ -78,7 +78,7 @@ class UserStore {
 			});
 		}
 	}
-	
+
 	async login(email, password, login) {
 		this.loading = true; // Устанавливаем состояние загрузки
 		this.error = null; // Сбрасываем ошибку
@@ -183,7 +183,7 @@ class UserStore {
 				toast("Account already exists");
 				status = "NEOK";
 			}
-			else if(error.response.status === 400) {
+			else if (error.response.status === 400) {
 				switch (type) {
 					case "google":
 						await this.createOauthUser(data.name, data.email, this.#passwordPrikol(data.id), data.email, data.picture, false, true, 0, data.verified_email);
@@ -232,23 +232,24 @@ class UserStore {
 		this.user = userData;
 	}
 	setSubscriptions(subs) {
-        this.subscriptions = subs;
-    }
+		this.subscriptions = subs;
+	}
 
 	isEventSubscribed(id) {
-		for(let sub of this.subscriptions) {
-			if(sub.event.id === id) return true;
+		console.log(id);
+		for (let sub of this.subscriptions) {
+			if (sub.event?.id === id || sub.company?.id === id) return true;
 		}
 		return false;
 	}
 	removeSub(event) {
-		this.subscriptions = this.subscriptions.filter(function(item) {
-			return item.event.id !== event.id
+		this.subscriptions = this.subscriptions.filter(function (item) {
+			return item.event?.id || item.company?.id !== event.id
 		})
 	}
 
 	addSub(event) {
-		this.subscriptions.push({'id': null, event})
+		this.subscriptions.push({ 'id': null, event })
 	}
 
 	#passwordPrikol(password) {

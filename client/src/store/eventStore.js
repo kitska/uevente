@@ -57,10 +57,14 @@ class EventStore {
 			throw err;
 		}
 	}
-	async handleSubscribe(subscribed, id) {
+	async handleSubscribe(subscribed, id, isEvent) {
 		try {
-			if (subscribed) await eventService.subscibe(id, userStore?.user?.id);
-			else await eventService.unsubscibe(id, userStore?.user?.id);
+			if (isEvent)
+				if (subscribed) await eventService.subscibe(id, userStore?.user?.id);
+				else await eventService.unsubscibe(id, userStore?.user?.id);
+			else
+				if (subscribed) await eventService.subscibe(null, userStore?.user?.id, id);
+				else await eventService.unsubscibe(null, userStore?.user?.id, id);
 			// api.post('/api/subscriptions/subscribe')
 		} catch (error) {
 			throw error;

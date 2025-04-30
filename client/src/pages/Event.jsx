@@ -247,9 +247,13 @@ const Event = observer(() => {
 				<div className='space-y-4 md:col-span-2'>
 					<button
 						onClick={() => {
+							if (!userStore?.user?.id) {
+								Swal.fire('Error', 'Dear user, don\'t be an <b>idiot</b>. <p>Login to continue!</p>', 'error');
+								return;
+							}
 							const newValue = !favourited;
 							setFavourited(newValue);
-							eventStore.handleSubscribe(newValue, event.id);
+							eventStore.handleSubscribe(newValue, event.id, true);
 							newValue ? userStore.addSub(event) : userStore.removeSub(event);
 						}}
 						className='flex items-center justify-center p-2 hover:scale-110'

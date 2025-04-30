@@ -7,9 +7,11 @@ import EventModal from '../components/EventModal';
 import { FaPlus, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import ChatWindow from '../components/ChatWindow'
+import { eventStore } from '../store/eventStore';
 
 const Company = () => {
     const { companyId } = useParams();
+    const [favourited, setFavourited] = useState(false);
     const userId = userStore?.user?.id;
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ const Company = () => {
     const [posterPreview, setPosterPreview] = useState(null);
 
     const [eventForm, setEventForm] = useState({
-        id:'',
+        id: '',
         title: '',
         description: '',
         price: '',
@@ -45,6 +47,8 @@ const Company = () => {
 
                 const eventRes = await api.get(`/companies/${companyId}/events`);
                 setEvents(eventRes.data);
+                // console.log(response.data.id);
+                setFavourited(userStore.isEventSubscribed(response.data.id));
             } catch (err) {
                 console.error('Error fetching company or events', err);
             } finally {
@@ -74,39 +78,37 @@ const Company = () => {
     const handleCreateEvent = async () => {
         try {
             const {
-				id,
-				title,
-				description,
-				price,
-				location,
-				date,
-				publishDate,
-				visibility,
-				receiveEmails,
-				ticket_limit,
-				poster,
-				formatIds,
-				themeIds,
-			} = eventForm;
+                id,
+                title,
+                description,
+                price,
+                location,
+                date,
+                publishDate,
+                visibility,
+                receiveEmails,
+                ticket_limit,
+                poster,
+                formatIds,
+                themeIds,
+            } = eventForm;
 
             const body = {
-				id,
-				title,
-				description,
-				price,
-				location,
-				date,
-				publishDate,
-				visibility,
-				receiveEmails,
-				ticket_limit,
-				companyId,
-				poster: posterFile ? null : poster || null,
-				formatIds,
-				themeIds,
-			};
-
-            console.log(body)
+                id,
+                title,
+                description,
+                price,
+                location,
+                date,
+                publishDate,
+                visibility,
+                receiveEmails,
+                ticket_limit,
+                companyId,
+                poster: posterFile ? null : poster || null,
+                formatIds,
+                themeIds,
+            };
 
             let response;
             if (editingEvent) {
@@ -138,20 +140,20 @@ const Company = () => {
             setPosterFile(null);
             setPosterPreview(null);
             setEventForm({
-				id: '',
-				title: '',
-				description: '',
-				price: '',
-				location: '',
-				date: null,
-				publishDate: null,
-				visibility: '',
-				receiveEmails: true,
-				ticket_limit: '',
-				poster: '',
-				formatIds: [],
-				themeIds: [],
-			});
+                id: '',
+                title: '',
+                description: '',
+                price: '',
+                location: '',
+                date: null,
+                publishDate: null,
+                visibility: '',
+                receiveEmails: true,
+                ticket_limit: '',
+                poster: '',
+                formatIds: [],
+                themeIds: [],
+            });
         } catch (err) {
             console.error('Error creating/updating event', err);
         }
@@ -160,23 +162,30 @@ const Company = () => {
     const handleEditEvent = (event) => {
         setEditingEvent(event);
         setEventForm({
-			id: event.id,
-			title: event.title,
-			description: event.description,
-			price: event.price,
-			location: event.location,
-			date: event.date,
-			publishDate: event.publishDate,
-			visibility: event.visibility,
-			receiveEmails: event.receiveEmails,
-			ticket_limit: event.ticket_limit,
-			poster: event.poster || '',
-			formatIds: event.formats || [],
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            price: event.price,
+            location: event.location,
+            date: event.date,
+            publishDate: event.publishDate,
+            visibility: event.visibility,
+            receiveEmails: event.receiveEmails,
+            ticket_limit: event.ticket_limit,
+            poster: event.poster || '',
+            formatIds: event.formats || [],
             themeIds: event.themes || []
-		});
+        });
         setPosterFile(null);
         setPosterPreview(null);
         setShowModal(true);
+    };
+
+    const handleSubscribe = async () => {
+        const newValue = !favourited;
+        setFavourited(newValue);
+        eventStore.handleSubscribe(newValue, company.id, false);
+        newValue ? userStore.addSub(company) : userStore.removeSub(company);
     };
 
     const handleDeleteEvent = async (eventId) => {
@@ -212,7 +221,7 @@ const Company = () => {
     }
 
     return (
-        <div className="mt-24 space-y-12">
+        <div className="mt-24 space-y-3">
             <div className="flex items-end justify-between w-full max-w-screen-xl pb-2 mx-auto border-b border-gray-300">
                 <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">{company.name}</h1>
                 <p className="text-sm text-gray-500">{company.email}</p>
@@ -220,12 +229,19 @@ const Company = () => {
 
             <div className="flex items-center justify-between w-full max-w-screen-xl mx-auto">
                 <h2 className="text-2xl font-semibold text-gray-800">Events</h2>
-                {isOwner && (
+                {isOwner ? (
                     <button
                         onClick={() => setShowModal(true)}
                         className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700"
                     >
                         <FaPlus size={12} /> Create
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleSubscribe}
+                        className="mt-2 px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 transition"
+                    >
+                        {favourited ? "Unsubscribe" : "Subscribe" }
                     </button>
                 )}
             </div>
@@ -262,7 +278,7 @@ const Company = () => {
                 )}
             </div>
 
-            <ChatWindow/>
+            <ChatWindow />
 
             <EventModal
                 show={showModal}

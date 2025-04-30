@@ -84,10 +84,10 @@ export const getSubscribedEvents = async userId => {
 	}
 }
 
-export const subscibe = async (eventId, userId) => {
+export const subscibe = async (eventId, userId, companyId) => {
 	try {
 		const response = await api.post(`${API_URL}/subscriptions/subscribe`, {
-			eventId, userId
+			eventId, userId, companyId
 		});
 		return response.data;
 	} catch (error) {
@@ -96,10 +96,10 @@ export const subscibe = async (eventId, userId) => {
 	}
 }
 
-export const unsubscibe = async (eventId, userId) => {
+export const unsubscibe = async (eventId, userId, companyId) => {
 	try {
 		const response = await api.post(`${API_URL}/subscriptions/unsubscribe`, {
-			eventId, userId
+			eventId, userId, companyId
 		});
 		return response.data;
 	} catch (error) {
