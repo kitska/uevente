@@ -13,8 +13,11 @@
   "description": "",
   "dependencies": {
     "axios": "^1.9.0",
+    "chromadb": "^2.3.0",
+    "chromadb-default-embed": "^2.14.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "llamaindex": "^0.10.3",
     "node-fetch": "^2.7.0"
   }
 }

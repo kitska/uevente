@@ -18,6 +18,7 @@ import paymentRoutes from './src/routes/payment.routes'
 import cors from 'cors';
 import path from 'path';
 import './src/utils/notificationScheduler';
+import { getAllEventsFromDB } from './src/utils/modelBuilder'
 
 export const app = express();
 const PORT = process.env.PORT;
@@ -74,6 +75,8 @@ createUserAndDatabase()
 				// await localEventsBackup();
 
 				await seedDatabase();
+
+				// await getAllEventsFromDB();
 
 
 				// createLocalEventDump();
