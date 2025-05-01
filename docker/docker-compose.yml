@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+    postgres:
+        image: postgres:15
+        container_name: postgres-db
+        restart: always
+        environment:
+            POSTGRES_USER: ${DB_ADMIN_USER}
+            POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
+            POSTGRES_DB: ${DB_ADMIN_DB}
+        ports:
+            - "${DB_PORT}:${DB_PORT}"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - app-network
+
+    server:
+        build:
+            context: ../server
+            dockerfile: Dockerfile
+        container_name: server-app
+        restart: always
+        env_file:
+            - ../server/.env
+        environment:
+            DB_HOST: postgres-db
+            DB_DIALECT: ${DB_DIALECT}
+            DB_PORT: ${DB_PORT}
+            DB_NAME: ${DB_NAME}
+            DB_USER: ${DB_USER}
+            DB_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "${PORT}:${PORT}"
+        depends_on:
+            - postgres
+        networks:
+            - app-network
+
+    client:
+        build:
+            context: ../client
+            dockerfile: Dockerfile
+        container_name: client-app
+        restart: always
+        env_file:
+            - ../client/.env
+        environment:
+            VITE_API_URL: ${VITE_API_URL}
+        ports:
+            - "3000:3000"
+        depends_on:
+            - server
+        networks:
+            - app-network
+
+volumes:
+    postgres_data:
+
+
+networks:
+    app-network:
+        driver: bridge
