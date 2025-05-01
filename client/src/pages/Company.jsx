@@ -221,81 +221,80 @@ const Company = () => {
     }
 
     return (
-        <div className="mt-24 space-y-3">
-            <div className="flex items-end justify-between w-full max-w-screen-xl pb-2 mx-auto border-b border-gray-300">
-                <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">{company.name}</h1>
-                <p className="text-sm text-gray-500">{company.email}</p>
-            </div>
+		<div className='mt-24 space-y-3'>
+			<div className='flex items-end justify-between w-full max-w-screen-xl pb-2 mx-auto border-b border-gray-300'>
+				<h1 className='text-5xl font-extrabold tracking-tight text-gray-900'>{company.name}</h1>
+				<p className='text-sm text-gray-500'>{company.email}</p>
+			</div>
 
-            <div className="flex items-center justify-between w-full max-w-screen-xl mx-auto">
-                <h2 className="text-2xl font-semibold text-gray-800">Events</h2>
-                {isOwner ? (
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700"
-                    >
-                        <FaPlus size={12} /> Create
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleSubscribe}
-                        className="mt-2 px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 transition"
-                    >
-                        {favourited ? "Unsubscribe" : "Subscribe" }
-                    </button>
-                )}
-            </div>
+			<div className='flex items-center justify-between w-full max-w-screen-xl mx-auto'>
+				<h2 className='text-2xl font-semibold text-gray-800'>Events</h2>
+				{isOwner ? (
+					<button
+						onClick={() => setShowModal(true)}
+						className='inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700'
+					>
+						<FaPlus size={12} /> Create
+					</button>
+				) : (
+					<button onClick={handleSubscribe} className='mt-2 px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 transition'>
+						{favourited ? 'Unsubscribe' : 'Subscribe'}
+					</button>
+				)}
+			</div>
 
-            <div className="flex items-center justify-center w-full max-w-screen-xl mx-auto">
-                {events.length === 0 ? (
-                    <p className="mt-8 italic text-gray-400">No events have been created yet.</p>
-                ) : (
-                    <div className="relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3">
-                        {events.map((event) => (
-                            <div key={event.id} className="relative">
-                                <Link to={`/event/${event.id}`}>
-                                    <EventCard event={event} />
-                                </Link>
-                                {isOwner && (
-                                    <div className="mt-2 flex gap-4 text-sm text-gray-600">
-                                        <button
-                                            onClick={() => handleEditEvent(event)}
-                                            className="hover:underline text-blue-600"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteEvent(event.id)}
-                                            className="hover:underline text-red-600"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+			<div className='flex items-center justify-center w-full max-w-screen-xl mx-auto'>
+				{events.length === 0 ? (
+					<p className='mt-8 italic text-gray-400'>No events have been created yet.</p>
+				) : (
+					<div className='relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3'>
+						{events.map(event => (
+							<div key={event.id} className='relative'>
+								<Link to={`/event/${event.id}`}>
+									<EventCard event={event} />
+								</Link>
+								{isOwner && (
+									<div className='flex gap-3 mt-2 text-sm text-gray-600'>
+										<button
+											onClick={() => handleEditEvent(event)}
+											className='flex items-center gap-2 px-3 py-1.5 text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
+										>
+											<FaPencilAlt className='text-sm' />
+											Edit
+										</button>
+										<button
+											onClick={() => handleDeleteEvent(event.id)}
+											className='flex items-center gap-2 px-3 py-1.5 text-white bg-red-500 rounded-md cursor-pointer hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400'
+										>
+											<FaTrash className='text-sm' />
+											Delete
+										</button>
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				)}
+			</div>
 
-            <ChatWindow />
+			<ChatWindow />
 
-            <EventModal
-                show={showModal}
-                onClose={() => {
-                    setShowModal(false);
-                    setEditingEvent(null);
-                    setPosterFile(null);
-                    setPosterPreview(null);
-                }}
-                onSubmit={handleCreateEvent}
-                form={eventForm}
-                onChange={handleInputChange}
-                setForm={setEventForm}
-                updating={updating}
-            />
-        </div>
-    );
+			<EventModal
+				show={showModal}
+				onClose={() => {
+					setShowModal(false);
+					setEditingEvent(null);
+					setPosterFile(null);
+					setPosterPreview(null);
+				}}
+				onSubmit={handleCreateEvent}
+				form={eventForm}
+				onChange={handleInputChange}
+				setForm={setEventForm}
+				updating={updating}
+			/>
+		</div>
+	);
 };
 
 export default Company;

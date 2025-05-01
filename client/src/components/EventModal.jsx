@@ -21,8 +21,8 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 				eventId: form.id,
 				discount: promoDiscount,
 			});
-			setPromoCodes(prev => [...prev, newPromo]);
-			setPromoDiscount('');
+			setPromoCodes(prev => [...prev, newPromo.promocode]);
+			setPromoDiscount(promoDiscount);
 		} catch (error) {
 			console.error('Failed to create promocode', error);
 		} finally {
@@ -135,7 +135,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 			<div className='bg-white rounded-lg p-8 w-full max-w-6xl shadow-lg overflow-y-auto max-h-[80vh] flex gap-8'>
 				{/* Левая часть — форма создания события */}
 				<div className='flex-1 space-y-8'>
-					<h3 className='text-3xl font-semibold text-gray-800'>{updating ? "Update" : "Create"} Event</h3>
+					<h3 className='text-3xl font-semibold text-gray-800'>{updating ? 'Update' : 'Create'} Event</h3>
 					<form className='grid grid-cols-1 gap-6 md:grid-cols-2'>
 						{/* Title */}
 						<input
@@ -255,8 +255,9 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 											key={format.id}
 											type='button'
 											onClick={() => toggleFormat(format.id, format.title)}
-											className={`px-3 py-1 rounded-full border ${selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-												}`}
+											className={`px-3 py-1 rounded-full border ${
+												selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+											}`}
 										>
 											{format.title} {selected && '×'}
 										</button>
@@ -276,8 +277,9 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 											key={theme.id}
 											type='button'
 											onClick={() => toggleTheme(theme.id, theme.title)}
-											className={`px-3 py-1 rounded-full border ${selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-												}`}
+											className={`px-3 py-1 rounded-full border ${
+												selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+											}`}
 										>
 											{theme.title} {selected && '×'}
 										</button>
@@ -325,57 +327,59 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 							onClick={onSubmit}
 							className='px-6 py-2 m-5 text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
 						>
-							{updating ? "Update" : "Create"}
+							{updating ? 'Update' : 'Create'}
 						</button>
 					</div>
 				</div>
 
 				{/* Правая часть — промокоды 
 				// ШО реально???? */}
-				<div className='flex flex-col w-full max-w-xs space-y-6'>
-					<h4 className='text-3xl font-semibold text-gray-800 mb-8'>Promocodes</h4>
+				{updating && (
+					<div className='flex flex-col w-full max-w-xs space-y-6'>
+						<h4 className='mb-8 text-3xl font-semibold text-gray-800'>Promocodes</h4>
 
-					{/* Ввод скидки */}
-					<div className='flex flex-col gap-2'>
-						<input
-							type='number'
-							placeholder='Discount (%)'
-							value={promoDiscount}
-							onChange={e => {
-								const value = parseInt(e.target.value);
-								if (!isNaN(value) && value >= 1 && value <= 100) {
-									setPromoDiscount(value);
-								} else if (e.target.value === '') {
-									setPromoDiscount('');
-								}
-							}}
-							className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-						/>
-						<button
-							onClick={handleGeneratePromo}
-							type='button'
-							className='py-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400'
-						>
-							Generate Promocode
-						</button>
-					</div>
+						{/* Ввод скидки */}
+						<div className='flex flex-col gap-2'>
+							<input
+								type='number'
+								placeholder='Discount (%)'
+								value={promoDiscount}
+								onChange={e => {
+									const value = parseInt(e.target.value);
+									if (!isNaN(value) && value >= 1 && value <= 100) {
+										setPromoDiscount(value);
+									} else if (e.target.value === '') {
+										setPromoDiscount('');
+									}
+								}}
+								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+							/>
+							<button
+								onClick={handleGeneratePromo}
+								type='button'
+								className='py-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400'
+							>
+								Generate Promocode
+							</button>
+						</div>
 
-					{/* Список промокодов */}
-					<div className='flex flex-col gap-3 overflow-y-auto max-h-72'>
-						{promoCodes.map((promo, idx) => (
-							<div key={idx} className='flex items-center justify-between p-3 border border-gray-200 rounded-md'>
-								<div>
-									<p className='font-medium text-gray-800'>{promo.code}</p>
-									<p className='text-sm text-gray-500'>{promo.discount}%</p>
+						{/* Список промокодов */}
+						<div className='flex flex-col max-h-full gap-3 overflow-y-auto'>
+							{promoCodes.map((promo, idx) => (
+								<div key={idx} className='flex items-center justify-between p-3 border border-gray-200 rounded-md'>
+									<div>
+										<p className='font-medium text-gray-800'>{promo.code}</p>
+										<p className='text-sm text-gray-500'>{promo.discount}%</p>
+									</div>
+									<button onClick={() => handleDeletePromo(promo.id)} className='text-xl text-red-500 hover:text-red-700'>
+										×
+									</button>
 								</div>
-								<button onClick={() => handleDeletePromo(promo.id)} className='text-xl text-red-500 hover:text-red-700'>
-									×
-								</button>
-							</div>
-						))}
-						{promoCodes.length === 0 && <p className='text-sm text-center text-gray-400'>No promocodes yet</p>}
+							))}
+							{promoCodes.length === 0 && <p className='text-sm text-center text-gray-400'>No promocodes yet</p>}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</div>
 	);
