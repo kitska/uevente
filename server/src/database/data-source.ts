@@ -159,19 +159,20 @@ export const seedDatabase = async () => {
 
 	const event1 = Event.create({
 		title: 'The International 2025',
-		description: "That's right. The stars have aligned and the stage is once again being set for cosmic battle. And this time, that battle has returned to where it all began: Germany, the site of The International's humble debut on the world stage, where it was watched in person by many tens of people. Now, fourteen years later, The International returns to Germany, to Hamburg's Barclays Arena September 11 - 14 — in front of, we trust, a slightly bigger crowd this time around.",
+		description:
+			"That's right. The stars have aligned and the stage is once again being set for cosmic battle. And this time, that battle has returned to where it all began: Germany, the site of The International's humble debut on the world stage, where it was watched in person by many tens of people. Now, fourteen years later, The International returns to Germany, to Hamburg's Barclays Arena September 11 - 14 — in front of, we trust, a slightly bigger crowd this time around.",
 		price: 199,
 		location: faker.location.streetAddress(),
 		date: faker.date.future(),
 		publishDate: null,
 		ticket_limit: faker.number.int({ min: 50, max: 500 }),
 		is_published: true,
-		poster: 'http://localhost:8000/avatars/image.png',
+		poster: 'https://clan.cloudflare.steamstatic.com/images//3703047/3ebfc89c1a900612d6673e1e7a84d7a3eab2a3d2.png',
 		company: adminCompany,
 		formats: faker.helpers.arrayElements(formats, 2),
 		themes: faker.helpers.arrayElements(themes, 2),
 		allAttendeesVisible: true,
-	})
+	});
 	await event1.save();
 
 	const event2 = Event.create({
