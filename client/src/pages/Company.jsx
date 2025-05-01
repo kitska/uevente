@@ -21,6 +21,7 @@ const Company = () => {
     const [editingEvent, setEditingEvent] = useState(null);
     const [posterFile, setPosterFile] = useState(null);
     const [posterPreview, setPosterPreview] = useState(null);
+    const [updating, setUpdating] = useState(false);
 
     const [eventForm, setEventForm] = useState({
         id: '',
@@ -112,7 +113,7 @@ const Company = () => {
 
             let response;
             if (editingEvent) {
-                response = await api.put(`/events/${editingEvent.id}`, body);
+                response = await api.patch(`/events/${editingEvent.id}`, body);
             } else {
                 response = await api.post(`/events`, body);
             }
@@ -169,15 +170,14 @@ const Company = () => {
             location: event.location,
             date: event.date,
             publishDate: event.publishDate,
-            visibility: event.visibility,
+            visibility: event.allAttendeesVisible ? 'everyone' : 'attendees',
             receiveEmails: event.receiveEmails,
             ticket_limit: event.ticket_limit,
             poster: event.poster || '',
             formatIds: event.formats || [],
             themeIds: event.themes || []
         });
-        setPosterFile(null);
-        setPosterPreview(null);
+        setUpdating(true);
         setShowModal(true);
     };
 
@@ -257,18 +257,18 @@ const Company = () => {
                                     <EventCard event={event} />
                                 </Link>
                                 {isOwner && (
-                                    <div className="absolute space-y-2 top-2 right-2">
+                                    <div className="mt-2 flex gap-4 text-sm text-gray-600">
                                         <button
                                             onClick={() => handleEditEvent(event)}
-                                            className="text-blue-600 hover:text-blue-800"
+                                            className="hover:underline text-blue-600"
                                         >
-                                            <FaPencilAlt size={18} />
+                                            Edit
                                         </button>
                                         <button
                                             onClick={() => handleDeleteEvent(event.id)}
-                                            className="text-red-600 hover:text-red-800"
+                                            className="hover:underline text-red-600"
                                         >
-                                            <FaTrash size={18} />
+                                            Delete
                                         </button>
                                     </div>
                                 )}
@@ -291,11 +291,8 @@ const Company = () => {
                 onSubmit={handleCreateEvent}
                 form={eventForm}
                 onChange={handleInputChange}
-                isEdit={editingEvent !== null}
-                event={editingEvent}
-                posterFile={posterFile}
-                posterPreview={posterPreview}
                 setForm={setEventForm}
+                updating={updating}
             />
         </div>
     );

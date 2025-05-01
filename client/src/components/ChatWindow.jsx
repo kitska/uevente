@@ -17,16 +17,29 @@ const ChatWindow = () => {
         setMessage('');
         setLoading(true);
 
+        const no_thinkking_message = msg + "\n/no_think";
+
         try {
             const response = await axios.post('http://localhost:5080/api/generate', {
-                prompt: msg,
+                prompt: no_thinkking_message,
             });
 
             const cleanedString = response.data.trim();
             const withoutOuterQuotes = cleanedString.startsWith('"') ? cleanedString.slice(1, -1) : cleanedString;
             const unescapedString = withoutOuterQuotes.replace(/\\"/g, '"');
             const jsonStrings = unescapedString.split('\n');
-            const objectsArray = jsonStrings.map(str => JSON.parse(str));
+            // const objectsArray = jsonStrings.map(str => JSON.parse(str));
+            const objectsArray = [];
+            for (const str of unescapedString.split('\n')) {
+                try {
+                    const obj = JSON.parse(str);
+                    objectsArray.push(obj);
+                } catch (err) {
+                    console.error("Failed to parse line:", str);
+                    console.error("Error:", err);
+                }
+            }
+
             const combinedString = objectsArray.map(item => item.response).join('');
 
             console.log(combinedString);

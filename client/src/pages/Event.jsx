@@ -351,67 +351,71 @@ const Event = observer(() => {
 						{event.ticket_limit > 0 ? <p className='mb-2 text-green-600'>Available: {event.ticket_limit}</p> : <p className='mb-2 text-red-600'>All tickets Sold</p>}
 
 						{/* Ticket Counter */}
-						<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-							<div className='flex items-center'>
-								<span className='mr-4 text-lg font-medium text-gray-700'>Number of tickets:</span>
-								<div className='flex items-center overflow-hidden bg-white border border-gray-300 rounded-full shadow-inner'>
-									<button onClick={decrease} className='px-4 py-2 text-gray-600 transition hover:text-red-600'>
-										<FaMinus />
-									</button>
-									<input
-										type='number'
-										value={count}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										min={1}
-										max={100}
-										className='w-16 px-2 py-2 text-lg font-semibold text-center bg-transparent outline-none'
-									/>
-									<button onClick={increase} className='px-4 py-2 text-gray-600 transition hover:text-green-600'>
-										<FaPlus />
-									</button>
-								</div>
-							</div>
-
-							{/* Buy Button */}
-							<button
-								onClick={handleBuy}
-								className='flex items-center gap-2 px-6 py-3 text-white bg-blue-600 rounded-full shadow-lg transition hover:bg-blue-700 hover:scale-[1.02]'
-							>
-								<FaMoneyBillAlt />
-								<span className='text-lg font-semibold'>
-									Buy {count || 1} ticket{count > 1 ? 's' : ''}
-								</span>
-							</button>
-						</div>
-
-						{/* Promo Code */}
-						<div className='mt-6'>
-							<button onClick={() => setShowPromo(prev => !prev)} className='text-sm font-semibold text-blue-500'>
-								{showPromo ? 'Hide promo code' : 'Have a promo code?'}
-							</button>
-
-							{showPromo && (
-								<>
-									<div className='flex flex-col gap-2 mt-3 sm:flex-row sm:items-center'>
+						{event.ticket_limit > 0 &&
+							<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+								<div className='flex items-center'>
+									<span className='mr-4 text-lg font-medium text-gray-700'>Number of tickets:</span>
+									<div className='flex items-center overflow-hidden bg-white border border-gray-300 rounded-full shadow-inner'>
+										<button onClick={decrease} className='px-4 py-2 text-gray-600 transition hover:text-red-600'>
+											<FaMinus />
+										</button>
 										<input
-											type='text'
-											value={promoCode}
-											onChange={e => setPromoCode(e.target.value)}
-											placeholder='Enter promo code'
-											className='flex-1 px-4 py-2 text-sm border border-gray-300 shadow-sm rounded-xl focus:ring focus:ring-blue-200 focus:outline-none'
+											type='number'
+											value={count}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											min={1}
+											max={100}
+											className='w-16 px-2 py-2 text-lg font-semibold text-center bg-transparent outline-none'
 										/>
-										<button
-											onClick={handleApplyPromo}
-											className='px-5 py-2 text-sm font-semibold text-white transition bg-green-600 rounded-full hover:bg-green-700'
-										>
-											Apply
+										<button onClick={increase} className='px-4 py-2 text-gray-600 transition hover:text-green-600'>
+											<FaPlus />
 										</button>
 									</div>
-									{promoMessage && <p className={`text-sm mt-1 ${promoError ? 'text-red-500' : 'text-green-600'}`}>{promoMessage}</p>}
-								</>
-							)}
-						</div>
+								</div>
+
+								{/* Buy Button */}
+								<button
+									onClick={handleBuy}
+									className='flex items-center gap-2 px-6 py-3 text-white bg-blue-600 rounded-full shadow-lg transition hover:bg-blue-700 hover:scale-[1.02]'
+								>
+									<FaMoneyBillAlt />
+									<span className='text-lg font-semibold'>
+										Buy {count || 1} ticket{count > 1 ? 's' : ''}
+									</span>
+								</button>
+							</div>
+						}
+
+						{/* Promo Code */}
+						{event.ticket_limit > 0 &&
+							<div className='mt-6'>
+								<button onClick={() => setShowPromo(prev => !prev)} className='text-sm font-semibold text-blue-500'>
+									{showPromo ? 'Hide promo code' : 'Have a promo code?'}
+								</button>
+
+								{showPromo && (
+									<>
+										<div className='flex flex-col gap-2 mt-3 sm:flex-row sm:items-center'>
+											<input
+												type='text'
+												value={promoCode}
+												onChange={e => setPromoCode(e.target.value)}
+												placeholder='Enter promo code'
+												className='flex-1 px-4 py-2 text-sm border border-gray-300 shadow-sm rounded-xl focus:ring focus:ring-blue-200 focus:outline-none'
+											/>
+											<button
+												onClick={handleApplyPromo}
+												className='px-5 py-2 text-sm font-semibold text-white transition bg-green-600 rounded-full hover:bg-green-700'
+											>
+												Apply
+											</button>
+										</div>
+										{promoMessage && <p className={`text-sm mt-1 ${promoError ? 'text-red-500' : 'text-green-600'}`}>{promoMessage}</p>}
+									</>
+								)}
+							</div>
+						}
 					</div>
 				</div>
 			</div>

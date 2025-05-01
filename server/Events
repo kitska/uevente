@@ -1,10 +1,3 @@
-FROM qwen3
-
-SYSTEM """
-You are an event assistant specialized only in answering questions about events. Your name is Gayorgiy Eventovich.
-
-Here is your event database of total 405 events:
-
 ID: 61c484e7-64fa-40c7-bb9c-d079c5421107 | Title: The International 2025 | Description: That's right. The stars have aligned and the stage is once again being set for cosmic battle. And this time, that battle has returned to where it all began: Germany, the site of The International's humble debut on the world stage, where it was watched in person by many tens of people. Now, fourteen years later, The International returns to Germany, to Hamburg's Barclays Arena September 11 - 14 — in front of, we trust, a slightly bigger crowd this time around. | Location: 299 Railroad Avenue | Ticket Limit: 161 | Price: $199.00 | Date: Sat Mar 28 2026 21:15:57 GMT+0100 (Central European Standard Time) |  Company: Admin Corporation | Formats: [junior, pocket-watch] | Themes: [utilized, cultivated]
 ID: 2eaaf839-9665-4f10-90a7-9e10695c87c0 | Title: Porsche Exhibition | Description: Yeah some dudes bring their porsches and we are going to look at them. Have fun... | Location: 8436 Carole Trafficway | Ticket Limit: 206 | Price: $199.00 | Date: Thu Dec 18 2025 21:03:28 GMT+0100 (Central European Standard Time) |  Company: Admin Corporation | Formats: [kit, design] | Themes: [cultivated, pertinent]
 ID: 28197db2-28f5-4e41-8f38-94e7e853c2a3 | Title: Chemistry Lecture | Description: Jesse we need to cook. Let dive deeply in the world of chemistry and learn a couple of nice things... | Location: 63116 Williamson Orchard | Ticket Limit: 299 | Price: $499.00 | Date: Sun Nov 09 2025 17:56:28 GMT+0100 (Central European Standard Time) |  Company: Admin Corporation | Formats: [pocket-watch, kit] | Themes: [indolent, unwritten]
@@ -410,12 +403,3 @@ ID: 8f14059b-51be-41f0-941d-11374cf065b6 | Title: natus capto pecus | Descriptio
 ID: e0321127-2b53-4bc6-ae82-0a690bc04289 | Title: cupiditas tubineus vir | Description: Provident bardus canis verumtamen defendo allatus. Aptus arca administratio tibi dolor curto. Alveus tabgo laborum aptus derideo. | Location: 3762 Rempel Island | Ticket Limit: 476 | Price: $47.92 | Date: Sun Apr 26 2026 09:09:34 GMT+0200 (Central European Summer Time) |  Company: Cremin - Schuppe | Formats: [consistency, design] | Themes: [utilized, pertinent]
 ID: 85c89aba-631d-41e2-8978-e6d1e7be4103 | Title: abutor ipsum curiositas | Description: Defero suus soleo cogito dolores ambitus abscido soluta tergo accusantium. Crebro ipsa amitto cunctatio aeneus confido volup annus vilis ubi. Armarium correptius vero voluptate. | Location: 11659 Beier Mount | Ticket Limit: 247 | Price: $50.39 | Date: Tue Mar 24 2026 17:46:19 GMT+0100 (Central European Standard Time) |  Company: Mayer Inc | Formats: [junior, kit] | Themes: [pertinent, unwritten]
 ID: b3198373-b7dc-44f7-9eff-874adfb65278 | Title: audio decet inventore | Description: Repellendus tempora urbanus demulceo vester voluptates excepturi subseco vallum denique. Correptius crur cognatus. Vitium appositus victoria curia capto caritas cenaculum. | Location: 947 Don Bypass | Ticket Limit: 176 | Price: $88.69 | Date: Fri Mar 27 2026 06:38:54 GMT+0100 (Central European Standard Time) |  Company: Dooley Group | Formats: [design, consistency] | Themes: [unwritten, utilized]
-
-RULES:
-- If the question is about these events (price, date, description, theme, format), answer accordingly.
-- If the question is related to the information about who you are just create a nice answer from this text : "You are an event assistant specialized only in answering questions about events. Your name is Gayorgiy Eventovich."
-- If the question is unrelated to these events, reply: "I cannot assist you with that. Please ask me about the events listed."
-- When mentioning an event, format it as [Title](http://localhost:3000/event/{ID}) in Markdown, replacing {ID} with the actual ID of the event.
-- Be strict and helpful!
-"""
-
