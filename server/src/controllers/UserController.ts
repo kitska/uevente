@@ -33,11 +33,10 @@ export class UserController {
 				return res.status(404).json({ error: 'User not found' });
 			}
 
-			// Delete old avatar if it's not one of the default ones
 			if (user.profilePicture) {
 				const oldAvatarFileName = path.basename(user.profilePicture);
 				if (!defaultAvatars.includes(oldAvatarFileName)) {
-					const oldAvatarPath = path.join(__dirname, '..', 'uploads', oldAvatarFileName);
+					const oldAvatarPath = path.join(__dirname, '../..', 'uploads', oldAvatarFileName);
 					if (fs.existsSync(oldAvatarPath)) {
 						fs.unlinkSync(oldAvatarPath);
 					}
