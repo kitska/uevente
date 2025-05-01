@@ -34,7 +34,7 @@ export class Event extends BaseEntity {
   @Column('timestamp')
   date: Date;
 
-  @Column({type: 'timestamp', nullable: true})
+  @Column({ type: 'timestamp', nullable: true })
   publishDate: Date
 
   @Column({ type: 'int', nullable: true })
@@ -43,11 +43,17 @@ export class Event extends BaseEntity {
   @Column({ default: false })
   is_published: boolean;
 
-  @Column({default: true})
+  @Column({ default: true })
   allAttendeesVisible: boolean
 
   @Column({ nullable: true })
   poster: string;
+
+  @Column({ default: false })
+  receiveEmails: boolean;
+
+  // @Column({ nullable: true  })
+  // paymentSuccessUrl: string;
 
   @ManyToMany(() => Format)
   @JoinTable({ name: "event_format" })

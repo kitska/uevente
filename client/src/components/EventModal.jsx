@@ -11,6 +11,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 	const [creatingPromo, setCreatingPromo] = useState(false);
 	const [formats, setFormats] = useState([]);
 	const [themes, setThemes] = useState([]);
+	const [schedulePublish, setSchedulePublish] = useState(false);
 
 	const handleGeneratePromo = async () => {
 		if (!promoDiscount) return;
@@ -127,9 +128,27 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 			date: prev.date && prev.date < publishDate ? '' : prev.date,
 		}));
 	};
+	const handleScheduleToggle = (e) => {
+		const checked = e.target.checked;
+		setSchedulePublish(checked);
+		if (!checked) {
+			setForm({ ...form, publishDate: '' });
+		}
+	};
 
 	const previewSrc = typeof form.poster === 'string' ? form.poster : form.poster instanceof File ? URL.createObjectURL(form.poster) : '';
+	function formatLocalDateTime(date) {
+		const d = new Date(date);
+		const pad = (n) => n.toString().padStart(2, '0');
 
+		const year = d.getFullYear();
+		const month = pad(d.getMonth() + 1);
+		const day = pad(d.getDate());
+		const hours = pad(d.getHours());
+		const minutes = pad(d.getMinutes());
+
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	}
 	return (
 		<div className='fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30'>
 			<div className='bg-white rounded-lg p-8 w-full max-w-6xl shadow-lg overflow-y-auto max-h-[80vh] flex gap-8'>
@@ -167,25 +186,47 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 							rows='4'
 						/>
 
-						{/* Price */}
 						<input
 							type='number'
 							name='price'
 							placeholder='Price'
 							value={form.price}
-							onChange={onChange}
+							min='0'
+							onChange={(e) => {
+								if (Number(e.target.value) >= 0 || e.target.value === '') {
+									onChange(e);
+								}
+							}}
 							className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
 						/>
 
-						{/* Ticket Limit */}
 						<input
 							type='number'
 							name='ticket_limit'
 							placeholder='Ticket Limit'
 							value={form.ticket_limit}
-							onChange={onChange}
+							min='0'
+							onChange={(e) => {
+								if (Number(e.target.value) >= 0 || e.target.value === '') {
+									onChange(e);
+								}
+							}}
 							className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
 						/>
+
+						{/* Event Date */}
+						<div className='flex flex-col'>
+							<label className='mb-1 text-sm text-gray-500'>Event Date</label>
+							<input
+								type='datetime-local'
+								name='date'
+								value={form.date ? formatLocalDateTime(form.date) : ''}
+								onChange={onChange}
+								min={formatLocalDateTime(new Date())}
+								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+							/>
+						</div>
+
 
 						{/* Publish Date */}
 						<div className='flex flex-col'>
@@ -196,19 +237,6 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 								value={form.publishDate ? new Date(form.publishDate).toISOString().slice(0, 10) : ''}
 								onChange={handlePublishDateChange}
 								min={today}
-								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-							/>
-						</div>
-
-						{/* Event Date */}
-						<div className='flex flex-col'>
-							<label className='mb-1 text-sm text-gray-500'>Event Date</label>
-							<input
-								type='datetime-local'
-								name='date'
-								value={form.date ? new Date(form.date).toISOString().slice(0, 16) : ''}
-								onChange={onChange}
-								min={form.publishDate || today}
 								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
 							/>
 						</div>

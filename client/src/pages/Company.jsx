@@ -182,6 +182,10 @@ const Company = () => {
     };
 
     const handleSubscribe = async () => {
+        if (!userStore?.user?.id) {
+            Swal.fire('Error', 'Dear user, don\'t be an <b>idiot</b>. <p>Login to continue!</p>', 'error');
+            return;
+        }
         const newValue = !favourited;
         setFavourited(newValue);
         eventStore.handleSubscribe(newValue, company.id, false);
@@ -241,7 +245,7 @@ const Company = () => {
                         onClick={handleSubscribe}
                         className="mt-2 px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 transition"
                     >
-                        {favourited ? "Unsubscribe" : "Subscribe" }
+                        {favourited ? "Unsubscribe" : "Subscribe"}
                     </button>
                 )}
             </div>

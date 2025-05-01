@@ -156,6 +156,7 @@ export const EventController = {
 				ticket_limit,
 				is_published,
 				poster: uploadedPosterUrl,
+				receiveEmails,
 				company,
 				formats,
 				themes,
@@ -541,11 +542,20 @@ export const EventController = {
 				changedFields.push({ field: 'Date', oldValue: event.date.toISOString(), newValue: new Date(date).toISOString() });
 				event.date = new Date(date);
 			}
-			if (publishDate !== undefined && new Date(publishDate).getTime() !== event.publishDate.getTime()) {
-				changedFields.push({ field: 'Publish Date', oldValue: event.publishDate.toISOString(), newValue: new Date(publishDate).toISOString() });
-				event.publishDate = new Date(publishDate);
+			if (publishDate !== undefined) {
+				const newPublishDate = new Date(publishDate);
+				const oldPublishDate = event.publishDate ? new Date(event.publishDate) : null;
+			
+				if (oldPublishDate === null || newPublishDate.getTime() !== oldPublishDate.getTime()) {
+					changedFields.push({
+						field: 'Publish Date',
+						oldValue: oldPublishDate ? oldPublishDate.toISOString() : null,
+						newValue: newPublishDate.toISOString()
+					});
+					event.publishDate = newPublishDate;
+				}
 			}
-
+		
 			const allAttendeesVisible = visibility == 'everyone' ? true : false;
 			if (allAttendeesVisible !== undefined && allAttendeesVisible !== event.allAttendeesVisible) {
 				event.allAttendeesVisible = allAttendeesVisible;
@@ -561,6 +571,10 @@ export const EventController = {
 			if (poster !== undefined && poster !== event.poster) {
 				changedFields.push({ field: 'Poster', oldValue: event.poster, newValue: poster });
 				event.poster = poster;
+			}
+
+			if(receiveEmails !== undefined && receiveEmails !== event.receiveEmails) {
+				event.receiveEmails = receiveEmails;
 			}
 			if (companyId !== undefined && companyId !== event.company?.id) {
 				const company = await Company.findOne({ where: { id: companyId } });

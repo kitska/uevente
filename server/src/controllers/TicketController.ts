@@ -59,7 +59,26 @@ export class TicketController {
 			};
 
 			await sendEmail(user.email, message, `Your Ticket for ${event.title}`);
+			if (event.receiveEmails) {
+				if (event.receiveEmails) {
+					const subject = 'New Ticket Sold for Your Event';
 
+					const html = `
+					  <p>Hello,</p>
+					  <p>A ticket has just been purchased for your event: <strong>${event.title}</strong>.</p>
+					  <h4>Buyer Information:</h4>
+					  <ul>
+						<li><strong>Name:</strong> ${user.fullName}</li>
+						<li><strong>Email:</strong> ${user.email}</li>
+						${user.phone ? `<li><strong>Phone:</strong> ${user.phone}</li>` : ''}
+					  </ul>
+					  <p>You can view the full details in your dashboard.</p>
+					  <p>Best regards,<br/>The UEvent Team</p>
+					`;
+
+					await sendEmail(event.company.email, { html }, subject);
+				}
+			}
 			return res.status(201).json(ticket);
 		} catch (error) {
 			console.error('Error creating ticket:', error);
