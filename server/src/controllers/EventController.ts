@@ -124,8 +124,14 @@ export const EventController = {
 			const company = await Company.findOne({ where: { id: companyId } });
 			if (!company) return res.status(404).json({ message: 'Company not found' });
 
-			const formats = formatIds?.length ? await Format.findBy({ id: In(formatIds) }) : [];
-			const themes = themeIds?.length ? await Theme.findBy({ id: In(themeIds) }) : [];
+			const formats = formatIds?.length
+				? await Format.findBy({ id: In(formatIds.map(f => f.id)) })
+				: [];
+
+			const themes = themeIds?.length
+				? await Theme.findBy({ id: In(themeIds.map(t => t.id)) })
+				: [];
+
 
 			let uploadedPosterUrl: string | null = null;
 

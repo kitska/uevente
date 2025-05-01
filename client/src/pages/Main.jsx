@@ -82,18 +82,23 @@ const Main = observer(() => {
 					/>
 				</section>
 
-				<section className='px-4 py-8 overflow-visible'>
-					<div className='flex flex-wrap justify-center gap-15'>
-						{eventStore.loading && <p>Loading events ...</p>}
+				<section className='px-4 py-8 overflow-visible relative'>
+					{eventStore.loading && (
+						<div className="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center z-10">
+							<p className="text-lg text-gray-600 animate-pulse">Loading events...</p>
+						</div>
+					)}
+
+					<div className={`flex flex-wrap justify-center gap-15 transition-opacity duration-300 ${eventStore.loading ? 'opacity-30' : 'opacity-100'}`}>
 						{eventStore.error && <p className='text-red-500'>{eventStore.error}</p>}
-						{!eventStore.loading &&
-							events.map(event => (
-								<Link key={event.id} to={`/event/${event.id}`}>
-									<EventCard event={event} />
-								</Link>
-							))}
+						{events.map(event => (
+							<Link key={event.id} to={`/event/${event.id}`}>
+								<EventCard event={event} />
+							</Link>
+						))}
 					</div>
 				</section>
+
 
 				{totalPages > 1 && (
 					<section>
