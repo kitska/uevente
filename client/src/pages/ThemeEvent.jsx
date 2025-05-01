@@ -8,7 +8,7 @@ import ChatWindow from '../components/ChatWindow';
 
 const ThemeEvents = () => {
 	const { id } = useParams();
-    const [theme, setTheme] = useState('');
+	const [theme, setTheme] = useState('');
 	const [events, setEvents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -19,8 +19,8 @@ const ThemeEvents = () => {
 		const fetchEvents = async () => {
 			try {
 				const data = await getEventsByTheme(id);
-                const themedata = await getThemeById(id);
-                setTheme(themedata.title);
+				const themedata = await getThemeById(id);
+				setTheme(themedata.title);
 				setEvents(data);
 			} catch (err) {
 				console.error(err);
@@ -43,6 +43,9 @@ const ThemeEvents = () => {
 			</section> */}
 
 			<section className='px-4 py-8 overflow-visible mt-22'>
+				<div className='flex flex-wrap justify-center gap-15'>
+					<h4 className='text-3xl font-semibold mb-8'>Theme : <span className='text-blue-300'>{theme}</span></h4>
+				</div>
 				<div className='flex flex-wrap justify-center gap-15'>
 					{loading && <p>Loading events...</p>}
 					{error && <p className='text-red-500'>{error}</p>}

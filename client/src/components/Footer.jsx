@@ -52,10 +52,9 @@ const Footer = () => {
                         <h3 className="mb-4 text-xl font-semibold">About Us</h3>
                         <ul className="space-y-2 text-sm">
                             <li><a href="/about" className="hover:underline opacity-70">Our Story</a></li>
-                            <li><a href="/team" className="hover:underline opacity-70">Our Team</a></li>
                             <li><a href="/careers" className="hover:underline opacity-70">Careers</a></li>
                             <li><a href="/privacy" className="hover:underline opacity-70">Privacy Policy</a></li>
-                            <li><a href="/terms" className="hover:underline opacity-70">Terms of Service</a></li>
+                            <li><a href="/terms-of-service" className="hover:underline opacity-70">Terms of Service</a></li>
                         </ul>
                     </div>
 

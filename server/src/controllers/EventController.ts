@@ -124,8 +124,14 @@ export const EventController = {
 			const company = await Company.findOne({ where: { id: companyId } });
 			if (!company) return res.status(404).json({ message: 'Company not found' });
 
-			const formats = formatIds?.length ? await Format.findBy({ id: In(formatIds) }) : [];
-			const themes = themeIds?.length ? await Theme.findBy({ id: In(themeIds) }) : [];
+			const formats = formatIds?.length
+				? await Format.findBy({ id: In(formatIds.map(f => f.id)) })
+				: [];
+
+			const themes = themeIds?.length
+				? await Theme.findBy({ id: In(themeIds.map(t => t.id)) })
+				: [];
+
 
 			let uploadedPosterUrl: string | null = null;
 
@@ -486,7 +492,22 @@ export const EventController = {
 
 	async updateEvent(req: Request, res: Response): Promise<Response> {
 		const { id } = req.params;
-		const { title, description, price, location, date, ticket_limit, is_published, poster, companyId, formatIds, themeIds } = req.body;
+		const {
+			title,
+			description,
+			price,
+			location,
+			date,
+			publishDate,
+			visibility, // Who can see other attendees ? all : only other attendees
+			receiveEmails, // Does a company want to receive emails about new attendees ?
+			ticket_limit,
+			is_published,
+			poster,
+			companyId,
+			formatIds,
+			themeIds,
+		} = req.body;
 
 		try {
 			const event = await Event.findOne({
@@ -520,6 +541,15 @@ export const EventController = {
 				changedFields.push({ field: 'Date', oldValue: event.date.toISOString(), newValue: new Date(date).toISOString() });
 				event.date = new Date(date);
 			}
+			if (publishDate !== undefined && new Date(publishDate).getTime() !== event.publishDate.getTime()) {
+				changedFields.push({ field: 'Publish Date', oldValue: event.publishDate.toISOString(), newValue: new Date(publishDate).toISOString() });
+				event.publishDate = new Date(publishDate);
+			}
+
+			const allAttendeesVisible = visibility == 'everyone' ? true : false;
+			if (allAttendeesVisible !== undefined && allAttendeesVisible !== event.allAttendeesVisible) {
+				event.allAttendeesVisible = allAttendeesVisible;
+			}
 			if (ticket_limit !== undefined && ticket_limit !== event.ticket_limit) {
 				changedFields.push({ field: 'Ticket Limit', oldValue: event.ticket_limit, newValue: ticket_limit });
 				event.ticket_limit = ticket_limit;
@@ -541,15 +571,27 @@ export const EventController = {
 				event.company = company;
 			}
 			if (Array.isArray(formatIds)) {
-				const newFormats = await Format.findBy({ id: In(formatIds) });
+				const ids = formatIds.map(f => f.id); // extract UUIDs
+				const newFormats = await Format.findBy({ id: In(ids) });
+				changedFields.push({
+					field: 'Formats',
+					oldValue: (event.formats || []).map(f => f.title).join(', '),
+					newValue: newFormats.map(f => f.title).join(', ')
+				});
 				event.formats = newFormats;
-				changedFields.push({ field: 'Formats', oldValue: (event.formats || []).map(f => f.title).join(', '), newValue: newFormats.map(f => f.title).join(', ') });
 			}
+
 			if (Array.isArray(themeIds)) {
-				const newThemes = await Theme.findBy({ id: In(themeIds) });
+				const ids = themeIds.map(t => t.id); // extract UUIDs
+				const newThemes = await Theme.findBy({ id: In(ids) });
+				changedFields.push({
+					field: 'Themes',
+					oldValue: (event.themes || []).map(t => t.title).join(', '),
+					newValue: newThemes.map(t => t.title).join(', ')
+				});
 				event.themes = newThemes;
-				changedFields.push({ field: 'Themes', oldValue: (event.themes || []).map(t => t.title).join(', '), newValue: newThemes.map(t => t.title).join(', ') });
 			}
+
 			await event.save();
 
 			const subject = `Event "${oldTitle}" has been updated`;
