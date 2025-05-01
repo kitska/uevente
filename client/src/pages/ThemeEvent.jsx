@@ -4,7 +4,6 @@ import EventCard from '../components/EventCard';
 import Pagination from '../components/Pagination';
 import Subscribe from '../components/Subscribe';
 import { getEventsByTheme, getThemeById } from '../services/eventService';
-import ChatWindow from '../components/ChatWindow';
 
 const ThemeEvents = () => {
 	const { id } = useParams();
@@ -67,7 +66,6 @@ const ThemeEvents = () => {
 
 			<Subscribe />
 
-			<ChatWindow />
 		</main>
 	);
 };

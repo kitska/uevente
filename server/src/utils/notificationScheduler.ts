@@ -44,7 +44,7 @@ cron.schedule('* * * * *', async () => {
       if (user?.pushNotifications) {
         await sendPushNotification(user.pushSubscription, {
           title: 'Event Reminder 📅',
-          body: `Don't forget: ${event.title} is tomorrow!`,
+          body: `Don't forget: ${event.title} in 2 hours!`,
           data: { eventId: event.id },
         });
       }

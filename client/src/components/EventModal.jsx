@@ -11,6 +11,7 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 	const [creatingPromo, setCreatingPromo] = useState(false);
 	const [formats, setFormats] = useState([]);
 	const [themes, setThemes] = useState([]);
+	const [schedulePublish, setSchedulePublish] = useState(false);
 
 	const handleGeneratePromo = async () => {
 		if (!promoDiscount) return;
@@ -21,8 +22,8 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 				eventId: form.id,
 				discount: promoDiscount,
 			});
-			setPromoCodes(prev => [...prev, newPromo]);
-			setPromoDiscount('');
+			setPromoCodes(prev => [...prev, newPromo.promocode]);
+			setPromoDiscount(promoDiscount);
 		} catch (error) {
 			console.error('Failed to create promocode', error);
 		} finally {
@@ -127,15 +128,33 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 			date: prev.date && prev.date < publishDate ? '' : prev.date,
 		}));
 	};
+	const handleScheduleToggle = (e) => {
+		const checked = e.target.checked;
+		setSchedulePublish(checked);
+		if (!checked) {
+			setForm({ ...form, publishDate: '' });
+		}
+	};
 
 	const previewSrc = typeof form.poster === 'string' ? form.poster : form.poster instanceof File ? URL.createObjectURL(form.poster) : '';
+	function formatLocalDateTime(date) {
+		const d = new Date(date);
+		const pad = (n) => n.toString().padStart(2, '0');
 
+		const year = d.getFullYear();
+		const month = pad(d.getMonth() + 1);
+		const day = pad(d.getDate());
+		const hours = pad(d.getHours());
+		const minutes = pad(d.getMinutes());
+
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	}
 	return (
 		<div className='fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30'>
 			<div className='bg-white rounded-lg p-8 w-full max-w-6xl shadow-lg overflow-y-auto max-h-[80vh] flex gap-8'>
 				{/* Левая часть — форма создания события */}
 				<div className='flex-1 space-y-8'>
-					<h3 className='text-3xl font-semibold text-gray-800'>{updating ? "Update" : "Create"} Event</h3>
+					<h3 className='text-3xl font-semibold text-gray-800'>{updating ? 'Update' : 'Create'} Event</h3>
 					<form className='grid grid-cols-1 gap-6 md:grid-cols-2'>
 						{/* Title */}
 						<input
@@ -167,25 +186,47 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 							rows='4'
 						/>
 
-						{/* Price */}
 						<input
 							type='number'
 							name='price'
 							placeholder='Price'
 							value={form.price}
-							onChange={onChange}
+							min='0'
+							onChange={(e) => {
+								if (Number(e.target.value) >= 0 || e.target.value === '') {
+									onChange(e);
+								}
+							}}
 							className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
 						/>
 
-						{/* Ticket Limit */}
 						<input
 							type='number'
 							name='ticket_limit'
 							placeholder='Ticket Limit'
 							value={form.ticket_limit}
-							onChange={onChange}
+							min='0'
+							onChange={(e) => {
+								if (Number(e.target.value) >= 0 || e.target.value === '') {
+									onChange(e);
+								}
+							}}
 							className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
 						/>
+
+						{/* Event Date */}
+						<div className='flex flex-col'>
+							<label className='mb-1 text-sm text-gray-500'>Event Date</label>
+							<input
+								type='datetime-local'
+								name='date'
+								value={form.date ? formatLocalDateTime(form.date) : ''}
+								onChange={onChange}
+								min={formatLocalDateTime(new Date())}
+								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+							/>
+						</div>
+
 
 						{/* Publish Date */}
 						<div className='flex flex-col'>
@@ -196,19 +237,6 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 								value={form.publishDate ? new Date(form.publishDate).toISOString().slice(0, 10) : ''}
 								onChange={handlePublishDateChange}
 								min={today}
-								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-							/>
-						</div>
-
-						{/* Event Date */}
-						<div className='flex flex-col'>
-							<label className='mb-1 text-sm text-gray-500'>Event Date</label>
-							<input
-								type='datetime-local'
-								name='date'
-								value={form.date ? new Date(form.date).toISOString().slice(0, 16) : ''}
-								onChange={onChange}
-								min={form.publishDate || today}
 								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
 							/>
 						</div>
@@ -286,6 +314,18 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 							</div>
 						</div>
 
+						{/* redirect URL */}
+						<div className='flex flex-col space-y-2 md:col-span-2'>
+							<input
+								type='text'
+								name='redirectURL'
+								placeholder='Redirect URL after successful purchase...'
+								value={form.redirectURL}
+								onChange={onChange}
+								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+							/>
+						</div>
+
 						{/* Poster Input */}
 						<div className='flex flex-col space-y-2 md:col-span-2'>
 							<input
@@ -325,57 +365,59 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 							onClick={onSubmit}
 							className='px-6 py-2 m-5 text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
 						>
-							{updating ? "Update" : "Create"}
+							{updating ? 'Update' : 'Create'}
 						</button>
 					</div>
 				</div>
 
 				{/* Правая часть — промокоды 
 				// ШО реально???? */}
-				<div className='flex flex-col w-full max-w-xs space-y-6'>
-					<h4 className='text-3xl font-semibold text-gray-800 mb-8'>Promocodes</h4>
+				{updating && (
+					<div className='flex flex-col w-full max-w-xs space-y-6'>
+						<h4 className='mb-8 text-3xl font-semibold text-gray-800'>Promocodes</h4>
 
-					{/* Ввод скидки */}
-					<div className='flex flex-col gap-2'>
-						<input
-							type='number'
-							placeholder='Discount (%)'
-							value={promoDiscount}
-							onChange={e => {
-								const value = parseInt(e.target.value);
-								if (!isNaN(value) && value >= 1 && value <= 100) {
-									setPromoDiscount(value);
-								} else if (e.target.value === '') {
-									setPromoDiscount('');
-								}
-							}}
-							className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-						/>
-						<button
-							onClick={handleGeneratePromo}
-							type='button'
-							className='py-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400'
-						>
-							Generate Promocode
-						</button>
-					</div>
+						{/* Ввод скидки */}
+						<div className='flex flex-col gap-2'>
+							<input
+								type='number'
+								placeholder='Discount (%)'
+								value={promoDiscount}
+								onChange={e => {
+									const value = parseInt(e.target.value);
+									if (!isNaN(value) && value >= 1 && value <= 100) {
+										setPromoDiscount(value);
+									} else if (e.target.value === '') {
+										setPromoDiscount('');
+									}
+								}}
+								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+							/>
+							<button
+								onClick={handleGeneratePromo}
+								type='button'
+								className='py-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400'
+							>
+								Generate Promocode
+							</button>
+						</div>
 
-					{/* Список промокодов */}
-					<div className='flex flex-col gap-3 overflow-y-auto max-h-72'>
-						{promoCodes.map((promo, idx) => (
-							<div key={idx} className='flex items-center justify-between p-3 border border-gray-200 rounded-md'>
-								<div>
-									<p className='font-medium text-gray-800'>{promo.code}</p>
-									<p className='text-sm text-gray-500'>{promo.discount}%</p>
+						{/* Список промокодов */}
+						<div className='flex flex-col max-h-full gap-3 overflow-y-auto'>
+							{promoCodes.map((promo, idx) => (
+								<div key={idx} className='flex items-center justify-between p-3 border border-gray-200 rounded-md'>
+									<div>
+										<p className='font-medium text-gray-800'>{promo.code}</p>
+										<p className='text-sm text-gray-500'>{promo.discount}%</p>
+									</div>
+									<button onClick={() => handleDeletePromo(promo.id)} className='text-xl text-red-500 hover:text-red-700'>
+										×
+									</button>
 								</div>
-								<button onClick={() => handleDeletePromo(promo.id)} className='text-xl text-red-500 hover:text-red-700'>
-									×
-								</button>
-							</div>
-						))}
-						{promoCodes.length === 0 && <p className='text-sm text-center text-gray-400'>No promocodes yet</p>}
+							))}
+							{promoCodes.length === 0 && <p className='text-sm text-center text-gray-400'>No promocodes yet</p>}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</div>
 	);

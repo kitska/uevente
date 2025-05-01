@@ -6,6 +6,7 @@ import ThemeToggleButton from './ThemeToggleButton';
 import SearchBar from './SearchBar';
 import UserDropdown from './UserDropdown';
 import { userStore } from '../store/userStore';
+import AnimatedText from './Animatedtext';
 
 const Header = () => {
 	const handleSearch = (query) => {
@@ -14,11 +15,13 @@ const Header = () => {
 	};
 
 	return (
-		<header className="z-999 w-full fixed top-0 left-0 z-50 bg-transparent text-white px-8 py-4 flex items-center justify-between backdrop-blur-md shadow-sm">
+		<header className="w-full fixed top-0 left-0 z-50 bg-transparent text-white px-8 py-4 flex items-center justify-between backdrop-blur-md shadow-sm">
 			{/* Left: Logo/Name */}
-			<Link to="/" className="text-pink-400 text-2xl font-bold tracking-wide">
+			{/* <Link to="/" className="text-pink-400 text-2xl font-bold tracking-wide">
 				Go Event
-			</Link>
+			</Link> */}
+			<AnimatedText />
+			
 
 			{/* Middle: Search */}
 			{/* <div className="flex-1 max-w-md mx-8">

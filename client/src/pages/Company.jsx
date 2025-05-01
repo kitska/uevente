@@ -6,7 +6,6 @@ import EventCard from '../components/EventCard';
 import EventModal from '../components/EventModal';
 import { FaPlus, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import ChatWindow from '../components/ChatWindow'
 import { eventStore } from '../store/eventStore';
 
 const Company = () => {
@@ -35,6 +34,7 @@ const Company = () => {
         receiveEmails: true,
         ticket_limit: '',
         poster: '',
+        redirectURL: null,
         formatIds: [],
         themeIds: [],
     });
@@ -60,6 +60,15 @@ const Company = () => {
         fetchCompany();
     }, [companyId, userId]);
 
+    const stringIsAValidUrl = (s) => {
+        try {
+            new URL(s);
+            return true;
+        } catch (err) {
+            return false;
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
 
@@ -76,6 +85,27 @@ const Company = () => {
         }
     };
 
+    const handleCreateClick = () => {
+        setEventForm({
+            id: '',
+            title: '',
+            description: '',
+            price: '',
+            location: '',
+            date: null,
+            publishDate: null,
+            visibility: '',
+            receiveEmails: true,
+            ticket_limit: '',
+            poster: '',
+            redirectURL: null,
+            formatIds: [],
+            themeIds: [],
+        });
+        setUpdating(false);
+        setShowModal(true);
+    }
+
     const handleCreateEvent = async () => {
         try {
             const {
@@ -90,6 +120,7 @@ const Company = () => {
                 receiveEmails,
                 ticket_limit,
                 poster,
+                redirectURL,
                 formatIds,
                 themeIds,
             } = eventForm;
@@ -107,9 +138,17 @@ const Company = () => {
                 ticket_limit,
                 companyId,
                 poster: posterFile ? null : poster || null,
+                redirectURL,
                 formatIds,
                 themeIds,
             };
+
+            if (title == '') return Swal.fire('Validation Error', 'Title cannot be empty', 'error');
+            if (location == '') return Swal.fire('Validation Error', 'Location cannot be empty', 'error');
+            if (description == '') return Swal.fire('Validation Error', 'Description cannot be empty', 'error');
+            if (!price || isNaN(price) || Number(price) < 0) return Swal.fire('Validation Error', 'Price must be a valid non-negative number.', 'error');
+            if (!date) return Swal.fire('Validation Error', 'Event date is not selected', 'error');
+            if (!stringIsAValidUrl(redirectURL)) return Swal.fire('Validation Error', 'Redirect URL is not valid', 'error');
 
             let response;
             if (editingEvent) {
@@ -152,6 +191,7 @@ const Company = () => {
                 receiveEmails: true,
                 ticket_limit: '',
                 poster: '',
+                redirectURL: null,
                 formatIds: [],
                 themeIds: [],
             });
@@ -174,6 +214,7 @@ const Company = () => {
             receiveEmails: event.receiveEmails,
             ticket_limit: event.ticket_limit,
             poster: event.poster || '',
+            redirectURL: event.paymentSuccessUrl || '',
             formatIds: event.formats || [],
             themeIds: event.themes || []
         });
@@ -182,6 +223,10 @@ const Company = () => {
     };
 
     const handleSubscribe = async () => {
+        if (!userStore?.user?.id) {
+            Swal.fire('Error', 'Dear user, don\'t be an <b>idiot</b>. <p>Login to continue!</p>', 'error');
+            return;
+        }
         const newValue = !favourited;
         setFavourited(newValue);
         eventStore.handleSubscribe(newValue, company.id, false);
@@ -217,21 +262,21 @@ const Company = () => {
     }
 
     if (!company) {
-        return <div className="p-10 text-center text-red-500">Company not found.</div>;
+        return <div className="p-10 text-center text-red-500 mt-20">Company not found.</div>;
     }
 
     return (
-        <div className="mt-24 space-y-3">
-            <div className="flex items-end justify-between w-full max-w-screen-xl pb-2 mx-auto border-b border-gray-300">
-                <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">{company.name}</h1>
-                <p className="text-sm text-gray-500">{company.email}</p>
+        <div className='mt-24 space-y-3'>
+            <div className='flex items-end justify-between w-full max-w-screen-xl pb-2 mx-auto border-b border-gray-300'>
+                <h1 className='text-5xl font-extrabold tracking-tight text-gray-900'>{company.name}</h1>
+                <p className='text-sm text-gray-500'>{company.email}</p>
             </div>
 
             <div className="flex items-center justify-between w-full max-w-screen-xl mx-auto">
                 <h2 className="text-2xl font-semibold text-gray-800">Events</h2>
                 {isOwner ? (
                     <button
-                        onClick={() => setShowModal(true)}
+                        onClick={handleCreateClick}
                         className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700"
                     >
                         <FaPlus size={12} /> Create
@@ -241,33 +286,35 @@ const Company = () => {
                         onClick={handleSubscribe}
                         className="mt-2 px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 transition"
                     >
-                        {favourited ? "Unsubscribe" : "Subscribe" }
+                        {favourited ? "Unsubscribe" : "Subscribe"}
                     </button>
                 )}
             </div>
 
-            <div className="flex items-center justify-center w-full max-w-screen-xl mx-auto">
+            <div className='flex items-center justify-center w-full max-w-screen-xl mx-auto'>
                 {events.length === 0 ? (
-                    <p className="mt-8 italic text-gray-400">No events have been created yet.</p>
+                    <p className='mt-8 italic text-gray-400'>No events have been created yet.</p>
                 ) : (
-                    <div className="relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3">
-                        {events.map((event) => (
-                            <div key={event.id} className="relative">
+                    <div className='relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3'>
+                        {events.map(event => (
+                            <div key={event.id} className='relative'>
                                 <Link to={`/event/${event.id}`}>
                                     <EventCard event={event} />
                                 </Link>
                                 {isOwner && (
-                                    <div className="mt-2 flex gap-4 text-sm text-gray-600">
+                                    <div className='flex gap-3 mt-2 text-sm text-gray-600'>
                                         <button
                                             onClick={() => handleEditEvent(event)}
-                                            className="hover:underline text-blue-600"
+                                            className='flex items-center gap-2 px-3 py-1.5 text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
                                         >
+                                            <FaPencilAlt className='text-sm' />
                                             Edit
                                         </button>
                                         <button
                                             onClick={() => handleDeleteEvent(event.id)}
-                                            className="hover:underline text-red-600"
+                                            className='flex items-center gap-2 px-3 py-1.5 text-white bg-red-500 rounded-md cursor-pointer hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400'
                                         >
+                                            <FaTrash className='text-sm' />
                                             Delete
                                         </button>
                                     </div>
@@ -278,7 +325,6 @@ const Company = () => {
                 )}
             </div>
 
-            <ChatWindow />
 
             <EventModal
                 show={showModal}

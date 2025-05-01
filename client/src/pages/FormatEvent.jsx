@@ -4,7 +4,6 @@ import EventCard from '../components/EventCard';
 import Pagination from '../components/Pagination';
 import Subscribe from '../components/Subscribe';
 import { getEventsByFormat, getFormatById } from '../services/eventService';
-import ChatWindow from '../components/ChatWindow';
 
 const FormatEvents = () => {
 	const { id } = useParams();
@@ -64,7 +63,6 @@ const FormatEvents = () => {
 
 			<Subscribe />
 
-			<ChatWindow />
 		</main>
 	);
 };

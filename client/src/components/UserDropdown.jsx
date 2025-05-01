@@ -90,6 +90,18 @@ const UserDropdown = () => {
                 Account
               </a>
             </li>
+            {
+              userStore?.user?.isAdmin && (
+                <li>
+                  <a
+                    href="http://localhost:8000/admin"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Admin Panel
+                  </a>
+                </li>
+              )
+            }
             <li>
               <a
                 href='/account?section=tickets'
