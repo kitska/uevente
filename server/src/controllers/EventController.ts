@@ -180,7 +180,7 @@ export const EventController = {
 					<p>${event.description}</p>
 					${uploadedPosterUrl ? `<img src="${uploadedPosterUrl}" alt="Event poster" style="max-width: 100%;"/>` : ''}
 					<br/>
-					<p>Feel free to check out the <a href="https://localhost:3000/events/${event.id}">event page</a> for full details!</p>
+					<p>Feel free to check out the <a href="http://localhost:3000/event/${event.id}">event page</a> for full details!</p>
 					<hr/>
 					<small>You received this email because you're subscribed to this event.</small>
 				`;
