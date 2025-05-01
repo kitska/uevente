@@ -166,7 +166,7 @@ export const seedDatabase = async () => {
 		publishDate: null,
 		ticket_limit: faker.number.int({ min: 50, max: 500 }),
 		is_published: true,
-		poster: 'https://esportsinsider.com/wp-content/uploads/2025/01/the-international-2025-location-revealed.jpg',
+		poster: 'http://localhost:8000/avatars/image.png',
 		company: adminCompany,
 		formats: faker.helpers.arrayElements(formats, 2),
 		themes: faker.helpers.arrayElements(themes, 2),

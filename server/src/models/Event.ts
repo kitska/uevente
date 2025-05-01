@@ -52,8 +52,8 @@ export class Event extends BaseEntity {
   @Column({ default: false })
   receiveEmails: boolean;
 
-  // @Column({ nullable: true  })
-  // paymentSuccessUrl: string;
+  @Column({ nullable: true  })
+  paymentSuccessUrl: string;
 
   @ManyToMany(() => Format)
   @JoinTable({ name: "event_format" })

@@ -283,9 +283,8 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 											key={format.id}
 											type='button'
 											onClick={() => toggleFormat(format.id, format.title)}
-											className={`px-3 py-1 rounded-full border ${
-												selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-											}`}
+											className={`px-3 py-1 rounded-full border ${selected ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+												}`}
 										>
 											{format.title} {selected && '×'}
 										</button>
@@ -305,15 +304,26 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 											key={theme.id}
 											type='button'
 											onClick={() => toggleTheme(theme.id, theme.title)}
-											className={`px-3 py-1 rounded-full border ${
-												selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-											}`}
+											className={`px-3 py-1 rounded-full border ${selected ? 'bg-purple-500 text-white border-purple-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+												}`}
 										>
 											{theme.title} {selected && '×'}
 										</button>
 									);
 								})}
 							</div>
+						</div>
+
+						{/* redirect URL */}
+						<div className='flex flex-col space-y-2 md:col-span-2'>
+							<input
+								type='text'
+								name='redirectURL'
+								placeholder='Redirect URL after successful purchase...'
+								value={form.redirectURL}
+								onChange={onChange}
+								className='w-full p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+							/>
 						</div>
 
 						{/* Poster Input */}

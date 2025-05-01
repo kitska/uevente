@@ -7,7 +7,6 @@ import { Link, useSearchParams, useNavigate, href } from 'react-router-dom';
 import { eventStore } from '../store/eventStore';
 import Subscribe from '../components/Subscribe';
 import { observer } from 'mobx-react-lite';
-import ChatWindow from '../components/ChatWindow';
 import { userStore } from '../store/userStore';
 
 const Main = observer(() => {
@@ -108,7 +107,6 @@ const Main = observer(() => {
 
 				<Subscribe />
 
-				<ChatWindow />
 			</main>
 		</>
 	);

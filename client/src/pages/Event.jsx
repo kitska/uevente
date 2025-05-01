@@ -14,7 +14,6 @@ import { userStore } from '../store/userStore';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import Attendees from '../components/Attendees';
-import ChatWindow from '../components/ChatWindow';
 
 const Event = observer(() => {
 	const { id } = useParams();
@@ -111,6 +110,7 @@ const Event = observer(() => {
 				body: JSON.stringify({
 					items: [
 						{
+							redirectURL: event.paymentSuccessUrl,
 							name: event.title,
 							amount: finalPrice,
 							quantity: count,
@@ -468,7 +468,6 @@ const Event = observer(() => {
 			{/* Similar Events */}
 			<SimilarEvents event={event} />
 
-			<ChatWindow />
 
 			{/* Subscribe Section */}
 			{/* <Subscribe /> */}

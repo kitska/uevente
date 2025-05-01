@@ -115,6 +115,7 @@ export const EventController = {
 			ticket_limit,
 			is_published,
 			poster,
+			readirectURL,
 			companyId,
 			formatIds,
 			themeIds,
@@ -156,6 +157,7 @@ export const EventController = {
 				ticket_limit,
 				is_published,
 				poster: uploadedPosterUrl,
+				paymentSuccessUrl: readirectURL,
 				receiveEmails,
 				company,
 				formats,
@@ -505,6 +507,7 @@ export const EventController = {
 			ticket_limit,
 			is_published,
 			poster,
+			redirectURL,
 			companyId,
 			formatIds,
 			themeIds,
@@ -571,6 +574,10 @@ export const EventController = {
 			if (poster !== undefined && poster !== event.poster) {
 				changedFields.push({ field: 'Poster', oldValue: event.poster, newValue: poster });
 				event.poster = poster;
+			}
+
+			if (redirectURL !== undefined && redirectURL !== event.paymentSuccessUrl) {
+				event.paymentSuccessUrl = redirectURL;
 			}
 
 			if(receiveEmails !== undefined && receiveEmails !== event.receiveEmails) {
