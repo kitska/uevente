@@ -42,8 +42,6 @@ const ChatWindow = () => {
 
             const combinedString = objectsArray.map(item => item.response).join('');
 
-            console.log(combinedString);
-
             simulateTyping(combinedString);
         } catch (error) {
             console.error('Error sending message:', error);

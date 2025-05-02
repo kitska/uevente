@@ -62,7 +62,6 @@ const Main = observer(() => {
 
 	const handleFilterChange = (newFilters) => {
 		setFilters({ ...filters, ...newFilters });
-		console.log(filters)
 		setSearchParams(newFilters);  // Обновить URL с новыми фильтрами
 	};
 

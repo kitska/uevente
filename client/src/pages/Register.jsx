@@ -54,7 +54,6 @@ function Register() {
         setLoading(true);
 
         if (Object.keys(validationErrors).length === 0) {
-            console.log(Object.keys(validationErrors).length);
             if (form.password !== form.confirmPassword) {
                 setServerError("Passwords do not match");
                 setLoading(false);

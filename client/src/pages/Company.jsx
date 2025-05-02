@@ -21,6 +21,7 @@ const Company = () => {
     const [posterFile, setPosterFile] = useState(null);
     const [posterPreview, setPosterPreview] = useState(null);
     const [updating, setUpdating] = useState(false);
+    const [editPromo, setEditPromo] = useState(false);
 
     const [eventForm, setEventForm] = useState({
         id: '',
@@ -148,7 +149,7 @@ const Company = () => {
             if (description == '') return Swal.fire('Validation Error', 'Description cannot be empty', 'error');
             if (!price || isNaN(price) || Number(price) < 0) return Swal.fire('Validation Error', 'Price must be a valid non-negative number.', 'error');
             if (!date) return Swal.fire('Validation Error', 'Event date is not selected', 'error');
-            if (!stringIsAValidUrl(redirectURL)) return Swal.fire('Validation Error', 'Redirect URL is not valid', 'error');
+            if (redirectURL && !stringIsAValidUrl(redirectURL)) return Swal.fire('Validation Error', 'Redirect URL is not valid', 'error');
 
             let response;
             if (editingEvent) {
@@ -257,6 +258,28 @@ const Company = () => {
         }
     };
 
+    const handlePromoEvent = async (event) => {
+        setEditingEvent(event);
+        setEventForm({
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            price: event.price,
+            location: event.location,
+            date: event.date,
+            publishDate: event.publishDate,
+            visibility: event.allAttendeesVisible ? 'everyone' : 'attendees',
+            receiveEmails: event.receiveEmails,
+            ticket_limit: event.ticket_limit,
+            poster: event.poster || '',
+            redirectURL: event.paymentSuccessUrl || '',
+            formatIds: event.formats || [],
+            themeIds: event.themes || []
+        });
+        setUpdating(true);
+        setShowModal(true);
+        setEditPromo(true)
+    };
     if (loading) {
         return <div className="p-10 text-center text-gray-600">Loading company...</div>;
     }
@@ -295,33 +318,42 @@ const Company = () => {
                 {events.length === 0 ? (
                     <p className='mt-8 italic text-gray-400'>No events have been created yet.</p>
                 ) : (
-                    <div className='relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3'>
-                        {events.map(event => (
-                            <div key={event.id} className='relative'>
-                                <Link to={`/event/${event.id}`}>
-                                    <EventCard event={event} />
-                                </Link>
-                                {isOwner && (
-                                    <div className='flex gap-3 mt-2 text-sm text-gray-600'>
-                                        <button
-                                            onClick={() => handleEditEvent(event)}
-                                            className='flex items-center gap-2 px-3 py-1.5 text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
-                                        >
-                                            <FaPencilAlt className='text-sm' />
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteEvent(event.id)}
-                                            className='flex items-center gap-2 px-3 py-1.5 text-white bg-red-500 rounded-md cursor-pointer hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400'
-                                        >
-                                            <FaTrash className='text-sm' />
-                                            Delete
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+<div className='relative grid grid-cols-1 gap-6 mt-6 mb-6 sm:grid-cols-2 md:grid-cols-3'>
+    {events.map(event => (
+        <div key={event.id} className='relative group'>
+            <Link to={`/event/${event.id}`}>
+                <EventCard event={event} />
+            </Link>
+
+            {isOwner && (
+                <div className='absolute left-0 right-0 top-full mt-2 flex justify-center gap-2 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out pointer-events-none group-hover:pointer-events-auto z-20'>
+                    <button
+                        onClick={() => handleEditEvent(event)}
+                        className='flex items-center gap-2 px-3 py-1.5 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400'
+                    >
+                        <FaPencilAlt className='text-sm' />
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => handleDeleteEvent(event.id)}
+                        className='flex items-center gap-2 px-3 py-1.5 text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400'
+                    >
+                        <FaTrash className='text-sm' />
+                        Delete
+                    </button>
+                    <button
+                        onClick={() => handlePromoEvent(event)}
+                        className='flex items-center gap-2 px-3 py-1.5 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400'
+                    >
+                        <FaPlus className='text-sm' />
+                        Add promo
+                    </button>
+                </div>
+            )}
+        </div>
+    ))}
+</div>
+
                 )}
             </div>
 
@@ -333,12 +365,14 @@ const Company = () => {
                     setEditingEvent(null);
                     setPosterFile(null);
                     setPosterPreview(null);
+                    setEditPromo(false);
                 }}
                 onSubmit={handleCreateEvent}
                 form={eventForm}
                 onChange={handleInputChange}
                 setForm={setEventForm}
                 updating={updating}
+                promocodes={editPromo}
             />
         </div>
     );

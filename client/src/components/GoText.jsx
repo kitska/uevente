@@ -10,7 +10,7 @@ const morphText = (text) => {
   }));
 };
 
-const AnimatedLinkText = () => {
+const AnimatedText = () => {
   const [clicked, setClicked] = useState(false);
   const navigate = useNavigate();
   const clickTimer = useRef(null);
@@ -66,4 +66,4 @@ const AnimatedLinkText = () => {
   );
 };
 
-export default AnimatedLinkText;
+export default AnimatedText;

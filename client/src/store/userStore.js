@@ -236,7 +236,6 @@ class UserStore {
 	}
 
 	isEventSubscribed(id) {
-		console.log(id);
 		for (let sub of this.subscriptions) {
 			if (sub.event?.id === id || sub.company?.id === id) return true;
 		}

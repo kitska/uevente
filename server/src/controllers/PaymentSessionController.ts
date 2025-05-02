@@ -6,7 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 export const createCheckoutSession = async (req: Request, res: Response) => {
 	const { items, paymentId } = req.body;
 	try {
-		console.log(items);
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ['card'],
 			line_items: items.map((item: { name: string; amount: number; quantity: number; image?: string }) => ({

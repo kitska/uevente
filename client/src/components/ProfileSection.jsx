@@ -19,8 +19,6 @@ const ProfileSection = () => {
         isShowName: userStore?.user?.isShowName || false
     });
 
-    console.log(userStore?.user);
-
     const [notifications, setNotifications] = useState({
         push: userStore?.user?.pushNotifications,
         email: userStore?.user?.emailNotifications,
@@ -81,8 +79,6 @@ const ProfileSection = () => {
 
 
         if (!file) return;
-
-        console.log(file)
 
         const formData = new FormData();
         formData.append('avatar', file);

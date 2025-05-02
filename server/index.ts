@@ -11,15 +11,12 @@ import commentRoutes from './src/routes/comment.routes';
 import ticketRoutes from './src/routes/ticket.routes'
 import promocodeRoutes from './src/routes/promo.routes'
 import subscriptionRoutes from './src/routes/subscription.routes'
-// import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
 import paymentRoutes from './src/routes/payment.routes'
-// import adminRouter from './src/utils/admin'
 import { createAdminRouter } from './src/utils/admin';
 import cors from 'cors';
 import path from 'path';
 import './src/utils/notificationScheduler';
-import { getAllEventsFromDB } from './src/utils/modelBuilder'
 
 export const app = express();
 const PORT = process.env.PORT;
@@ -27,7 +24,6 @@ const PORT = process.env.PORT;
 const allowedOrigins = [
 	'http://localhost:3000',
 	'http://localhost:8000',
-	// `http://${IP}:3000`,
 ];
 
 const corsOptions = {
@@ -44,7 +40,6 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-// Connect routes
 app.use('/api/users', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/events', eventRoutes);
@@ -55,32 +50,15 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/promocodes', promocodeRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
-// app.use('/api/calendars', calendarRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/avatars', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', callBackRoutes);
 
-// Create the database if it doesn't exist, then initialize the data source and start the server
 createUserAndDatabase()
 	.then(() => {
 		AppDataSource.initialize()
 			.then(async () => {
-
-				// await checkAndRunKostilSQL();
-
-				// console.log('Data Source has been initialized!');
-				//await createAdmin();
-
-
-				// await localEventsBackup();
-
 				await seedDatabase();
-
-				// await getAllEventsFromDB();
-
-
-				// createLocalEventDump();
-				// restoreLocalEventDump();
 				const adminRouter = await createAdminRouter();
 				app.use('/admin', adminRouter);
 

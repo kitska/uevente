@@ -6,7 +6,7 @@ import ThemeToggleButton from './ThemeToggleButton';
 import SearchBar from './SearchBar';
 import UserDropdown from './UserDropdown';
 import { userStore } from '../store/userStore';
-import AnimatedText from './AnimatedText';
+import AnimatedText from './GoText';
 
 const Header = () => {
 	const handleSearch = (query) => {
