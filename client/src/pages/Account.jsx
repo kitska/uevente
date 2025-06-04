@@ -37,7 +37,7 @@ const Account = () => {
 						<h2 className='text-xl font-bold text-gray-800'>Login Settings</h2>
 						<div className='space-y-2'>
 							<button className='w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600'>Reset Password</button>
-							<button className='w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600'>Enable Passkeys</button>
+							{/* <button className='w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600'>Enable Passkeys</button> */}
 							<button className='w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600'>Delete Account</button>
 						</div>
 					</div>

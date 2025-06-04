@@ -149,7 +149,6 @@ const EventModal = ({ show, onClose, onSubmit, form, onChange, setForm, updating
 
 		return `${year}-${month}-${day}T${hours}:${minutes}`;
 	}
-	console.log(promocodes);
 	return (
 		<div className='fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30'>
 			<div className={`bg-white rounded-lg p-8 ${promocodes || 'w-full'} max-w-6xl shadow-lg overflow-y-auto max-h-[80vh] flex gap-8`}>
