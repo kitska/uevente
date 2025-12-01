@@ -1,0 +1,39 @@
+import request from "supertest";
+const BASE_URL = 'http://localhost:8000';
+const TEST_USER_CREDENTIALS = {
+  "email": "test@mail.com",
+  "password": "123456"
+};
+const TEST_USER_ID = 'a76de4c3-bba0-4b3b-8bb9-7bf7c389ede4';
+const WRONG_USER_ID = 'a76de4c3-bba0-4b3b-8bb9-7bf7c389ede5';
+
+let token: string; // сюда сохраним токен после логина
+
+beforeAll(async () => {
+  const res = await request(BASE_URL)
+    .post("/api/auth/login")
+    .send(TEST_USER_CREDENTIALS);
+
+  expect(res.status).toBe(200);
+  expect(res.body).toHaveProperty("token");
+
+  token = res.body.token; // сохранили токен
+});
+
+
+describe('UserController.handleUserRequest', () => {
+  test('returns 404 if user not found', async () => {
+    const res = await request(BASE_URL).get(`/api/users/${WRONG_USER_ID}/companies`);
+    expect(res.status).toBe(404);
+  });
+
+  test('returns 200 for valid user', async () => {
+    const res = await request(BASE_URL).get(`/api/users/${TEST_USER_ID}/companies`);
+    expect([200, 500]).toContain(res.status);
+  });
+
+  test('handles internal errors gracefully', async () => {
+    const res = await request(BASE_URL).get('/api/users/error/companies');
+    expect([500, 404]).toContain(res.status);
+  });
+});

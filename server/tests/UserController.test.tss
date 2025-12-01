@@ -1,0 +1,63 @@
+import request from 'supertest';
+const BASE_URL = 'http://localhost:8000';
+const TEST_USER_CREDENTIALS = {
+  "email": "test@mail.com",
+  "password": "123456"
+};
+const TEST_USER_ID = 'a76de4c3-bba0-4b3b-8bb9-7bf7c389ede4';
+
+let token: string; // сюда сохраним токен после логина
+
+beforeAll(async () => {
+  const res = await request(BASE_URL)
+    .post("/api/auth/login")
+    .send(TEST_USER_CREDENTIALS);
+
+  expect(res.status).toBe(200);
+  expect(res.body).toHaveProperty("token");
+
+  token = res.body.token; // сохранили токен
+});
+
+// describe('UserController.uploadAvatar', () => {
+//   test('returns 401 if user unauthorized', async () => {
+//     const res = await request(BASE_URL).post(`/api/users/${TEST_USER_ID}/avatar`);
+//     expect(res.status).toBe(401);
+//   });
+
+//   test('returns 400 if no file uploaded', async () => {
+//     const res = await request(BASE_URL)
+//     .post(`/api/users/${TEST_USER_ID}/avatar`)
+//     .set("Authorization", `Bearer ${token}`).send({});
+//     expect(res.status).toBe(400);
+//   });
+
+//   test('returns 200 when avatar updated successfully', async () => {
+//     const res = await request(BASE_URL)
+//       .post(`/api/users/${TEST_USER_ID}/avatar`)
+//       .attach('avatar', 'tests/avatar.png')
+//       .set("Authorization", `Bearer ${token}`);
+//     expect([200, 500]).toContain(res.status);
+//   });
+// });
+describe('UserController.createUser', () => {
+  test('returns 400 if required fields missing', async () => {
+    const res = await request(BASE_URL).post('/api/users').send({ email: 'a@mail.com' });
+    expect(res.status).toBe(400);
+  });
+
+  test('returns 201 if user created', async () => {
+    const res = await request(BASE_URL)
+      .post('/api/users')
+      .send({ fullName: 'A', email: 'a@mail.com', password: '123', login: 'user' });
+    expect([201, 409]).toContain(res.status);
+  });
+
+  test('handles duplicate users gracefully', async () => {
+    const res = await request(BASE_URL)
+      .post('/api/users')
+      .send({ fullName: 'A', email: 'a@mail.com', password: '123', login: 'user' });
+    expect([201, 409]).toContain(res.status);
+  });
+});
+

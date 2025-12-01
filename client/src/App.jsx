@@ -75,7 +75,7 @@ function AppContent() {
                     return;
                 }
                 userStore.setUser(currentUser);
-
+                console.log(currentUser);
                 const subs = await getSubscribedEvents(currentUser.id);
                 userStore.setSubscriptions(subs);
 

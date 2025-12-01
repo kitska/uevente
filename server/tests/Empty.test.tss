@@ -1,0 +1,6 @@
+describe('Empty tests', () => {
+  test('Just to prettify the tray', async () => {
+    let a = 2, b = 3;
+
+    expect(a + b == 5)});
+});

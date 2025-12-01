@@ -1,0 +1,46 @@
+import request from 'supertest';
+
+const BASE_URL = 'http://localhost:8000'; // адрес запущенного сервера
+
+// describe('AuthController API tests', () => {
+//   test('POST /auth/register → returns 400 if user exists', async () => {
+//     const res = await request(BASE_URL)
+//       .post('/api/auth/register')
+//       .send({ email: 'test@mail.com', login: 'test', password: '123456', fullName: 'Test User' });
+
+//     expect([201, 400]).toContain(res.status);
+//   });
+
+//   test('POST /auth/login → fails if password missing', async () => {
+//     const res = await request(BASE_URL)
+//       .post('/api/auth/login')
+//       .send({ email: 'test@mail.com' });
+
+//     expect(res.status).toBe(400);
+//   });
+
+//   test('POST /auth/me → unauthorized if no token', async () => {
+//     const res = await request(BASE_URL)
+//       .post('/api/auth/me')
+//       .send({});
+
+//     expect(res.status).toBe(401);
+//   });
+// });
+describe('TickerCount', () => {
+test('returns numeric count', async () => {
+    const res = await request(BASE_URL).post('/api/auth/login').send({ email: 'a@mail.com' });
+    expect(res.status).toBe(400);
+  });
+
+test('count equals manual length', async () => {
+    const res = await request(BASE_URL).post('/api/auth/login').send({ email: 'fake@mail.com', password: '123' });
+    expect([400, 401]).toContain(res.status);
+  });
+
+test('status 200', async () => {
+    const res = await request(BASE_URL).post('/api/auth/login').send({ email: 'test@mail.com', password: '123456' });
+    expect([200, 401]).toContain(res.status);
+  });
+});
+

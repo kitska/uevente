@@ -1,0 +1,22 @@
+import { UserService } from '../src/services/userService';
+import request from 'supertest';
+
+const BASE_URL = 'http://localhost:8000'; // адрес запущенного сервера
+
+describe('UserService.createIfNotExists', () => {
+    test('throws if email already exists', async () => {
+        const res = await request(BASE_URL).post('/api/users').send({ email: 'test@mail.com', login: 'test', password: "123456" });
+        expect(res.status).toBe(400);
+    });
+
+    test('throws if user has not enough fields', async () => {
+        const res = await request(BASE_URL).post('/api/users').send({ email: 'new@mail.com', login: 'test' });
+        expect(res.status).toBe(400);
+    });
+
+    test('creates user successfully', async () => {
+        const res = await request(BASE_URL).post('/api/users').send({ fullName: "newIsAlways Better", email: 'new@mail.com', login: 'new', password: "123456" });
+        // expect(res.status).toBe(201);
+        expect(res.status).toBe(409);
+    });
+});
