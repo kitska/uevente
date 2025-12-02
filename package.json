@@ -25,5 +25,8 @@
 	"bugs": {
 		"url": "https://github.com/kitska/uevente/issues"
 	},
-	"homepage": "https://github.com/kitska/uevente#readme"
+	"homepage": "https://github.com/kitska/uevente#readme",
+	"dependencies": {
+		"html2canvas-pro": "^1.5.13"
+	}
 }
