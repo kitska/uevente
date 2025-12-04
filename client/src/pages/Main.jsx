@@ -18,6 +18,7 @@ const Main = observer(() => {
 
 	// Filters from search params or state
 	const filtersFromParams = {
+		title: searchParams.get('title') || '',
 		minPrice: searchParams.get('minPrice') || '',
 		maxPrice: searchParams.get('maxPrice') || '',
 		startDate: searchParams.get('startDate') || '',
@@ -62,7 +63,8 @@ const Main = observer(() => {
 
 	const handleFilterChange = (newFilters) => {
 		setFilters({ ...filters, ...newFilters });
-		setSearchParams(newFilters);  // Обновить URL с новыми фильтрами
+		// setSearchParams(newFilters);  // Обновить URL с новыми фильтрами
+		setSearchParams({ ...filters, ...newFilters });
 	};
 
 	return (

@@ -182,6 +182,14 @@ const EventFilters = ({ filters, onChange, onClearAll, themes = [], formats = []
 
             {/* Selected Filters (Chips) */}
             <div className="flex flex-wrap gap-4 items-center">
+                <input
+                    type="text"
+                    placeholder="Search by title..."
+                    className="border px-3 py-2 rounded w-full"
+                    value={filters.title || ''}
+                    onChange={(e) => onChange({ ...filters, title: e.target.value })}
+                    onFocus={() => setOpenFilter(null)} // Close dropdowns
+                />
                 {filters.themes?.map((theme) => (
                     <FilterChip
                         key={theme}

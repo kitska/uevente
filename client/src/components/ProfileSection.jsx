@@ -4,10 +4,12 @@ import { api } from '../services';
 import { FaPlusCircle } from 'react-icons/fa';
 import CompanySection from './CompanySection';
 import { savePushSubscription } from '../services/userService'
+import OrganiserRequestForm from './OrganiserRequestForm'
 import Swal from 'sweetalert2';
 
 const ProfileSection = () => {
     const fileInputRef = useRef(null);
+    const [showForm, setShowForm] = useState(false);
 
     const [user, setUser] = useState({
         id: userStore?.user?.id || 0,
@@ -16,7 +18,9 @@ const ProfileSection = () => {
         fullName: userStore?.user?.fullName || '',
         profilePicture: userStore?.user?.profilePicture || '',
         phone: userStore?.user?.phone || '',
-        isShowName: userStore?.user?.isShowName || false
+        isShowName: userStore?.user?.isShowName || false,
+        isVerified: userStore?.user?.isVerified || false,
+        isAdmin: userStore?.user?.isAdmin || false
     });
 
     const [notifications, setNotifications] = useState({
@@ -277,35 +281,35 @@ const ProfileSection = () => {
         fileInputRef.current.click();
     };
     const renderProfilePicture = () => (
-		<div className='flex justify-between'>
-			<div className='flex items-center space-x-6'>
-				<div className='w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-bl from-[#0800A7] to-[#EC7EEA] p-[5px] cursor-pointer' onClick={handleBorderClick}>
-					<div
-						className='flex items-center justify-center w-full h-full overflow-hidden bg-white rounded-full'
-						onClick={e => {
-							e.stopPropagation();
-							handleAvatarClick();
-						}}
-					>
-						<img src={user.profilePicture} alt='Avatar' className='object-cover w-full h-full rounded-full' />
-						<input
-							type='file'
-							onChange={handleImageChange}
-							className='hidden'
-							accept='image/jpeg,image/png,image/gif,image/webp'
-							ref={fileInputRef}
-						/>
-					</div>
-				</div>
-				<button
-					className='px-4 py-1 text-sm font-medium text-white transition-all bg-gray-700 bg-opacity-50 rounded-md hover:bg-opacity-70 hover:scale-105'
-					onClick={handleAvatarClick}
-				>
-					Click to change
-				</button>
-			</div>
-			<div className='flex flex-col justify-center'>{renderNotifications()}</div>
-			{/* <div className="flex space-y-2">
+        <div className='flex justify-between'>
+            <div className='flex items-center space-x-6'>
+                <div className='w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-bl from-[#0800A7] to-[#EC7EEA] p-[5px] cursor-pointer' onClick={handleBorderClick}>
+                    <div
+                        className='flex items-center justify-center w-full h-full overflow-hidden bg-white rounded-full'
+                        onClick={e => {
+                            e.stopPropagation();
+                            handleAvatarClick();
+                        }}
+                    >
+                        <img src={user.profilePicture} alt='Avatar' className='object-cover w-full h-full rounded-full' />
+                        <input
+                            type='file'
+                            onChange={handleImageChange}
+                            className='hidden'
+                            accept='image/jpeg,image/png,image/gif,image/webp'
+                            ref={fileInputRef}
+                        />
+                    </div>
+                </div>
+                <button
+                    className='px-4 py-1 text-sm font-medium text-white transition-all bg-gray-700 bg-opacity-50 rounded-md hover:bg-opacity-70 hover:scale-105'
+                    onClick={handleAvatarClick}
+                >
+                    Click to change
+                </button>
+            </div>
+            <div className='flex flex-col justify-center'>{renderNotifications()}</div>
+            {/* <div className="flex space-y-2">
                 <label className="flex items-center space-x-2">
                     <input
                         type="checkbox"
@@ -331,8 +335,8 @@ const ProfileSection = () => {
                     <span>SMS</span>
                 </label>
             </div> */}
-		</div>
-	);
+        </div>
+    );
 
     const renderUserInfoCard = () => (
         <div className="p-6 space-y-6 text-black bg-white rounded-md shadow-md">
@@ -352,7 +356,22 @@ const ProfileSection = () => {
                     <label htmlFor="showName" className="text-gray-700">Show name on Events</label>
                 </div>
             </div>
-        </div>
+            {(user.isVerified || user.isAdmin) ? (
+                <div className="absolute top-6 right-6">
+                    <div className="bg-green-500 text-white text-xs font-bold px-4 py-1 shadow-lg rounded-bl-md rounded-tr-md">
+                        Organiser
+                    </div>
+                </div>
+            ) : (<div className="absolute top-5.5 right-6">
+                <button
+                    onClick={() => setShowForm(true)}  // ← открываем форму
+                    className="bg-gray-500 text-white text-xs font-bold px-4 py-1 shadow-lg rounded-bl-md rounded-tr-md hover:bg-gray-400 transition-colors"
+                >
+                    Request organising role
+                </button>
+            </div>)
+            }
+        </div >
     );
 
     return (
@@ -360,6 +379,7 @@ const ProfileSection = () => {
             {renderUserInfoCard()}
 
             <CompanySection userId={userStore?.user?.id} />
+            {showForm && <OrganiserRequestForm onClose={() => setShowForm(false)} />}
         </div>
     );
 };

@@ -3,6 +3,7 @@ import { FaPlusCircle, FaBuilding, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services';
 import Swal from 'sweetalert2';
+import { userStore } from '../store/userStore';
 
 const CompanySection = ({ userId }) => {
     const [companies, setCompanies] = useState([]);
@@ -79,7 +80,18 @@ const CompanySection = ({ userId }) => {
                 <h3 className="text-2xl font-semibold text-gray-800">Your Companies</h3>
 
                 <button
-                    onClick={() => setShowModal(true)}
+                    onClick={() => {
+                        if (userStore.user.isVerified || userStore.user.isAdmin) {
+                            setShowModal(true);
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Access Denied",
+                                text: "You need to be a verified user or an admin to create a company.",
+                                confirmButtonColor: "#d33",
+                            });
+                        }
+                    }}
                     className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:opacity-90 transition"
                 >
                     <FaPlusCircle size={20} />
